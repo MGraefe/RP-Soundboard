@@ -58,8 +58,10 @@ const char * ConfigModel::getFileName( int itemId )
 //---------------------------------------------------------------
 void ConfigModel::setFileName( int itemId, const char *fn )
 {
-	if(itemId >= 0 && itemId < m_fns.size())
+	if(itemId >= 0)
 	{
+		if(itemId < 1000 && itemId >= m_fns.size())
+			m_fns.resize(itemId + 1);
 		m_fns[itemId] = fn;
 		sb_saveConfig();
 	}

@@ -16,16 +16,17 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 {
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
-
-	m_gridLayoutWidget = new QWidget(this);
+	
+	m_gridLayoutWidget = new QWidget();
 	m_gridLayoutWidget->setObjectName(QStringLiteral("gridLayoutWidget"));
 	m_gridLayoutWidget->setGeometry(QRect(10, 10, 531, 281));
 	m_gridLayout = new QGridLayout(m_gridLayoutWidget);
 	m_gridLayout->setObjectName(QStringLiteral("gridLayout"));
 	m_gridLayout->setContentsMargins(0, 0, 0, 0);
+	ui->verticalLayout->addWidget(m_gridLayoutWidget);
 
-	int numRows = 2;
-	int numCols = 5;
+	int numRows = 4;
+	int numCols = 6;
 
 	for(int i = 0; i < numRows; i++)
 	{

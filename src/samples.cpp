@@ -152,6 +152,7 @@ void Sampler::playFile(const char *filename)
 
 	if(m_inputFile)
 	{
+		m_sampleProducerThread.setSource(NULL);
 		m_inputFile->close();
 		delete m_inputFile;
 	}
