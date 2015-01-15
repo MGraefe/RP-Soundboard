@@ -5,6 +5,7 @@
 
 #include "config_qt.h"
 #include "ConfigModel.h"
+#include "device.h"
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -16,49 +17,16 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 {
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
+
+	createButtons();
 	
-	m_gridLayoutWidget = new QWidget();
-	m_gridLayoutWidget->setObjectName(QStringLiteral("gridLayoutWidget"));
-	m_gridLayoutWidget->setGeometry(QRect(10, 10, 531, 281));
-	m_gridLayout = new QGridLayout(m_gridLayoutWidget);
-	m_gridLayout->setObjectName(QStringLiteral("gridLayout"));
-	m_gridLayout->setContentsMargins(0, 0, 0, 0);
-	ui->verticalLayout->addWidget(m_gridLayoutWidget);
+	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));
+	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
+	connect(ui->cb_playback_locally, SIGNAL(valueChanged(int)), this, SLOT(onUpdatePlaybackLocal(int)));
 
-	int numRows = 4;
-	int numCols = 6;
-
-	for(int i = 0; i < numRows; i++)
-	{
-		for(int j = 0; j < numCols; j++)
-		{
-			button_element_t elem;
-
-			elem.layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
-			elem.layout->setSpacing(0);
-			m_gridLayout->addLayout(elem.layout, i, j);
-
-			elem.play = new QPushButton(m_gridLayoutWidget);
-			elem.play->setText(QString("Play ") + QString::number(i*numCols+j+1));
-			elem.play->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-			elem.layout->addWidget(elem.play);
-			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
-
-			elem.subLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight);
-			elem.layout->addLayout(elem.subLayout);
-
-			elem.choose = new QPushButton(m_gridLayoutWidget);
-			elem.choose->setText("...");
-			elem.subLayout->addWidget(elem.choose);
-			connect(elem.choose, SIGNAL(released()), this, SLOT(onClickedChoose()));
-
-			elem.play->updateGeometry();
-			elem.choose->updateGeometry();
-			
-			m_buttons.push_back(elem);
-		}
-	}
-
+	ui->sl_volume->setValue(m_model->getVolume());
+	ui->cb_playback_locally->setChecked(m_model->getPlaybackLocal() == 1);
+	
 	onUpdateModel();
 }
 
@@ -114,6 +82,105 @@ void ConfigQt::onUpdateModel()
 		{
 			QFileInfo info = QFileInfo(QString(fn));
 			m_buttons[i].play->setText(info.baseName());
+		}
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onClickedStop()
+{
+	sb_stopPlayback();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdateVolume(int val)
+{
+	sb_setVolume(val);
+	m_model->setVolume(val);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdatePlaybackLocal( int val )
+{
+	sb_setLocalPlayback(val);
+	m_model->setPlaybackLocal(val);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdateCols( int val )
+{
+	m_model->setRows(val);
+	createButtons();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdateRows( int val )
+{
+	m_model->setCols(val);
+	createButtons();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::createButtons()
+{
+	for(button_element_t &elem : m_buttons)
+	{
+		delete elem.choose;
+		delete elem.subLayout;
+		delete elem.play;
+		delete elem.layout;
+	}
+	
+	m_buttons.clear();
+
+	int numRows = m_model->getRows();
+	int numCols = m_model->getCols();
+
+	for(int i = 0; i < numRows; i++)
+	{
+		for(int j = 0; j < numCols; j++)
+		{
+			button_element_t elem;
+			elem.layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
+			elem.layout->setSpacing(0);
+			ui->gridLayout->addLayout(elem.layout, i, j);
+
+			elem.play = new QPushButton(this);
+			elem.play->setText(QString("Play ") + QString::number(i*numCols+j+1));
+			elem.play->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			elem.layout->addWidget(elem.play);
+			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
+
+			elem.subLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight);
+			elem.layout->addLayout(elem.subLayout);
+
+			elem.choose = new QPushButton(this);
+			elem.choose->setText("...");
+			elem.subLayout->addWidget(elem.choose);
+			connect(elem.choose, SIGNAL(released()), this, SLOT(onClickedChoose()));
+
+			elem.play->updateGeometry();
+			elem.choose->updateGeometry();
+
+			m_buttons.push_back(elem);
 		}
 	}
 }

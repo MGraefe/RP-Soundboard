@@ -55,7 +55,7 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
 
 #define PLUGIN_NAME "RP Soundboard"
 #define PLUGIN_VERSION "0.1"
-#define PLUGIN_AUTHOR "Marius Gräfe"
+#define PLUGIN_AUTHOR ("Marius Gr\xC3\xA4" "fe")
 #define PLUGIN_DESCRIPTION "Easy to use Soundboard"
 
 /* Unique name identifying this plugin */

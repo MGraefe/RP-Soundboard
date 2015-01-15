@@ -20,15 +20,21 @@ class ConfigQt : public QDialog
 
 public:
 	explicit ConfigQt(ConfigModel *model, QWidget *parent = 0);
+
 	~ConfigQt();
 
 private slots:
 	void onClickedPlay();
 	void onClickedChoose();
+	void onClickedStop();
+	void onUpdateVolume(int val);
+	void onUpdatePlaybackLocal(int val);
+	void onUpdateCols(int val);
+	void onUpdateRows(int val);
 
 private:
 	void onUpdateModel();
-
+	void createButtons();
 
 	// layout
 	//   | play
@@ -43,10 +49,9 @@ private:
 	};
 
 	Ui::ConfigQt *ui;
-	QWidget *m_gridLayoutWidget;
-	QGridLayout *m_gridLayout;
 	std::vector<button_element_t> m_buttons;
 	ConfigModel *m_model;
+	QBoxLayout *m_configArea;
 };
 
 #endif // config_qt_H__

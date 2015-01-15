@@ -150,12 +150,7 @@ void Sampler::playFile(const char *filename)
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
-	if(m_inputFile)
-	{
-		m_sampleProducerThread.setSource(NULL);
-		m_inputFile->close();
-		delete m_inputFile;
-	}
+	stopPlayback();
 
 	m_inputFile = CreateInputFileFFmpeg();
 	if(m_inputFile->open(filename) != 0)
@@ -174,6 +169,38 @@ void Sampler::playFile(const char *filename)
 }
 
 
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::stopPlayback()
+{
+	if(m_inputFile)
+	{
+		m_playing = false;
+		m_sampleProducerThread.setSource(NULL);
+		m_inputFile->close();
+		delete m_inputFile;
+		m_inputFile = NULL;
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::setVolume( int vol )
+{
+
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::setLocalPlayback( bool enabled )
+{
+	m_localPlayback = enabled;
+}
 
 
 //---------------------------------------------------------------
@@ -181,6 +208,6 @@ void Sampler::playFile(const char *filename)
 //---------------------------------------------------------------
 void Sampler::OnBufferProduceCB::onProduceSamples( const short *samples, int count, SampleBuffer *caller )
 {
-	//if(parent.m_sbPlayback.avail() < 48000*2)
-	parent.m_sbPlayback.produce(samples, count);
+	if(parent.m_localPlayback)
+		parent.m_sbPlayback.produce(samples, count);
 }

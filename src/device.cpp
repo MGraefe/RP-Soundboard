@@ -126,12 +126,6 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 }
 
 
-inline static UINT ToMagic( const char *pStr )
-{
-	return ((pStr[3]<<24) + (pStr[2]<<16) + (pStr[1]<<8) + pStr[0]);
-}
-
-
 CAPI int sb_playFile(const char *filename)
 {
 	sampler.playFile(filename);
@@ -145,6 +139,8 @@ CAPI void sb_init()
 	InitFFmpegLibrary();
 	sb_readConfig();
 	sampler.init();
+	sampler.setLocalPlayback(configModel.getPlaybackLocal() == 1);
+	sampler.setVolume(configModel.getVolume());
 }
 
 
@@ -185,4 +181,22 @@ CAPI void sb_openDialog()
 	configDialog->show();
 }
 
+
+CAPI void sb_stopPlayback()
+{
+	sampler.stopPlayback();
+	setVoiceActivation(activeServerId);
+}
+
+
+CAPI void sb_setVolume(int vol)
+{
+	sampler.setVolume(vol);
+}
+
+
+CAPI void sb_setLocalPlayback( int enabled )
+{
+	sampler.setLocalPlayback(enabled == 1);
+}
 

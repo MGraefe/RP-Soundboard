@@ -12,6 +12,8 @@ ConfigModel::ConfigModel()
 {
 	m_rows = 4;
 	m_cols = 6;
+	m_volume = 50;
+	m_playbackLocal = 1;
 }
 
 
@@ -34,6 +36,8 @@ void ConfigModel::readConfig()
 
 	m_rows = settings.value("num_rows", 4).toInt();
 	m_cols = settings.value("num_cols", 6).toInt();
+	m_volume = settings.value("volume", 50).toInt();
+	m_playbackLocal = settings.value("playback_local", 1).toInt();
 }
 
 
@@ -55,6 +59,8 @@ void ConfigModel::writeConfig()
 
 	settings.setValue("num_rows", m_rows);
 	settings.setValue("num_cols", m_cols);
+	settings.setValue("volume", m_volume);
+	settings.setValue("playback_local", m_playbackLocal);
 }
 
 
@@ -114,5 +120,45 @@ QString ConfigModel::GetFullConfigPath()
 	QString fullPath = GetConfigPath();
 	fullPath.append("rp_soundboard.ini");
 	return fullPath;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setRows( int n )
+{
+	m_rows = n;
+	writeConfig();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setCols( int n )
+{
+	m_cols = n;
+	writeConfig();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setVolume( int val )
+{
+	m_volume = val;
+	writeConfig();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setPlaybackLocal( int val )
+{
+	m_playbackLocal = val;
+	writeConfig();
 }
 

@@ -18,6 +18,9 @@ public:
 	int fetchInputSamples(short *samples, int count, int channels, bool *finished);
 	int fetchOutputSamples(short *samples, int count, int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask);
 	void playFile(const char *filename);
+	void stopPlayback();
+	void setVolume(int vol);
+	void setLocalPlayback(bool enabled);
 
 private:
 	int fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
@@ -42,6 +45,7 @@ private:
 	OnBufferProduceCB m_onBufferProduceCB;
 
 	bool m_playing;
+	bool m_localPlayback;
 	InputFile *m_inputFile;
 	
 	std::mutex m_mutex;

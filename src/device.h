@@ -8,6 +8,9 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 CAPI void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
 	int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask);
 CAPI int sb_playFile(const char *filename);
+CAPI void sb_stopPlayback();
+CAPI void sb_setVolume(int vol);
+CAPI void sb_setLocalPlayback(int enabled);
 CAPI void sb_init();
 CAPI void sb_kill();
 CAPI void sb_onServerChange(uint64 serverID);
