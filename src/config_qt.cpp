@@ -32,21 +32,30 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	{
 		for(int j = 0; j < numCols; j++)
 		{
-			QPushButton *playButton = new QPushButton(m_gridLayoutWidget);
-			playButton->setText(QString("Play ") + QString::number(i*numCols+j+1));
-			playButton->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-			m_gridLayout->addWidget(playButton, i * 2, j);
-			connect(playButton, SIGNAL(released()), this, SLOT(onClickedPlay()));
-			m_playButtons.push_back(playButton);
+			button_element_t elem;
 
-			QPushButton *chooseButton = new QPushButton(m_gridLayoutWidget);
-			chooseButton->setText("...");
-			m_gridLayout->addWidget(chooseButton, i * 2 + 1, j);
-			connect(chooseButton, SIGNAL(released()), this, SLOT(onClickedChoose()));
-			m_chooseButtons.push_back(chooseButton);
+			elem.layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
+			elem.layout->setSpacing(0);
+			m_gridLayout->addLayout(elem.layout, i, j);
 
-			playButton->updateGeometry();
-			chooseButton->updateGeometry();
+			elem.play = new QPushButton(m_gridLayoutWidget);
+			elem.play->setText(QString("Play ") + QString::number(i*numCols+j+1));
+			elem.play->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			elem.layout->addWidget(elem.play);
+			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
+
+			elem.subLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight);
+			elem.layout->addLayout(elem.subLayout);
+
+			elem.choose = new QPushButton(m_gridLayoutWidget);
+			elem.choose->setText("...");
+			elem.subLayout->addWidget(elem.choose);
+			connect(elem.choose, SIGNAL(released()), this, SLOT(onClickedChoose()));
+
+			elem.play->updateGeometry();
+			elem.choose->updateGeometry();
+			
+			m_buttons.push_back(elem);
 		}
 	}
 
@@ -69,7 +78,7 @@ ConfigQt::~ConfigQt()
 void ConfigQt::onClickedPlay()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find(m_playButtons.begin(), m_playButtons.end(), button) - m_playButtons.begin();
+	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
 	m_model->playFile(buttonId);
 }
 
@@ -80,7 +89,7 @@ void ConfigQt::onClickedPlay()
 void ConfigQt::onClickedChoose()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find(m_chooseButtons.begin(), m_chooseButtons.end(), button) - m_chooseButtons.begin();
+	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.choose == button;}) - m_buttons.begin();
 
 	QString filePath = m_model->getFileName(buttonId);
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
@@ -98,13 +107,13 @@ void ConfigQt::onClickedChoose()
 //---------------------------------------------------------------
 void ConfigQt::onUpdateModel()
 {
-	for(int i = 0; i < m_playButtons.size(); i++)
+	for(int i = 0; i < m_buttons.size(); i++)
 	{
 		const char *fn = m_model->getFileName(i);
 		if(fn)
 		{
 			QFileInfo info = QFileInfo(QString(fn));
-			m_playButtons[i]->setText(info.baseName());
+			m_buttons[i].play->setText(info.baseName());
 		}
 	}
 }

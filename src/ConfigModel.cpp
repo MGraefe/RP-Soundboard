@@ -8,37 +8,53 @@
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::readConfig(QSettings *settings)
+ConfigModel::ConfigModel()
 {
-	int numFiles = settings->value("num_files", 10).toInt();
-	m_fns.resize(numFiles);
-
-	int size = settings->beginReadArray("files");
-	for(int i = 0; i < size && i < numFiles; i++)
-	{
-		settings->setArrayIndex(i);
-		QByteArray ba = settings->value("path").toString().toLocal8Bit();
-		m_fns[i] = ba.data();
-	}
-	settings->endArray();
+	m_rows = 4;
+	m_cols = 6;
 }
 
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::writeConfig(QSettings *settings)
+void ConfigModel::readConfig()
 {
-	settings->setValue("num_files", m_fns.size());
+	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
 
-	settings->beginWriteArray("files");
+	int size = settings.beginReadArray("files");
+	m_fns.resize(size);
+	for(int i = 0; i < size; i++)
+	{
+		settings.setArrayIndex(i);
+		QByteArray ba = settings.value("path").toString().toLocal8Bit();
+		m_fns[i] = ba.data();
+	}
+	settings.endArray();
+
+	m_rows = settings.value("num_rows", 4).toInt();
+	m_cols = settings.value("num_cols", 6).toInt();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::writeConfig()
+{
+	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
+
+	settings.beginWriteArray("files");
 	for(int i = 0; i < m_fns.size(); i++)
 	{
-		settings->setArrayIndex(i);
+		settings.setArrayIndex(i);
 		QString value = m_fns[i].c_str();
-		settings->setValue("path", value);
+		settings.setValue("path", value);
 	}
-	settings->endArray();
+	settings.endArray();
+
+	settings.setValue("num_rows", m_rows);
+	settings.setValue("num_cols", m_cols);
 }
 
 
@@ -76,3 +92,27 @@ void ConfigModel::playFile( int itemId )
 	if(itemId >= 0 && itemId < m_fns.size())
 		sb_playFile(m_fns[itemId].c_str());
 }
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+QString ConfigModel::GetConfigPath()
+{
+	// Find config path for config class
+	char* configPath = (char*)malloc(PATH_BUFSIZE);
+	ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
+	return configPath;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+QString ConfigModel::GetFullConfigPath()
+{
+	QString fullPath = GetConfigPath();
+	fullPath.append("rp_soundboard.ini");
+	return fullPath;
+}
+

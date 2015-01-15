@@ -5,6 +5,7 @@
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QBoxLayout>
 #include "ui_config_qt.h"
 
 class ConfigModel;
@@ -28,11 +29,23 @@ private slots:
 private:
 	void onUpdateModel();
 
+
+	// layout
+	//   | play
+	//   | subLayout
+	//      | choose
+	struct button_element_t
+	{
+		QBoxLayout *layout;
+		QPushButton *play;
+		QBoxLayout *subLayout;
+		QPushButton *choose;
+	};
+
 	Ui::ConfigQt *ui;
 	QWidget *m_gridLayoutWidget;
 	QGridLayout *m_gridLayout;
-	std::vector<QPushButton*> m_playButtons;
-	std::vector<QPushButton*> m_chooseButtons;
+	std::vector<button_element_t> m_buttons;
 	ConfigModel *m_model;
 };
 

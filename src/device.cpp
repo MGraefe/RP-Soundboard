@@ -31,23 +31,6 @@ ConfigModel configModel;
 ConfigQt *configDialog = NULL;
 Sampler sampler;
 
-QString GetConfigPath()
-{
-	// Find config path for config class
-	char* configPath = (char*)malloc(PATH_BUFSIZE);
-	ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
-	return configPath;
-}
-
-
-QString GetFullConfigPath()
-{
-	QString fullPath=GetConfigPath();
-	fullPath.append("rp_soundboard");
-	fullPath.append(".ini");
-	return fullPath;
-}
-
 //bool setPushToTalk(uint64 scHandlerID, bool shouldTalk)
 //{
 //	// If PTT is inactive, store the current settings
@@ -167,14 +150,12 @@ CAPI void sb_init()
 
 CAPI void sb_saveConfig()
 {
-	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
-	configModel.writeConfig(&settings);
+	configModel.writeConfig();
 }
 
 CAPI void sb_readConfig()
 {
-	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
-	configModel.readConfig(&settings);
+	configModel.readConfig();
 }
 
 
