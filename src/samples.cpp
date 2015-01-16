@@ -21,8 +21,10 @@ Sampler::Sampler() :
 	m_sbPlayback(2),
 	m_sampleProducerThread(&m_sbCapture),
 	m_onBufferProduceCB(*this),
+	m_inputFile(NULL),
+	m_volumeDivider(1),
 	m_playing(false),
-	m_inputFile(NULL)
+	m_localPlayback(true)
 {
 	m_sbCapture.setOnProduce(&m_onBufferProduceCB);
 }
@@ -90,14 +92,14 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	if(channels == 1)
 	{
 		for(int i = 0; i < write; i++)
-			out[i] += (in[i*2] / 2 + in[i*2+1] / 2) / 2;
+			out[i] += scale(in[i*2] / 2 + in[i*2+1] / 2);
 	}
 	else
 	{
 		for(int i = 0; i < write; i++)
 		{
-			out[i * channels + ciLeft] += in[i*2] / 2;
-			out[i * channels + ciRight] += in[i*2+1] / 2;
+			out[i * channels + ciLeft] += scale(in[i*2]);
+			out[i * channels + ciRight] += scale(in[i*2+1]);
 		}
 	}
 
@@ -184,13 +186,17 @@ void Sampler::stopPlayback()
 	}
 }
 
-
+#define VOLUMESCALER_EXPONENT 1.0
+#define VOLUMESCALER_DB_MIN -28.0
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
 void Sampler::setVolume( int vol )
 {
-
+	double v = (double)vol / 100.0;
+	double db = pow(1.0 - v, VOLUMESCALER_EXPONENT) * VOLUMESCALER_DB_MIN;
+	double factor = pow(10.0, db/10.0);
+	m_volumeDivider = (int)(std::min(std::max(65536.0 * (1.0 / factor), 1.0), (double)INT_MAX));
 }
 
 

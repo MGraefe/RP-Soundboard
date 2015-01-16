@@ -25,6 +25,9 @@ public:
 private:
 	int fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
 	int findChannelId(int channel, const unsigned int *channelSpeakerArray, int count);
+	inline short scale(int val) const {
+		return (short)((val << 16) / m_volumeDivider);
+	}
 
 private:
 	class OnBufferProduceCB : public SampleBuffer::ProduceCallback
@@ -43,12 +46,11 @@ private:
 	SampleBuffer m_sbPlayback;
 	SampleProducerThread m_sampleProducerThread;
 	OnBufferProduceCB m_onBufferProduceCB;
-
+	InputFile *m_inputFile;
+	int m_volumeDivider;
+	std::mutex m_mutex;
 	bool m_playing;
 	bool m_localPlayback;
-	InputFile *m_inputFile;
-	
-	std::mutex m_mutex;
 };
 
 
