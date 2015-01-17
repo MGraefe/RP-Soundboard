@@ -13,7 +13,8 @@
 ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	QDialog(parent),
 	ui(new Ui::ConfigQt),
-	m_model(model)
+	m_model(model),
+	m_modelObserver(*this)
 {
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
@@ -22,12 +23,11 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	
 	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));
 	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
-	connect(ui->cb_playback_locally, SIGNAL(valueChanged(int)), this, SLOT(onUpdatePlaybackLocal(int)));
+	connect(ui->cb_playback_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdatePlaybackLocal(bool)));
+	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
+	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 
-	ui->sl_volume->setValue(m_model->getVolume());
-	ui->cb_playback_locally->setChecked(m_model->getPlaybackLocal() == 1);
-	
-	onUpdateModel();
+	m_model->addObserver(&m_modelObserver);
 }
 
 
@@ -36,6 +36,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 //---------------------------------------------------------------
 ConfigQt::~ConfigQt()
 {
+	m_model->remObserver(&m_modelObserver);
 	delete ui;
 }
 
@@ -47,7 +48,9 @@ void ConfigQt::onClickedPlay()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
 	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
-	m_model->playFile(buttonId);
+	const char *fn = m_model->getFileName(buttonId);
+	if(fn)
+		sb_playFile(fn);
 }
 
 
@@ -65,24 +68,6 @@ void ConfigQt::onClickedChoose()
 	{
 		QByteArray ba = fn.toLocal8Bit();
 		m_model->setFileName(buttonId, ba.data());
-		onUpdateModel();
-	}
-}
-
-
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-void ConfigQt::onUpdateModel()
-{
-	for(int i = 0; i < m_buttons.size(); i++)
-	{
-		const char *fn = m_model->getFileName(i);
-		if(fn)
-		{
-			QFileInfo info = QFileInfo(QString(fn));
-			m_buttons[i].play->setText(info.baseName());
-		}
 	}
 }
 
@@ -101,7 +86,6 @@ void ConfigQt::onClickedStop()
 //---------------------------------------------------------------
 void ConfigQt::onUpdateVolume(int val)
 {
-	sb_setVolume(val);
 	m_model->setVolume(val);
 }
 
@@ -109,9 +93,8 @@ void ConfigQt::onUpdateVolume(int val)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::onUpdatePlaybackLocal( int val )
+void ConfigQt::onUpdatePlaybackLocal(bool val)
 {
-	sb_setLocalPlayback(val);
 	m_model->setPlaybackLocal(val);
 }
 
@@ -119,20 +102,18 @@ void ConfigQt::onUpdatePlaybackLocal( int val )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::onUpdateCols( int val )
+void ConfigQt::onUpdateCols(int val)
 {
-	m_model->setRows(val);
-	createButtons();
+	m_model->setCols(val);
 }
 
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::onUpdateRows( int val )
+void ConfigQt::onUpdateRows(int val)
 {
-	m_model->setCols(val);
-	createButtons();
+	m_model->setRows(val);
 }
 
 
@@ -143,9 +124,13 @@ void ConfigQt::createButtons()
 {
 	for(button_element_t &elem : m_buttons)
 	{
+		elem.subLayout->removeWidget(elem.choose);
 		delete elem.choose;
-		delete elem.subLayout;
+		elem.layout->removeWidget(elem.play);
 		delete elem.play;
+		elem.layout->removeItem(elem.subLayout);
+		delete elem.subLayout;
+		ui->gridLayout->removeItem(elem.layout);
 		delete elem.layout;
 	}
 	
@@ -183,5 +168,53 @@ void ConfigQt::createButtons()
 			m_buttons.push_back(elem);
 		}
 	}
+
+	for(int i = 0; i < m_buttons.size(); i++)
+		updateButtonText(i);
 }
 
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::updateButtonText(int i)
+{
+	const char *fn = m_model->getFileName(i);
+	if(fn)
+	{
+		QFileInfo info = QFileInfo(QString(fn));
+		m_buttons[i].play->setText(info.baseName());
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
+{
+	switch(what)
+	{
+	case ConfigModel::NOTIFY_SET_ROWS:
+		p.ui->sb_rows->setValue(model.getRows());
+		p.createButtons();
+		break;
+	case ConfigModel::NOTIFY_SET_COLS:
+		p.ui->sb_cols->setValue(model.getCols());
+		p.createButtons();
+		break;
+	case ConfigModel::NOTIFY_SET_VOLUME:
+		if (p.ui->sl_volume->value() != model.getVolume())
+			p.ui->sl_volume->setValue(model.getVolume());
+		break;
+	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
+		if (p.ui->cb_playback_locally->isChecked() != (model.getPlaybackLocal() == 1))
+			p.ui->cb_playback_locally->setChecked(model.getPlaybackLocal() == 1);
+		break;
+	case ConfigModel::NOTIFY_SET_FILENAME:
+		p.updateButtonText(data);
+		break;
+	default:
+		break;
+	}
+}

@@ -21,15 +21,39 @@
 #include "config_qt.h"
 #include "ConfigModel.h"
 
+class ModelObserver_Prog : public ConfigModel::Observer
+{
+public:
+	void notify(ConfigModel &model, ConfigModel::notifications_e what, int data) override;
+};
+
+
 static uint64 activeServerId = 1;
 
 bool pttActive = false;
 bool vadActive = false;
 bool inputActive = false;
 
-ConfigModel configModel;
+ConfigModel *configModel = NULL;
 ConfigQt *configDialog = NULL;
-Sampler sampler;
+Sampler *sampler = NULL;
+ModelObserver_Prog *modelObserver = NULL;
+
+
+void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
+{
+	switch(what)
+	{
+	case ConfigModel::NOTIFY_SET_VOLUME:
+		sampler->setVolume(data);
+		break;
+	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
+		sampler->setLocalPlayback(model.getPlaybackLocal());
+		break;
+	default:
+		break;
+	}
+}
 
 //bool setPushToTalk(uint64 scHandlerID, bool shouldTalk)
 //{
@@ -111,14 +135,14 @@ bool setContinuousTransmission(uint64 scHandlerID)
 CAPI void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
 	int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask)
 {
-	sampler.fetchOutputSamples(samples, sampleCount, channels, channelSpeakerArray, channelFillMask);
+	sampler->fetchOutputSamples(samples, sampleCount, channels, channelSpeakerArray, channelFillMask);
 }
 
 
 CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited)
 {
 	bool finished = false;
-	int written = sampler.fetchInputSamples(samples, sampleCount, channels, &finished);
+	int written = sampler->fetchInputSamples(samples, sampleCount, channels, &finished);
 	if(finished)
 		setVoiceActivation(activeServerId);
 	if(written > 0)
@@ -128,7 +152,7 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 
 CAPI int sb_playFile(const char *filename)
 {
-	sampler.playFile(filename);
+	sampler->playFile(filename);
 	setContinuousTransmission(activeServerId);
 	return 0;
 }
@@ -137,34 +161,45 @@ CAPI int sb_playFile(const char *filename)
 CAPI void sb_init()
 {
 	InitFFmpegLibrary();
-	sb_readConfig();
-	sampler.init();
-	sampler.setLocalPlayback(configModel.getPlaybackLocal() == 1);
-	sampler.setVolume(configModel.getVolume());
+
+	configModel = new ConfigModel();
+	configDialog = new ConfigQt(configModel);
+	sampler = new Sampler();
+	sampler->init();
+	modelObserver = new ModelObserver_Prog();
+	configModel->addObserver(modelObserver);
+	configModel->readConfig();
 }
 
 
 CAPI void sb_saveConfig()
 {
-	configModel.writeConfig();
+	configModel->writeConfig();
 }
 
 CAPI void sb_readConfig()
 {
-	configModel.readConfig();
+	configModel->readConfig();
 }
 
 
 CAPI void sb_kill()
 {
-	if(configDialog)
-	{
-		configDialog->close();
-		delete configDialog;
-		configDialog = NULL;
-	}
+	configModel->remObserver(modelObserver);
+	delete modelObserver; 
+	modelObserver = NULL;
 
-	sampler.shutdown();
+	sampler->shutdown();
+	delete sampler;
+	sampler = NULL;
+
+	configDialog->close();
+	delete configDialog;
+	configDialog = NULL;
+
+	configModel->writeConfig();
+	delete configModel;
+	configModel = NULL;
 }
 
 
@@ -177,26 +212,27 @@ CAPI void sb_onServerChange(uint64 serverID)
 CAPI void sb_openDialog()
 {
 	if(!configDialog)
-		configDialog = new ConfigQt(&configModel);
+		configDialog = new ConfigQt(configModel);
 	configDialog->show();
 }
 
 
 CAPI void sb_stopPlayback()
 {
-	sampler.stopPlayback();
+	sampler->stopPlayback();
 	setVoiceActivation(activeServerId);
 }
 
 
-CAPI void sb_setVolume(int vol)
-{
-	sampler.setVolume(vol);
-}
+//CAPI void sb_setVolume(int vol)
+//{
+//	sampler->setVolume(vol);
+//}
+//
+//
+//CAPI void sb_setLocalPlayback( int enabled )
+//{
+//	sampler->setLocalPlayback(enabled == 1);
+//}
 
-
-CAPI void sb_setLocalPlayback( int enabled )
-{
-	sampler.setLocalPlayback(enabled == 1);
-}
 

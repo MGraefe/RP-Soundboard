@@ -8,6 +8,22 @@
 class ConfigModel
 {
 public:
+	enum notifications_e
+	{
+		NOTIFY_SET_FILENAME,
+		NOTIFY_SET_ROWS,
+		NOTIFY_SET_COLS,
+		NOTIFY_SET_VOLUME,
+		NOTIFY_SET_PLAYBACK_LOCAL,
+	};
+
+	class Observer
+	{
+	public:
+		virtual void notify(ConfigModel &model, notifications_e what, int data) = 0;
+	};
+
+public:
 	ConfigModel();
 	void readConfig();
 	void writeConfig();
@@ -17,7 +33,6 @@ public:
 
 	const char *getFileName(int itemId);
 	void setFileName(int itemId, const char *fn);
-	void playFile(int itemId);
 
 	inline int getRows() const { return m_rows; }
 	void setRows(int n);
@@ -28,15 +43,21 @@ public:
 	inline int getVolume() const { return m_volume; }
 	void setVolume(int val);
 
-	inline int getPlaybackLocal() const { return m_playbackLocal; }
-	void setPlaybackLocal(int val);
+	inline bool getPlaybackLocal() const { return m_playbackLocal; }
+	void setPlaybackLocal(bool val);
+
+	void addObserver(Observer *obs);
+	void remObserver(Observer *obs);
 
 private:
+	void notify(notifications_e what, int data);
+
+	std::vector<Observer*> m_obs;
 	std::vector<std::string> m_fns;
 	int m_rows;
 	int m_cols;
 	int m_volume;
-	int m_playbackLocal;
+	bool m_playbackLocal;
 };
 
 #endif // ConfigModel_H__

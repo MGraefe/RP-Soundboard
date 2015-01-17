@@ -28,7 +28,7 @@
         <enum>QLayout::SetDefaultConstraint</enum>
        </property>
        <item>
-        <widget class="QGroupBox" name="">
+        <widget class="QGroupBox" name="groupBox">
          <property name="title">
           <string>Settings</string>
          </property>
@@ -149,7 +149,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="spinBox">
+           <widget class="QSpinBox" name="sb_cols">
             <property name="minimum">
              <number>1</number>
             </property>
