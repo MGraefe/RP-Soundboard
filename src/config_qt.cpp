@@ -150,7 +150,7 @@ void ConfigQt::createButtons()
 
 			elem.play = new QPushButton(this);
 			elem.play->setText(QString("Play ") + QString::number(i*numCols+j+1));
-			elem.play->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+			elem.play->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 			elem.layout->addWidget(elem.play);
 			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
 

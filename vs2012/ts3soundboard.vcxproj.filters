@@ -109,6 +109,12 @@
     <ClInclude Include="..\src\SampleSource.h">
       <Filter>Header Dateien</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\version\version.h">
+      <Filter>Header Dateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\src\config_qt.h">
@@ -117,5 +123,8 @@
     <CustomBuild Include="..\src\config_qt.ui">
       <Filter>Form Dateien</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
 </Project>

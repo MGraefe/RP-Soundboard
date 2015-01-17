@@ -50,7 +50,9 @@
     <ClInclude Include="..\src\samples.h" />
     <ClInclude Include="..\src\SampleSource.h" />
     <ClInclude Include="..\src\ts3log.h" />
+    <ClInclude Include="..\src\version\version.h" />
     <ClInclude Include="GeneratedFiles\ui_config_qt.h" />
+    <ClInclude Include="resource.h" />
     <CustomBuild Include="..\src\config_qt.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing config_qt.h...</Message>
@@ -89,6 +91,9 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\ui_%(Filename).h;%(Outputs)</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\uic.exe" -o ".\GeneratedFiles\ui_%(Filename).h" "%(FullPath)"</Command>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resource.rc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{B12702AD-ABFB-343A-A199-8E24837244A3}</ProjectGuid>
@@ -243,8 +248,14 @@
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\plugins\$(TargetFileName)"</Command>
+      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\plugins\$(TargetFileName)"
+</Command>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>pushd "$(ProjectDir)..\src\version"
+python incversion.py
+popd</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

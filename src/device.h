@@ -17,6 +17,7 @@ CAPI void sb_onServerChange(uint64 serverID);
 CAPI void sb_readConfig();
 CAPI void sb_saveConfig();
 CAPI void sb_openDialog();
+CAPI void sb_playButton(int btn);
 
 
 

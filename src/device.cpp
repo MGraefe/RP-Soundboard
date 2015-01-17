@@ -236,3 +236,10 @@ CAPI void sb_stopPlayback()
 //}
 
 
+CAPI void sb_playButton(int btn)
+{
+	const char *fn = configModel->getFileName(btn);
+	if(fn)
+		sb_playFile(fn);
+}
+
