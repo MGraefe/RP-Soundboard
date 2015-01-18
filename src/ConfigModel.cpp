@@ -13,7 +13,8 @@ ConfigModel::ConfigModel()
 	m_rows = 4;
 	m_cols = 6;
 	m_volume = 50;
-	m_playbackLocal = 1;
+	m_playbackLocal = true;
+	m_muteMyselfDuringPb = false;
 }
 
 
@@ -96,7 +97,7 @@ void ConfigModel::setFileName( int itemId, const char *fn )
 		if(itemId < 1000 && itemId >= m_fns.size())
 			m_fns.resize(itemId + 1);
 		m_fns[itemId] = fn;
-		sb_saveConfig();
+		writeConfig();
 		notify(NOTIFY_SET_FILENAME, itemId);
 	}
 }
@@ -153,7 +154,6 @@ void ConfigModel::setCols( int n )
 void ConfigModel::setVolume( int val )
 {
 	m_volume = val;
-	writeConfig();
 	notify(NOTIFY_SET_VOLUME, val);
 }
 
