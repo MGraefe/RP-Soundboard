@@ -2,19 +2,34 @@
 <ui version="4.0">
  <class>ConfigQt</class>
  <widget class="QDialog" name="ConfigQt">
+  <property name="windowModality">
+   <enum>Qt::NonModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>755</width>
-    <height>422</height>
+    <width>601</width>
+    <height>410</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>600</width>
+    <height>0</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>RP Soundboard</string>
+   <string>RP Soundboard - by Marius Gräfe</string>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
+  </property>
+  <property name="sizeGripEnabled">
+   <bool>false</bool>
+  </property>
+  <property name="modal">
+   <bool>false</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>

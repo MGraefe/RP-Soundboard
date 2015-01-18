@@ -19,6 +19,7 @@
 
 #include "plugin.h"
 #include "device.h"
+#include "buildinfo.h"
 
 /*static*/ struct TS3Functions ts3Functions;
 
@@ -55,18 +56,7 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
  */
 
 
-#if defined(_WIN64)
-#define BUILD_NAME "Windows 64-bit"
-#elif defined(_WIN32)
-#define BUILD_NAME "Windows 32-bit"
-#else
-#define BUILD_NAME "Unknown Build"
-#endif
 
-#define PLUGIN_NAME "RP Soundboard"
-#define PLUGIN_VERSION (TS3SB_VERSION_S " " BUILD_NAME)
-#define PLUGIN_AUTHOR ("Marius Gr\xC3\xA4" "fe")
-#define PLUGIN_DESCRIPTION "Easy to use Soundboard"
 
 /* Unique name identifying this plugin */
 const char* ts3plugin_name() {
@@ -361,6 +351,9 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 			{
 				case MENU_ID_SHOW_CONFIG:
 					sb_openDialog();
+					break;
+				case MENU_ID_SHOW_ABOUT:
+					sb_openAbout();
 					break;
 				default:
 					break;

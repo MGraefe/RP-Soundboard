@@ -19,6 +19,7 @@
 #include "samples.h"
 
 #include "config_qt.h"
+#include "about_qt.h"
 #include "ConfigModel.h"
 
 class ModelObserver_Prog : public ConfigModel::Observer
@@ -36,6 +37,7 @@ bool inputActive = false;
 
 ConfigModel *configModel = NULL;
 ConfigQt *configDialog = NULL;
+AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
 
@@ -202,6 +204,13 @@ CAPI void sb_kill()
 	configModel->writeConfig();
 	delete configModel;
 	configModel = NULL;
+
+	if(aboutDialog)
+	{
+		aboutDialog->close();
+		delete aboutDialog;
+		aboutDialog = NULL;
+	}
 }
 
 
@@ -245,3 +254,10 @@ CAPI void sb_playButton(int btn)
 		sb_playFile(fn);
 }
 
+
+CAPI void sb_openAbout()
+{
+	if(!aboutDialog)
+		aboutDialog = new AboutQt();
+	aboutDialog->show();
+}

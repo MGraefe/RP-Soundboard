@@ -47,9 +47,6 @@
     <ClCompile Include="..\src\inputfileffmpeg.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\samplequeue.cpp">
-      <Filter>Source Dateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\samples.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
@@ -71,6 +68,18 @@
     <ClCompile Include="..\src\SampleProducerThread.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_about_qt.cpp">
+      <Filter>Generierte Dateien\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_about_qt.cpp">
+      <Filter>Generierte Dateien\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\about_qt.cpp">
+      <Filter>Source Dateien</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\qrc_qtres.cpp">
+      <Filter>Generierte Dateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\common.h">
@@ -83,9 +92,6 @@
       <Filter>Header Dateien</Filter>
     </ClInclude>
     <ClInclude Include="..\src\plugin.h">
-      <Filter>Header Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\samplequeue.h">
       <Filter>Header Dateien</Filter>
     </ClInclude>
     <ClInclude Include="..\src\samples.h">
@@ -115,6 +121,12 @@
     <ClInclude Include="..\src\version\version.h">
       <Filter>Header Dateien</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_about_qt.h">
+      <Filter>Generierte Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\buildinfo.h">
+      <Filter>Header Dateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\src\config_qt.h">
@@ -123,8 +135,25 @@
     <CustomBuild Include="..\src\config_qt.ui">
       <Filter>Form Dateien</Filter>
     </CustomBuild>
+    <CustomBuild Include="..\src\about_qt.ui">
+      <Filter>Form Dateien</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\about_qt.h">
+      <Filter>Header Dateien</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\qtres.qrc">
+      <Filter>Resource Dateien</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\img\rpmb_icon_16.png">
+      <Filter>Resource Dateien</Filter>
+    </Image>
+    <Image Include="..\img\rpmb_icon_64.png">
+      <Filter>Resource Dateien</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -18,7 +18,7 @@ CAPI void sb_readConfig();
 CAPI void sb_saveConfig();
 CAPI void sb_openDialog();
 CAPI void sb_playButton(int btn);
-
+CAPI void sb_openAbout();
 
 
 #endif
