@@ -50,6 +50,8 @@ void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e
 	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
 		sampler->setLocalPlayback(model.getPlaybackLocal());
 		break;
+	case ConfigModel::NOTIFY_SET_MUTE_MYSELF_DURING_PB:
+		sampler->setMuteMyself(model.getMuteMyselfDuringPb());
 	default:
 		break;
 	}

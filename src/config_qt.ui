@@ -102,11 +102,28 @@
            </spacer>
           </item>
           <item>
-           <widget class="QCheckBox" name="cb_playback_locally">
-            <property name="text">
-             <string>Play back locally</string>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <property name="spacing">
+             <number>2</number>
             </property>
-           </widget>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
+            <item>
+             <widget class="QCheckBox" name="cb_playback_locally">
+              <property name="text">
+               <string>Play back locally</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="cb_mute_myself">
+              <property name="text">
+               <string>Mute myself during playback</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
           <item>
            <spacer name="horizontalSpacer_4">

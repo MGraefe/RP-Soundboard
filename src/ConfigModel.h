@@ -15,6 +15,7 @@ public:
 		NOTIFY_SET_COLS,
 		NOTIFY_SET_VOLUME,
 		NOTIFY_SET_PLAYBACK_LOCAL,
+		NOTIFY_SET_MUTE_MYSELF_DURING_PB,
 	};
 
 	class Observer
@@ -45,6 +46,9 @@ public:
 
 	inline bool getPlaybackLocal() const { return m_playbackLocal; }
 	void setPlaybackLocal(bool val);
+	
+	inline bool getMuteMyselfDuringPb() const { return m_muteMyselfDuringPb; }
+	void setMuteMyselfDuringPb(bool val);
 
 	void addObserver(Observer *obs);
 	void remObserver(Observer *obs);
@@ -58,6 +62,7 @@ private:
 	int m_cols;
 	int m_volume;
 	bool m_playbackLocal;
+	bool m_muteMyselfDuringPb;
 };
 
 #endif // ConfigModel_H__

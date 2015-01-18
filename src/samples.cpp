@@ -78,7 +78,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 		for(int i = 0; i < count; i++)
 			samples[i*channels+ciLeft] = 0;
 
-	if(overRight)
+	if(overRight && channels > 1)
 		for(int i = 0; i < count; i++)
 			samples[i*channels+ciRight] = 0;
 
@@ -120,7 +120,7 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
-	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, false, false);
+	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
 	if(m_playing && m_inputFile->done() && m_sbCapture.avail() == 0)
 	{
 		m_playing = false;
@@ -206,6 +206,15 @@ void Sampler::setVolume( int vol )
 void Sampler::setLocalPlayback( bool enabled )
 {
 	m_localPlayback = enabled;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::setMuteMyself(bool enabled)
+{
+	m_muteMyself = enabled;
 }
 
 

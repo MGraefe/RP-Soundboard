@@ -26,7 +26,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->cb_playback_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdatePlaybackLocal(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
-
+	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
 	m_model->addObserver(&m_modelObserver);
 }
 
@@ -114,6 +114,15 @@ void ConfigQt::onUpdateCols(int val)
 void ConfigQt::onUpdateRows(int val)
 {
 	m_model->setRows(val);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdateMuteMyself(bool val)
+{
+	m_model->setMuteMyselfDuringPb(val);
 }
 
 
@@ -208,11 +217,15 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 			p.ui->sl_volume->setValue(model.getVolume());
 		break;
 	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
-		if (p.ui->cb_playback_locally->isChecked() != (model.getPlaybackLocal() == 1))
-			p.ui->cb_playback_locally->setChecked(model.getPlaybackLocal() == 1);
+		if (p.ui->cb_playback_locally->isChecked() != model.getPlaybackLocal())
+			p.ui->cb_playback_locally->setChecked(model.getPlaybackLocal());
 		break;
 	case ConfigModel::NOTIFY_SET_FILENAME:
 		p.updateButtonText(data);
+		break;
+	case ConfigModel::NOTIFY_SET_MUTE_MYSELF_DURING_PB:
+		if (p.ui->cb_mute_myself->isChecked() != model.getMuteMyselfDuringPb())
+			p.ui->cb_mute_myself->setChecked(model.getMuteMyselfDuringPb());
 		break;
 	default:
 		break;

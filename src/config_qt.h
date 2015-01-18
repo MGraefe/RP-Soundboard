@@ -30,6 +30,7 @@ private slots:
 	void onUpdatePlaybackLocal(bool val);
 	void onUpdateCols(int val);
 	void onUpdateRows(int val);
+	void onUpdateMuteMyself(bool val);
 
 private:
 	void createButtons();

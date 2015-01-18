@@ -38,6 +38,7 @@ void ConfigModel::readConfig()
 	m_cols = settings.value("num_cols", 6).toInt();
 	m_volume = settings.value("volume", 50).toInt();
 	m_playbackLocal = settings.value("playback_local", true).toBool();
+	m_muteMyselfDuringPb = settings.value("mute_myself_during_pb", false).toBool();
 
 	//Notify all changes
 	for(int i = 0; i < m_fns.size(); i++)
@@ -46,6 +47,7 @@ void ConfigModel::readConfig()
 	notify(NOTIFY_SET_ROWS, m_rows);
 	notify(NOTIFY_SET_VOLUME, m_volume);
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
+	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
 }
 
 
@@ -69,6 +71,7 @@ void ConfigModel::writeConfig()
 	settings.setValue("num_cols", m_cols);
 	settings.setValue("volume", m_volume);
 	settings.setValue("playback_local", m_playbackLocal);
+	settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
 }
 
 
@@ -163,6 +166,17 @@ void ConfigModel::setPlaybackLocal( bool val )
 	m_playbackLocal = val;
 	writeConfig();
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, val ? 1 : 0);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setMuteMyselfDuringPb(bool val)
+{
+	m_muteMyselfDuringPb = val;
+	writeConfig();
+	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, val ? 1 : 0);
 }
 
 

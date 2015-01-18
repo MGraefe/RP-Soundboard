@@ -21,6 +21,7 @@ public:
 	void stopPlayback();
 	void setVolume(int vol);
 	void setLocalPlayback(bool enabled);
+	void setMuteMyself(bool enabled);
 
 private:
 	int fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
@@ -51,6 +52,7 @@ private:
 	std::mutex m_mutex;
 	bool m_playing;
 	bool m_localPlayback;
+	bool m_muteMyself;
 };
 
 
