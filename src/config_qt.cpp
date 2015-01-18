@@ -2,6 +2,7 @@
 
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QFileInfo>
+#include <QtGui/QResizeEvent>
 
 #include "config_qt.h"
 #include "ConfigModel.h"
@@ -11,7 +12,7 @@
 // Purpose: 
 //---------------------------------------------------------------
 ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
-	QDialog(parent),
+	QWidget(parent),
 	ui(new Ui::ConfigQt),
 	m_model(model),
 	m_modelObserver(*this)
@@ -27,6 +28,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
+
 	m_model->addObserver(&m_modelObserver);
 }
 
@@ -40,6 +42,14 @@ ConfigQt::~ConfigQt()
 	delete ui;
 }
 
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::closeEvent(QCloseEvent * evt)
+{
+	m_model->setWindowSize(size().width(), size().height());
+}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -227,6 +237,14 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 		if (p.ui->cb_mute_myself->isChecked() != model.getMuteMyselfDuringPb())
 			p.ui->cb_mute_myself->setChecked(model.getMuteMyselfDuringPb());
 		break;
+	case ConfigModel::NOTIFY_SET_WINDOW_SIZE:
+		{
+			QSize s = p.size();
+			int w = 0, h = 0;
+			model.getWindowSize(&w, &h);
+			if(s.width() != w || s.height() != h)
+				p.resize(w, h);
+		}
 	default:
 		break;
 	}

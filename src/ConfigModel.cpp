@@ -40,6 +40,8 @@ void ConfigModel::readConfig()
 	m_volume = settings.value("volume", 50).toInt();
 	m_playbackLocal = settings.value("playback_local", true).toBool();
 	m_muteMyselfDuringPb = settings.value("mute_myself_during_pb", false).toBool();
+	m_windowWidth = settings.value("window_width", 650).toInt();
+	m_windowHeight = settings.value("window_height", 450).toInt();
 
 	//Notify all changes
 	for(int i = 0; i < m_fns.size(); i++)
@@ -49,6 +51,7 @@ void ConfigModel::readConfig()
 	notify(NOTIFY_SET_VOLUME, m_volume);
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
 	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
+	notify(NOTIFY_SET_WINDOW_SIZE, 0);
 }
 
 
@@ -73,6 +76,8 @@ void ConfigModel::writeConfig()
 	settings.setValue("volume", m_volume);
 	settings.setValue("playback_local", m_playbackLocal);
 	settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
+	settings.setValue("window_width", m_windowWidth);
+	settings.setValue("window_height", m_windowHeight);
 }
 
 
@@ -177,6 +182,29 @@ void ConfigModel::setMuteMyselfDuringPb(bool val)
 	m_muteMyselfDuringPb = val;
 	writeConfig();
 	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, val ? 1 : 0);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::getWindowSize(int *width, int *height) const
+{
+	if(width)
+		*width = m_windowWidth;
+	if(height)
+		*height = m_windowHeight;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setWindowSize(int width, int height)
+{
+	m_windowWidth = width;
+	m_windowHeight = height;
+	notify(NOTIFY_SET_WINDOW_SIZE, 0);
 }
 
 

@@ -13,7 +13,7 @@
     <x>0</x>
     <y>0</y>
     <width>383</width>
-    <height>140</height>
+    <height>155</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="qtres.qrc">
-    <normaloff>:/icon/img/rpmb_icon_16.png</normaloff>:/icon/img/rpmb_icon_16.png</iconset>
+    <normaloff>:/icon/img/rpmb_icon_64.png</normaloff>:/icon/img/rpmb_icon_64.png</iconset>
   </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>

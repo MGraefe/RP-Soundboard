@@ -236,8 +236,8 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon)
 	 */
 
 	BEGIN_CREATE_MENUS(2);  /* IMPORTANT: Number of menu items must be correct! */
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_SHOW_CONFIG,  "Open Soundboard",  "");
-	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_SHOW_ABOUT,  "About",  "");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_SHOW_CONFIG,  "Open Soundboard",  "rpmb_icon_16.png");
+	CREATE_MENU_ITEM(PLUGIN_MENU_TYPE_GLOBAL,  MENU_ID_SHOW_ABOUT,  "About",  "rpmb_icon_16.png");
 	END_CREATE_MENUS;  /* Includes an assert checking if the number of menu items matched */
 
 	/*
@@ -245,7 +245,7 @@ void ts3plugin_initMenus(struct PluginMenuItem*** menuItems, char** menuIcon)
 	 * If unused, set menuIcon to NULL
 	 */
 	*menuIcon = (char*)malloc(PLUGIN_MENU_BUFSZ * sizeof(char));
-	_strcpy(*menuIcon, PLUGIN_MENU_BUFSZ, "rp_soundboard.png");
+	_strcpy(*menuIcon, PLUGIN_MENU_BUFSZ, "rpmb_icon_16.png");
 
 	/*
 	 * Menus can be enabled or disabled with: ts3Functions.setPluginMenuEnabled(pluginID, menuID, 0|1);
@@ -285,7 +285,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 	 * The keyword will be later passed to model. to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
 	int i;
-	int numKeys = 20;
+	int numKeys = 30;
 	int numExtra = 1;
 	char kw[PLUGIN_HOTKEY_BUFSZ];
 	char desc[PLUGIN_HOTKEY_BUFSZ];
@@ -368,7 +368,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 void ts3plugin_onHotkeyEvent(const char* keyword) 
 {
 	int btn = -1;
-	if((btn = sscanf(keyword, "button_%i", &btn)) > 0)
+	if(sscanf(keyword, "button_%i", &btn) > 0)
 	{
 		sb_playButton(btn - 1);
 	}

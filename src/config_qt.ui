@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ConfigQt</class>
- <widget class="QDialog" name="ConfigQt">
+ <widget class="QWidget" name="ConfigQt">
   <property name="windowModality">
    <enum>Qt::NonModal</enum>
   </property>
@@ -22,14 +22,12 @@
   <property name="windowTitle">
    <string>RP Soundboard - by Marius Gräfe</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="qtres.qrc">
+    <normaloff>:/icon/img/rpmb_icon_64.png</normaloff>:/icon/img/rpmb_icon_64.png</iconset>
+  </property>
   <property name="locale">
    <locale language="English" country="UnitedStates"/>
-  </property>
-  <property name="sizeGripEnabled">
-   <bool>false</bool>
-  </property>
-  <property name="modal">
-   <bool>false</bool>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -199,6 +197,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="qtres.qrc"/>
+ </resources>
  <connections/>
 </ui>

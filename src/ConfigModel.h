@@ -16,6 +16,7 @@ public:
 		NOTIFY_SET_VOLUME,
 		NOTIFY_SET_PLAYBACK_LOCAL,
 		NOTIFY_SET_MUTE_MYSELF_DURING_PB,
+		NOTIFY_SET_WINDOW_SIZE,
 	};
 
 	class Observer
@@ -50,6 +51,9 @@ public:
 	inline bool getMuteMyselfDuringPb() const { return m_muteMyselfDuringPb; }
 	void setMuteMyselfDuringPb(bool val);
 
+	void getWindowSize(int *width, int *height) const;
+	void setWindowSize(int width, int height);
+
 	void addObserver(Observer *obs);
 	void remObserver(Observer *obs);
 
@@ -63,6 +67,8 @@ private:
 	int m_volume;
 	bool m_playbackLocal;
 	bool m_muteMyselfDuringPb;
+	int m_windowWidth;
+	int m_windowHeight;
 };
 
 #endif // ConfigModel_H__

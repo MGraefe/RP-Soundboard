@@ -6,6 +6,8 @@
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QBoxLayout>
+
+
 #include "ui_config_qt.h"
 #include "ConfigModel.h"
 
@@ -13,14 +15,16 @@ namespace Ui {
 	class ConfigQt;
 }
 
-class ConfigQt : public QDialog
+class ConfigQt : public QWidget
 {
 	Q_OBJECT
 
 public:
 	explicit ConfigQt(ConfigModel *model, QWidget *parent = 0);
+	virtual ~ConfigQt();
 
-	~ConfigQt();
+protected:
+	virtual void closeEvent(QCloseEvent * evt) override;
 
 private slots:
 	void onClickedPlay();
