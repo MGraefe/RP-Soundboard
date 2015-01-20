@@ -148,7 +148,7 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 }
 
 
-void Sampler::playFile(const char *filename)
+bool Sampler::playFile( const char *filename )
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
@@ -159,7 +159,7 @@ void Sampler::playFile(const char *filename)
 	{
 		delete m_inputFile;
 		m_inputFile = NULL;
-		return;
+		return false;
 	}
 
 	//Clear buffers
@@ -168,6 +168,8 @@ void Sampler::playFile(const char *filename)
 
 	m_playing = true;
 	m_sampleProducerThread.setSource(m_inputFile);
+
+	return true;
 }
 
 

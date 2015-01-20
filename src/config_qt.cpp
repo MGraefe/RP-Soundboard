@@ -168,7 +168,8 @@ void ConfigQt::createButtons()
 			ui->gridLayout->addLayout(elem.layout, i, j);
 
 			elem.play = new QPushButton(this);
-			elem.play->setText(QString("Play ") + QString::number(i*numCols+j+1));
+			elem.play->setText("(no file)");
+			elem.play->setEnabled(false);
 			elem.play->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 			elem.layout->addWidget(elem.play);
 			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
@@ -198,11 +199,15 @@ void ConfigQt::createButtons()
 //---------------------------------------------------------------
 void ConfigQt::updateButtonText(int i)
 {
+	if(i >= m_buttons.size())
+		return;
+
 	const char *fn = m_model->getFileName(i);
 	if(fn)
 	{
 		QFileInfo info = QFileInfo(QString(fn));
 		m_buttons[i].play->setText(info.baseName());
+		m_buttons[i].play->setEnabled(true);
 	}
 }
 

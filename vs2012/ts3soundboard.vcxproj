@@ -277,7 +277,7 @@
       <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\plugins\$(TargetFileName)"
+      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3_win32\plugins\$(TargetFileName)"
 xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamspeak3\plugins\rp_soundboard\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -324,7 +324,7 @@ xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamsp
       <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\plugins\$(TargetFileName)"
+      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3_win32\plugins\$(TargetFileName)"
 xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamspeak3\plugins\rp_soundboard\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

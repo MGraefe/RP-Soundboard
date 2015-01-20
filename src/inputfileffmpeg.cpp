@@ -143,7 +143,7 @@ void InputFileFFmpeg::reset()
 //---------------------------------------------------------------
 InputFileFFmpeg::~InputFileFFmpeg()
 {
-	close();
+	_close();
 	av_freep(&m_outBuf);
 }
 
@@ -169,8 +169,7 @@ int InputFileFFmpeg::open(const char *filename )
 
 	if(LogFFmpegError(avformat_find_stream_info(m_fmtCtx, NULL), "Cannot find stream info") < 0)
 	{	
-		m_mutex.unlock();
-		close();
+		_close();
 		return -1;
 	}
 
@@ -178,8 +177,7 @@ int InputFileFFmpeg::open(const char *filename )
 	if(m_streamIndex < 0)
 	{
 		logError("Cannot find a suitable stream");
-		m_mutex.unlock();
-		close();
+		_close();
 		return -1;
 	}
 
@@ -188,8 +186,7 @@ int InputFileFFmpeg::open(const char *filename )
 	if(!codec)
 	{
 		logError("Unsupported codec");
-		m_mutex.unlock();
-		close();
+		_close();
 		return -1;
 	}
 
@@ -198,8 +195,7 @@ int InputFileFFmpeg::open(const char *filename )
 
 	if(LogFFmpegError(avcodec_open2(m_codecCtx, m_codecCtx->codec, NULL), "Cannot open codec") < 0)
 	{
-		m_mutex.unlock();
-		close();
+		_close();
 		return -1; //Cannot open codec
 	}
 
@@ -217,15 +213,13 @@ int InputFileFFmpeg::open(const char *filename )
 	if(!m_swrCtx)
 	{
 		logError("Failed to allocate resample context");
-		m_mutex.unlock();
-		close();
+		_close();
 		return -1;
 	}
 
 	if(LogFFmpegError(swr_init(m_swrCtx), "Cannot initialize resample context") < 0)
 	{
-		m_mutex.unlock();
-		close();
+		_close();
 		return -1;
 	}
 

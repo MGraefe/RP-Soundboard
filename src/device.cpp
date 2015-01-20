@@ -31,16 +31,12 @@ public:
 
 static uint64 activeServerId = 1;
 
-bool pttActive = false;
-bool vadActive = false;
-bool inputActive = false;
-
 ConfigModel *configModel = NULL;
 ConfigQt *configDialog = NULL;
 AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
-
+bool playing = false;
 
 void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
 {
@@ -59,80 +55,71 @@ void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e
 	}
 }
 
-//bool setPushToTalk(uint64 scHandlerID, bool shouldTalk)
-//{
-//	// If PTT is inactive, store the current settings
-//	if(!pttActive)
-//	{
-//		// Get the current VAD setting
-//		char* vad;
-//		if(checkError(ts3Functions.getPreProcessorConfigValue(scHandlerID, "vad", &vad), "Error retrieving vad setting"))
-//			return false;
-//		vadActive = !strcmp(vad, "true");
-//		ts3Functions.freeMemory(vad);
-//
-//		// Get the current input setting, this will indicate whether VAD is being used in combination with PTT
-//		int input;
-//		if(checkError(ts3Functions.getClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, &input), "Error retrieving input setting"))
-//			return false;
-//		inputActive = !input; // We want to know when it is active, not when it is inactive 
-//	}
-//
-//	// If VAD is active and the input is active, disable VAD, restore VAD setting afterwards
-//	if(checkError(ts3Functions.setPreProcessorConfigValue(scHandlerID, "vad",
-//		(shouldTalk && (vadActive && inputActive)) ? "false" : (vadActive)?"true":"false"), "Error toggling vad"))
-//		return false;
-//
-//	// Activate the input, restore the input setting afterwards
-//	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, 
-//		(shouldTalk || inputActive) ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
-//		return false;
-//
-//	// Update the client
-//	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
-//
-//	// Commit the change
-//	pttActive = shouldTalk;
-//
-//	return true;
-//}
+
+enum talk_state_e
+{
+	TS_PTT_WITHOUT_VA = 1,
+	TS_PTT_WITH_VA,
+	TS_VOICE_ACTIVATION,
+	TS_CONT_TRANS,
+};
+
+talk_state_e previousTalkState;
+
+
+talk_state_e getTalkState(uint64 scHandlerID)
+{
+	char *vadStr;
+	if(checkError(ts3Functions.getPreProcessorConfigValue(scHandlerID, "vad", &vadStr), "Error retrieving vad setting"))
+		return (talk_state_e)0;
+	bool vad = strcmp(vadStr, "true") == 0;
+	ts3Functions.freeMemory(vadStr);
+
+	int input;
+	if(checkError(ts3Functions.getClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, &input), "Error retrieving input setting"))
+		return (talk_state_e)0;
+	bool ptt = input == INPUT_DEACTIVATED;
+	
+	if(ptt)
+		return vad ? TS_PTT_WITH_VA : TS_PTT_WITHOUT_VA;
+	else
+		return vad ? TS_VOICE_ACTIVATION : TS_CONT_TRANS;
+}
+
+
+bool setTalkState(uint64 scHandlerID, talk_state_e state)
+{
+	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
+	bool in = state == TS_CONT_TRANS  || state == TS_VOICE_ACTIVATION;
+
+	if(checkError(ts3Functions.setPreProcessorConfigValue(
+		scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"))
+		return false;
+
+	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, 
+		in ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
+		return false;
+
+	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
+	return true;
+}
+
+
+bool setPushToTalk(uint64 scHandlerID, bool voiceActivation)
+{
+	return setTalkState(scHandlerID, voiceActivation ? TS_PTT_WITH_VA : TS_PTT_WITHOUT_VA);
+}
 
 
 bool setVoiceActivation(uint64 scHandlerID)
 {
-	// Activate Voice Activity Detection
-	if(checkError(ts3Functions.setPreProcessorConfigValue(scHandlerID, "vad", "true"), "Error toggling vad"))
-		return false;
-
-	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, 
-		INPUT_ACTIVE), "Error toggling input"))
-		return false;
-
-	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
-
-	vadActive = true;
-	inputActive = true;
-
-	return true;
+	return setTalkState(scHandlerID, TS_VOICE_ACTIVATION);
 }
 
 
 bool setContinuousTransmission(uint64 scHandlerID)
 {
-	//Turn off vad
-	if(checkError(ts3Functions.setPreProcessorConfigValue(scHandlerID, "vad", "false"), "Error toggling vad"))
-		return false;
-
-	if(checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, 
-		INPUT_ACTIVE), "Error toggling input"))
-		return false;
-
-	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
-
-	inputActive = true;
-	vadActive = false;
-
-	return true;
+	return setTalkState(scHandlerID, TS_CONT_TRANS);
 }
 
 
@@ -148,7 +135,10 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 	bool finished = false;
 	int written = sampler->fetchInputSamples(samples, sampleCount, channels, &finished);
 	if(finished)
-		setVoiceActivation(activeServerId);
+	{
+		setTalkState(activeServerId, previousTalkState);
+		playing = false;
+	}
 	if(written > 0)
 		*edited |= 0x1;
 }
@@ -156,8 +146,19 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 
 CAPI int sb_playFile(const char *filename)
 {
-	sampler->playFile(filename);
-	setContinuousTransmission(activeServerId);
+	if(!playing)
+	{
+		talk_state_e s = getTalkState(activeServerId);
+		if(s != 0)
+			previousTalkState = s;
+	}
+
+	if(sampler->playFile(filename))
+	{
+		setContinuousTransmission(activeServerId);
+		playing = true;
+	}
+
 	return 0;
 }
 
@@ -180,6 +181,7 @@ CAPI void sb_saveConfig()
 {
 	configModel->writeConfig();
 }
+
 
 CAPI void sb_readConfig()
 {
@@ -231,20 +233,9 @@ CAPI void sb_openDialog()
 CAPI void sb_stopPlayback()
 {
 	sampler->stopPlayback();
-	setVoiceActivation(activeServerId);
+	setTalkState(activeServerId, previousTalkState);
+	playing = false;
 }
-
-
-//CAPI void sb_setVolume(int vol)
-//{
-//	sampler->setVolume(vol);
-//}
-//
-//
-//CAPI void sb_setLocalPlayback( int enabled )
-//{
-//	sampler->setLocalPlayback(enabled == 1);
-//}
 
 
 CAPI void sb_playButton(int btn)
