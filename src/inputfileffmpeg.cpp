@@ -86,10 +86,12 @@ public:
 	~InputFileFFmpeg();
 	int open(const char *filename) override;
 	int close() override;
+
 	int readSamples(SampleBuffer *sampleBuffer) override;
 	bool done() const override;
 
 private:
+	int _close();
 	void reset();
 	int getAudioStreamNum() const;
 	int handleDecoded(AVFrame *frame, SampleBuffer *sb);
@@ -141,6 +143,7 @@ void InputFileFFmpeg::reset()
 //---------------------------------------------------------------
 InputFileFFmpeg::~InputFileFFmpeg()
 {
+	close();
 	av_freep(&m_outBuf);
 }
 
@@ -151,6 +154,13 @@ InputFileFFmpeg::~InputFileFFmpeg()
 int InputFileFFmpeg::open(const char *filename )
 {
 	Lock lock(m_mutex);
+
+	if(m_opened)
+	{
+		_close();
+		reset();
+	}
+
 
 	if(LogFFmpegError(avformat_open_input(&m_fmtCtx, filename, NULL, NULL), "Cannot open file") != 0)
 	{
@@ -231,22 +241,7 @@ int InputFileFFmpeg::open(const char *filename )
 int InputFileFFmpeg::close()
 {
 	Lock lock(m_mutex);
-
-	if(m_codecCtx)
-	{
-		avcodec_close(m_codecCtx);
-		m_codecCtx = NULL;
-	}
-
-	if(m_fmtCtx)
-	{
-		avformat_close_input(&m_fmtCtx);
-		m_fmtCtx = NULL;
-	}
-
-	m_opened = false;
-
-	return 0;
+	return _close();
 }
 
 
@@ -292,7 +287,7 @@ int InputFileFFmpeg::readSamples(SampleBuffer *sampleBuffer)
 	if(!m_opened)
 		return -1;
 
-	AVFrame *frame = avcodec_alloc_frame();
+	AVFrame *frame = av_frame_alloc();
 	AVPacket packet;
 	av_init_packet(&packet);
 	int sampleSize = av_samples_get_buffer_size(NULL, m_codecCtx->channels, 1, m_codecCtx->sample_fmt, 1);
@@ -324,7 +319,7 @@ int InputFileFFmpeg::readSamples(SampleBuffer *sampleBuffer)
 					if(LogFFmpegError(res, "Unable to resample") < 0)
 					{
 						av_free_packet(&packet);
-						av_free(frame);
+						av_frame_free(&frame);
 						return -1;
 					}
 
@@ -360,7 +355,7 @@ int InputFileFFmpeg::readSamples(SampleBuffer *sampleBuffer)
 				if(LogFFmpegError(res, "Unable to resample") < 0)
 				{
 					av_free_packet(&packet);
-					av_free(frame);
+					av_frame_free(&frame);
 					return -1;
 				}
 				written += res;
@@ -377,6 +372,8 @@ int InputFileFFmpeg::readSamples(SampleBuffer *sampleBuffer)
 			m_done = true;
 		}
 	}
+
+	av_frame_free(&frame);
 
 	return written;
 }
@@ -410,6 +407,29 @@ int InputFileFFmpeg::getAudioStreamNum() const
 int64_t InputFileFFmpeg::getTargetSamples(int64_t sourceSamples, int64_t sourceSampleRate, int64_t targetSampleRate)
 {
 	return av_rescale_rnd(sourceSamples, sourceSampleRate, targetSampleRate, AV_ROUND_DOWN);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+int InputFileFFmpeg::_close()
+{
+	if(m_swrCtx)
+		swr_free(&m_swrCtx);
+
+	if(m_codecCtx)
+		avcodec_close(m_codecCtx);
+
+	if(m_fmtCtx)
+	{
+		avformat_close_input(&m_fmtCtx);
+		m_codecCtx = NULL;
+	}
+
+	m_opened = false;
+
+	return 0;
 }
 
 

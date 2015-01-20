@@ -60,7 +60,9 @@ bool SampleProducerThread::isRunning()
 //---------------------------------------------------------------
 void SampleProducerThread::setSource( SampleSource *source )
 {
+	m_mutex.lock();
 	m_source = source;
+	m_mutex.unlock();
 }
 
 
@@ -71,6 +73,7 @@ void SampleProducerThread::run()
 {
 	while(!m_stop)
 	{
+		m_mutex.lock();
 		if(m_source)
 		{
 			while(m_buffer->avail() < 48000 / 2)
@@ -80,6 +83,7 @@ void SampleProducerThread::run()
 					break;
 			}
 		}
+		m_mutex.unlock();
 
 		// We now have half a second of samples available and have done
 		// so much work that we deserve a little rest

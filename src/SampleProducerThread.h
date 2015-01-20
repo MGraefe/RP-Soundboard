@@ -23,11 +23,11 @@ private:
 	void threadFunc();
 
 	std::thread m_thread;
-	SampleSource *m_source;
+	SampleSource * volatile m_source;
 	SampleBuffer * const m_buffer;
 	bool m_running;
 	volatile bool m_stop;
-	
+	std::mutex m_mutex;	
 };
 
 #endif // SampleProducerThread_H__
