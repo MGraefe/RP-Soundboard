@@ -240,9 +240,9 @@ CAPI void sb_stopPlayback()
 
 CAPI void sb_playButton(int btn)
 {
-	const char *fn = configModel->getFileName(btn);
-	if(fn)
-		sb_playFile(fn);
+	QString fn = configModel->getFileName(btn);
+	if(!fn.isNull())
+		sb_playFile(fn.toUtf8());
 }
 
 

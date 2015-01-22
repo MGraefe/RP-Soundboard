@@ -1,8 +1,11 @@
 
 #include "common.h"
 
+#include <QtCore/QSettings>
+
 #include "ConfigModel.h"
 #include "device.h"
+
 
 
 //---------------------------------------------------------------
@@ -30,8 +33,7 @@ void ConfigModel::readConfig()
 	for(int i = 0; i < size; i++)
 	{
 		settings.setArrayIndex(i);
-		QByteArray ba = settings.value("path").toString().toLocal8Bit();
-		m_fns[i] = ba.data();
+		m_fns[i] = settings.value("path").toString();
 	}
 	settings.endArray();
 
@@ -66,8 +68,7 @@ void ConfigModel::writeConfig()
 	for(int i = 0; i < m_fns.size(); i++)
 	{
 		settings.setArrayIndex(i);
-		QString value = m_fns[i].c_str();
-		settings.setValue("path", value);
+		settings.setValue("path", m_fns[i]);
 	}
 	settings.endArray();
 
@@ -84,18 +85,18 @@ void ConfigModel::writeConfig()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-const char * ConfigModel::getFileName( int itemId )
+QString ConfigModel::getFileName( int itemId ) const
 {
 	if(itemId >= 0 && itemId < m_fns.size())
-		return m_fns[itemId].c_str();
-	return NULL;
+		return m_fns[itemId];
+	return QString();
 }
 
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::setFileName( int itemId, const char *fn )
+void ConfigModel::setFileName( int itemId, const QString &fn )
 {
 	if(itemId >= 0)
 	{

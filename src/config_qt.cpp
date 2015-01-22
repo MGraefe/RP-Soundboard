@@ -58,9 +58,9 @@ void ConfigQt::onClickedPlay()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
 	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
-	const char *fn = m_model->getFileName(buttonId);
-	if(fn)
-		sb_playFile(fn);
+	QString fn = m_model->getFileName(buttonId);
+	if(!fn.isNull())
+		sb_playFile(fn.toUtf8());
 }
 
 
@@ -75,10 +75,7 @@ void ConfigQt::onClickedChoose()
 	QString filePath = m_model->getFileName(buttonId);
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
 	if(!fn.isNull())
-	{
-		QByteArray ba = fn.toLocal8Bit();
-		m_model->setFileName(buttonId, ba.data());
-	}
+		m_model->setFileName(buttonId, fn);
 }
 
 
@@ -202,10 +199,10 @@ void ConfigQt::updateButtonText(int i)
 	if(i >= m_buttons.size())
 		return;
 
-	const char *fn = m_model->getFileName(i);
-	if(fn)
+	QString fn = m_model->getFileName(i);
+	if(!fn.isNull())
 	{
-		QFileInfo info = QFileInfo(QString(fn));
+		QFileInfo info = QFileInfo(fn);
 		m_buttons[i].play->setText(info.baseName());
 		m_buttons[i].play->setEnabled(true);
 	}

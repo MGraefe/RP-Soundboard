@@ -3,7 +3,7 @@
 #define ConfigModel_H__
 
 #include <vector>
-#include <QtCore/QSettings>
+#include <QtCore/QString>
 
 class ConfigModel
 {
@@ -33,8 +33,8 @@ public:
 	static QString GetConfigPath();
 	static QString GetFullConfigPath();
 
-	const char *getFileName(int itemId);
-	void setFileName(int itemId, const char *fn);
+	QString getFileName(int itemId) const;
+	void setFileName(int itemId, const QString &fn);
 
 	inline int getRows() const { return m_rows; }
 	void setRows(int n);
@@ -61,7 +61,7 @@ private:
 	void notify(notifications_e what, int data);
 
 	std::vector<Observer*> m_obs;
-	std::vector<std::string> m_fns;
+	std::vector<QString> m_fns;
 	int m_rows;
 	int m_cols;
 	int m_volume;
