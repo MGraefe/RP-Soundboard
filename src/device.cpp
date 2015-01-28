@@ -17,10 +17,10 @@
 #include "ts3log.h"
 #include "inputfile.h"
 #include "samples.h"
-
 #include "config_qt.h"
 #include "about_qt.h"
 #include "ConfigModel.h"
+#include "UpdateChecker.h"
 
 class ModelObserver_Prog : public ConfigModel::Observer
 {
@@ -36,7 +36,9 @@ ConfigQt *configDialog = NULL;
 AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
+UpdateChecker *updateChecker = NULL;
 bool playing = false;
+
 
 void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
 {
@@ -174,6 +176,8 @@ CAPI void sb_init()
 	modelObserver = new ModelObserver_Prog();
 	configModel->addObserver(modelObserver);
 	configModel->readConfig();
+	updateChecker = new UpdateChecker();
+	updateChecker->startCheck();
 }
 
 
@@ -213,6 +217,9 @@ CAPI void sb_kill()
 		delete aboutDialog;
 		aboutDialog = NULL;
 	}
+
+	delete updateChecker;
+	updateChecker = NULL;
 }
 
 
