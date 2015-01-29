@@ -1,15 +1,40 @@
 
+//Parses XML Files from a server
+//Example File:
+
+// <?xml version="1.0" encoding="utf-8"?>
+//
+// <versionDescription>
+//   <product descVersion="1" name="rp_soundboard">
+//     <latestVersion>1101</latestVersion>
+//     <latestDownload>
+//       <url>http://mgraefe.de/rpsb/dl/rp_soundboard_1101.ts3_plugin</url>
+//     </latestDownload>
+//   </product>
+// </versionDescription>
+
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QtWidgets/QMessageBox>
 
 #include "version/version.h"
+#include "buildinfo.h"
 
 #include "UpdateChecker.h"
 #include "ts3log.h"
 
 #define CHECK_URL "http://mgraefe.de/rpsb/version/version.xml"
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+bool isValid(const QXmlStreamReader &xml)
+{
+	return !(xml.hasError() || xml.atEnd());
+}
+
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -30,7 +55,9 @@ void UpdateChecker::startCheck()
 	connect(m_mgr, SIGNAL(finished(QNetworkReply*)), this, SLOT(onFinishDownloadXml(QNetworkReply*)));
 
 	QUrl url(CHECK_URL);
-	QNetworkRequest request(url);
+	QNetworkRequest request;
+	request.setUrl(url);
+	request.setRawHeader("User-Agent", QByteArray("RP Soundboard Update Checker, ") + PLUGIN_VERSION);
 	m_mgr->get(request);
 }
 
@@ -76,21 +103,11 @@ void UpdateChecker::parseXml(QIODevice *device)
 	QXmlStreamReader xml;
 	xml.setDevice(device);
 
-	while(!xml.atEnd() && !xml.hasError())
+	while(isValid(xml))
 	{
 		QXmlStreamReader::TokenType token = xml.readNext();
-		if(token == QXmlStreamReader::StartDocument)
-			continue;
-		
-		if(token == QXmlStreamReader::StartElement)
-		{
-			if(xml.name() == "versionDescription")
-				continue;
-			if(xml.name() == "product")
-			{
+		if(token == QXmlStreamReader::StartElement && xml.name() == "product")
 				parseProduct(xml);
-			}
-		}
 	}
 
 	xml.clear();
@@ -107,7 +124,7 @@ void UpdateChecker::parseProduct( QXmlStreamReader &xml )
 	{
 		m_verInfo.productName = xml.attributes().value("name").toString();
 		xml.readNext();
-		while(!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "product"))
+		while(isValid(xml) && !(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "product"))
 		{
 			if(xml.tokenType() == QXmlStreamReader::StartElement)
 				parseProductInner(xml);
@@ -130,7 +147,7 @@ void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
 	else if(xml.name() == "latestDownload")
 	{
 		xml.readNext();
-		while(!(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "latestDownload"))
+		while(isValid(xml) && !(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "latestDownload"))
 		{
 			if(xml.tokenType() == QXmlStreamReader::StartElement && xml.name() == "url")
 			{
@@ -141,7 +158,6 @@ void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
 		}
 	}
 }
-
 
 
 //---------------------------------------------------------------
