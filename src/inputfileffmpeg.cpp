@@ -223,6 +223,10 @@ int InputFileFFmpeg::open(const char *filename )
 		return -1;
 	}
 
+	logInfo("Opened file: %s; Codec: %s, Channels: %i, Rate: %i, Format: %s, Timebase: %i/%i",
+		filename, codec->long_name, m_codecCtx->channels, m_codecCtx->sample_rate,
+		av_get_sample_fmt_name(m_codecCtx->sample_fmt), m_codecCtx->time_base.num, m_codecCtx->time_base.den);
+
 	m_opened = true;
 
 	return 0;
