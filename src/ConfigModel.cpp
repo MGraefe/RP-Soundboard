@@ -29,11 +29,11 @@ void ConfigModel::readConfig()
 	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
 
 	int size = settings.beginReadArray("files");
-	m_fns.resize(size);
+	m_sounds.resize(size);
 	for(int i = 0; i < size; i++)
 	{
 		settings.setArrayIndex(i);
-		m_fns[i] = settings.value("path").toString();
+		m_sounds[i].readFromConfig(settings);
 	}
 	settings.endArray();
 
@@ -46,8 +46,8 @@ void ConfigModel::readConfig()
 	m_windowHeight = settings.value("window_height", 450).toInt();
 
 	//Notify all changes
-	for(int i = 0; i < m_fns.size(); i++)
-		notify(NOTIFY_SET_FILENAME, i);
+	for(int i = 0; i < m_sounds.size(); i++)
+		notify(NOTIFY_SET_SOUND, i);
 	notify(NOTIFY_SET_COLS, m_cols);
 	notify(NOTIFY_SET_ROWS, m_rows);
 	notify(NOTIFY_SET_VOLUME, m_volume);
@@ -65,10 +65,10 @@ void ConfigModel::writeConfig()
 	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
 
 	settings.beginWriteArray("files");
-	for(int i = 0; i < m_fns.size(); i++)
+	for(int i = 0; i < m_sounds.size(); i++)
 	{
 		settings.setArrayIndex(i);
-		settings.setValue("path", m_fns[i]);
+		m_sounds[i].saveToConfig(settings);
 	}
 	settings.endArray();
 
@@ -87,8 +87,8 @@ void ConfigModel::writeConfig()
 //---------------------------------------------------------------
 QString ConfigModel::getFileName( int itemId ) const
 {
-	if(itemId >= 0 && itemId < m_fns.size())
-		return m_fns[itemId];
+	if(itemId >= 0 && itemId < m_sounds.size())
+		return m_sounds[itemId].filename;
 	return QString();
 }
 
@@ -100,12 +100,36 @@ void ConfigModel::setFileName( int itemId, const QString &fn )
 {
 	if(itemId >= 0)
 	{
-		if(itemId < 1000 && itemId >= m_fns.size())
-			m_fns.resize(itemId + 1);
-		m_fns[itemId] = fn;
+		if(itemId < 1000 && itemId >= m_sounds.size())
+			m_sounds.resize(itemId + 1);
+		m_sounds[itemId].filename = fn;
 		writeConfig();
-		notify(NOTIFY_SET_FILENAME, itemId);
+		notify(NOTIFY_SET_SOUND, itemId);
 	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
+{
+	if(itemId >= 0 && itemId < m_sounds.size())
+		return &m_sounds[itemId];
+	return NULL;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setSoundInfo( int itemId, const SoundInfo &info )
+{
+	if(itemId < 1000 && itemId >= m_sounds.size())
+		m_sounds.resize(itemId + 1);
+	m_sounds[itemId] = info;
+	writeConfig();
+	notify(NOTIFY_SET_SOUND, itemId);
 }
 
 
@@ -235,3 +259,4 @@ void ConfigModel::remObserver(Observer *obs)
 {
 	m_obs.erase(std::remove(m_obs.begin(), m_obs.end(), obs), m_obs.end());
 }
+

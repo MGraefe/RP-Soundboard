@@ -89,6 +89,18 @@
     <ClCompile Include="GeneratedFiles\Release\moc_UpdateChecker.cpp">
       <Filter>Generierte Dateien\Release</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_soundsettings_qt.cpp">
+      <Filter>Generierte Dateien\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_soundsettings_qt.cpp">
+      <Filter>Generierte Dateien\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\soundsettings_qt.cpp">
+      <Filter>Source Dateien</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\SoundInfo.cpp">
+      <Filter>Source Dateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\common.h">
@@ -136,6 +148,12 @@
     <ClInclude Include="..\src\buildinfo.h">
       <Filter>Header Dateien</Filter>
     </ClInclude>
+    <ClInclude Include="GeneratedFiles\ui_soundsettings_qt.h">
+      <Filter>Generierte Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\SoundInfo.h">
+      <Filter>Header Dateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\src\config_qt.h">
@@ -154,6 +172,12 @@
       <Filter>Resource Dateien</Filter>
     </CustomBuild>
     <CustomBuild Include="..\src\UpdateChecker.h">
+      <Filter>Header Dateien</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\soundsettings_qt.ui">
+      <Filter>Form Dateien</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\soundsettings_qt.h">
       <Filter>Header Dateien</Filter>
     </CustomBuild>
   </ItemGroup>

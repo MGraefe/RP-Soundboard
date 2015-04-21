@@ -29,6 +29,7 @@ protected:
 private slots:
 	void onClickedPlay();
 	void onClickedChoose();
+	void onClickedAdvanced();
 	void onClickedStop();
 	void onUpdateVolume(int val);
 	void onUpdatePlaybackLocal(bool val);
@@ -49,6 +50,7 @@ private:
 		QPushButton *play;
 		QBoxLayout *subLayout;
 		QPushButton *choose;
+		QPushButton *advanced;
 	};
 
 	class ModelObserver : public ConfigModel::Observer

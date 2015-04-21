@@ -3,6 +3,7 @@
 #define ConfigModel_H__
 
 #include <vector>
+#include "SoundInfo.h"
 #include <QtCore/QString>
 
 class ConfigModel
@@ -10,7 +11,7 @@ class ConfigModel
 public:
 	enum notifications_e
 	{
-		NOTIFY_SET_FILENAME,
+		NOTIFY_SET_SOUND,
 		NOTIFY_SET_ROWS,
 		NOTIFY_SET_COLS,
 		NOTIFY_SET_VOLUME,
@@ -35,6 +36,9 @@ public:
 
 	QString getFileName(int itemId) const;
 	void setFileName(int itemId, const QString &fn);
+
+	const SoundInfo *getSoundInfo(int itemId) const;
+	void setSoundInfo(int itemId, const SoundInfo &info);
 
 	inline int getRows() const { return m_rows; }
 	void setRows(int n);
@@ -61,7 +65,7 @@ private:
 	void notify(notifications_e what, int data);
 
 	std::vector<Observer*> m_obs;
-	std::vector<QString> m_fns;
+	std::vector<SoundInfo> m_sounds;
 	int m_rows;
 	int m_cols;
 	int m_volume;

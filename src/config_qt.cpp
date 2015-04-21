@@ -7,6 +7,7 @@
 #include "config_qt.h"
 #include "ConfigModel.h"
 #include "device.h"
+#include "soundsettings_qt.h"
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -77,6 +78,21 @@ void ConfigQt::onClickedChoose()
 	if(!fn.isNull())
 		m_model->setFileName(buttonId, fn);
 }
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onClickedAdvanced()
+{
+	QPushButton *button = dynamic_cast<QPushButton*>(sender());
+	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.advanced == button;}) - m_buttons.begin();
+
+	SoundSettingsQt dlg(*m_model->getSoundInfo(buttonId), this);
+	if(dlg.exec() == QDialog::Accepted)
+		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
+}
+
 
 
 //---------------------------------------------------------------
@@ -179,8 +195,14 @@ void ConfigQt::createButtons()
 			elem.subLayout->addWidget(elem.choose);
 			connect(elem.choose, SIGNAL(released()), this, SLOT(onClickedChoose()));
 
+			elem.advanced = new QPushButton(this);
+			elem.advanced->setText("adv");
+			elem.subLayout->addWidget(elem.advanced);
+			connect(elem.advanced, SIGNAL(released()), this, SLOT(onClickedAdvanced()));
+
 			elem.play->updateGeometry();
 			elem.choose->updateGeometry();
+			elem.advanced->updateGeometry();
 
 			m_buttons.push_back(elem);
 		}
@@ -232,7 +254,7 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 		if (p.ui->cb_playback_locally->isChecked() != model.getPlaybackLocal())
 			p.ui->cb_playback_locally->setChecked(model.getPlaybackLocal());
 		break;
-	case ConfigModel::NOTIFY_SET_FILENAME:
+	case ConfigModel::NOTIFY_SET_SOUND:
 		p.updateButtonText(data);
 		break;
 	case ConfigModel::NOTIFY_SET_MUTE_MYSELF_DURING_PB:
