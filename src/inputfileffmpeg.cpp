@@ -247,8 +247,10 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 //---------------------------------------------------------------
 int InputFileFFmpeg::seek( double seconds )
 {
-	int64_t ts = (int64_t)(seconds * (double)m_codecCtx->time_base.den / (double)m_codecCtx->time_base.num + 0.5);
-	return av_seek_frame(m_fmtCtx, m_streamIndex, ts, 0);
+	if(LogFFmpegError(avformat_seek_file(m_fmtCtx, -1, INT64_MIN, (int64_t)(seconds * AV_TIME_BASE), INT64_MAX, 0), "Seeking failed") < 0)
+		return -1;
+	avcodec_flush_buffers(m_codecCtx);
+	return 0;
 }
 
 

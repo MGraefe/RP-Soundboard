@@ -158,6 +158,8 @@ void ConfigQt::createButtons()
 	{
 		elem.subLayout->removeWidget(elem.choose);
 		delete elem.choose;
+		elem.subLayout->removeWidget(elem.advanced);
+		delete elem.advanced;
 		elem.layout->removeWidget(elem.play);
 		delete elem.play;
 		elem.layout->removeItem(elem.subLayout);
