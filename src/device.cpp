@@ -21,6 +21,7 @@
 #include "about_qt.h"
 #include "ConfigModel.h"
 #include "UpdateChecker.h"
+#include "SoundInfo.h"
 
 class ModelObserver_Prog : public ConfigModel::Observer
 {
@@ -146,7 +147,7 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 }
 
 
-CAPI int sb_playFile(const char *filename)
+int sb_playFile(const SoundInfo &sound)
 {
 	if(!playing)
 	{
@@ -155,7 +156,7 @@ CAPI int sb_playFile(const char *filename)
 			previousTalkState = s;
 	}
 
-	if(sampler->playFile(filename))
+	if(sampler->playFile(sound))
 	{
 		setContinuousTransmission(activeServerId);
 		playing = true;
@@ -247,9 +248,9 @@ CAPI void sb_stopPlayback()
 
 CAPI void sb_playButton(int btn)
 {
-	QString fn = configModel->getFileName(btn);
-	if(!fn.isNull())
-		sb_playFile(fn.toUtf8());
+	const SoundInfo *sound = configModel->getSoundInfo(btn);
+	if(sound)
+		sb_playFile(*sound);
 }
 
 

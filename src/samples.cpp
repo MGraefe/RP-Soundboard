@@ -3,6 +3,7 @@
 
 #include "inputfile.h"
 #include "samples.h"
+#include "SoundInfo.h"
 
 #include <queue>
 #include <vector>
@@ -148,14 +149,15 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 }
 
 
-bool Sampler::playFile( const char *filename )
+bool Sampler::playFile(const SoundInfo &sound)
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
 	stopPlayback();
 
 	m_inputFile = CreateInputFileFFmpeg();
-	if(m_inputFile->open(filename) != 0)
+
+	if(m_inputFile->open(sound.filename.toUtf8(), sound.getStartTime(), sound.getPlayTime()) != 0)
 	{
 		delete m_inputFile;
 		m_inputFile = NULL;

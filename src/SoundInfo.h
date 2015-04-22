@@ -9,6 +9,10 @@ public:
 	SoundInfo();
 	void readFromConfig(const QSettings &settings);
 	void saveToConfig(QSettings &settings) const;
+	double getStartTime() const;
+	double getPlayTime() const;
+
+	static double getTimeUnitFactor(int unit);
 
 public:
 	QString filename;

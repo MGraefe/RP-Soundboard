@@ -84,11 +84,12 @@ class InputFileFFmpeg : public InputFile
 public:
 	InputFileFFmpeg();
 	~InputFileFFmpeg();
-	int open(const char *filename) override;
+	int open(const char *filename, double startPosSeconds = 0.0, double playTimeSeconds = -1.0) override;
 	int close() override;
 
 	int readSamples(SampleBuffer *sampleBuffer) override;
 	bool done() const override;
+	int seek(double seconds) override;
 
 private:
 	int _close();
@@ -107,6 +108,7 @@ private:
 	int64_t m_decodedSamples;
 	int64_t m_convertedSamples;
 	int64_t m_decodedSamplesTargetSR;
+	int64_t m_maxConvertedSamples;
 	typedef std::lock_guard<std::mutex> Lock;
 };
 
@@ -135,6 +137,7 @@ void InputFileFFmpeg::reset()
 	m_decodedSamples = 0;
 	m_convertedSamples = 0;
 	m_decodedSamplesTargetSR = 0;
+	m_maxConvertedSamples = 0;
 }
 
 
@@ -151,7 +154,7 @@ InputFileFFmpeg::~InputFileFFmpeg()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-int InputFileFFmpeg::open(const char *filename )
+int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/, double playTimeSeconds /*= -1.0*/)
 {
 	Lock lock(m_mutex);
 
@@ -229,7 +232,23 @@ int InputFileFFmpeg::open(const char *filename )
 
 	m_opened = true;
 
+	if(startPosSeconds > 0.0)
+		seek(startPosSeconds);
+
+	if(playTimeSeconds > 0.0)
+		m_maxConvertedSamples = uint64_t(playTimeSeconds * OUTPUT_SAMPLERATE + 0.5);
+
 	return 0;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+int InputFileFFmpeg::seek( double seconds )
+{
+	int64_t ts = (int64_t)(seconds * (double)m_codecCtx->time_base.den / (double)m_codecCtx->time_base.num + 0.5);
+	return av_seek_frame(m_fmtCtx, m_streamIndex, ts, 0);
 }
 
 
@@ -251,26 +270,16 @@ int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleBuffer *sb)
 	int res = swr_convert(m_swrCtx, &m_outBuf, OUTPUT_BUFFER_COUNT,
 		frame ? (const uint8_t **)frame->extended_data : NULL,
 		frame ? frame->nb_samples : 0);
+	if(res <= 0)
+		return res;
+	if(m_maxConvertedSamples > 0 && (int64_t)res > (m_maxConvertedSamples - m_convertedSamples))
+	{
+		res = m_maxConvertedSamples - m_convertedSamples;
+		m_done = true;
+	}
 	if(res > 0)
 		sb->produce((short*)m_outBuf, res);
 	return res;
-	//const int sr_in = m_codecCtx->sample_rate;
-	//const int sr_out = 48000;
-	//const int sm_in = frame->nb_samples;
-	//const int sm_in_del = swr_get_delay(m_swrCtx, sr_out) + sm_in;
-	//const int sm_out = std::min((int)av_rescale_rnd(sm_in_del, sr_in, sr_out, AV_ROUND_UP), outCount / 2);
-
-	//uint8_t *output;
-	//int outputSize = av_samples_alloc(&output, NULL, 2, sm_out, AV_SAMPLE_FMT_S16, 0);
-	//
-	//uint8_t *out = (uint8_t*)outBuf;
-	//int res = swr_convert(m_swrCtx, &output, sm_out, (const uint8_t **)frame->extended_data, frame->nb_samples);
-	//if(res < 0)
-	//	return res;
-
-	//memcpy(outBuf, output, res * sizeof(short) * 2);
-	//av_freep(&output);
-	//return res * 2;
 }
 
 
@@ -392,10 +401,6 @@ bool InputFileFFmpeg::done() const
 int InputFileFFmpeg::getAudioStreamNum() const
 {
 	return av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
-	//for(int i = 0; i < m_ctx->nb_streams; i++)
-	//	if(m_ctx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO)
-	//		return i;
-	//return -1;
 }
 
 

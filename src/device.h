@@ -3,11 +3,15 @@
 #ifndef DEVICE_H__
 #define DEVICE_H__
 
+#ifdef __cplusplus
+class SoundInfo;
+int sb_playFile(const SoundInfo &sound);
+#endif
+
 CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 	int sampleCount, int channels, int* edited);
 CAPI void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
 	int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask);
-CAPI int sb_playFile(const char *filename);
 CAPI void sb_stopPlayback();
 //CAPI void sb_setVolume(int vol);
 //CAPI void sb_setLocalPlayback(int enabled);

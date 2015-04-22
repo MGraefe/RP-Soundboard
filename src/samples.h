@@ -7,6 +7,7 @@
 #include <mutex>
 
 class InputFile;
+class SoundInfo;
 
 class Sampler
 {
@@ -17,7 +18,7 @@ public:
 	void shutdown();
 	int fetchInputSamples(short *samples, int count, int channels, bool *finished);
 	int fetchOutputSamples(short *samples, int count, int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask);
-	bool playFile(const char *filename);
+	bool playFile(const SoundInfo &sound);
 	void stopPlayback();
 	void setVolume(int vol);
 	void setLocalPlayback(bool enabled);

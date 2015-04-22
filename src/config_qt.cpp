@@ -59,9 +59,9 @@ void ConfigQt::onClickedPlay()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
 	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
-	QString fn = m_model->getFileName(buttonId);
-	if(!fn.isNull())
-		sb_playFile(fn.toUtf8());
+	const SoundInfo *info = m_model->getSoundInfo(buttonId);
+	if(info)
+		sb_playFile(*info);
 }
 
 

@@ -67,3 +67,43 @@ void SoundInfo::saveToConfig( QSettings &settings ) const
 	settings.setValue(NAME_CROP_STOP_VALUE, cropStopValue);
 	settings.setValue(NAME_CROP_STOP_UNIT, cropStopUnit);
 }
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+double SoundInfo::getStartTime() const
+{
+	if(!cropEnabled)
+		return 0.0;
+	return (double)cropStartValue * getTimeUnitFactor(cropStartUnit);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+double SoundInfo::getPlayTime() const
+{
+	if(!cropEnabled)
+		return -1.0;
+	double t = (double)cropStopValue * getTimeUnitFactor(cropStopUnit);
+	if(cropStopAfterAt == 1) //stop AT x seconds instead of AFTER?
+		t -= getStartTime();
+	return std::max(t, 0.0);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+double SoundInfo::getTimeUnitFactor(int unit)
+{
+	switch(unit)
+	{
+	case 0: return 0.001;
+	case 1: return 1.0;
+	default:
+		throw std::logic_error("No such unit");
+	}
+}
