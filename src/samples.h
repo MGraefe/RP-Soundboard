@@ -25,10 +25,12 @@ public:
 	void setMuteMyself(bool enabled);
 
 private:
+	void setVolumeDb(double decibel);
 	int fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
 	int findChannelId(int channel, const unsigned int *channelSpeakerArray, int count);
 	inline short scale(int val) const {
-		return (short)((val << 16) / m_volumeDivider);
+		//return (short)((val << 16) / m_volumeDivider);
+		return (short)((val * m_volumeDivider) >> 12);
 	}
 
 private:
@@ -50,6 +52,8 @@ private:
 	OnBufferProduceCB m_onBufferProduceCB;
 	InputFile *m_inputFile;
 	int m_volumeDivider;
+	double m_globalDbSetting;
+	double m_soundDbSetting;
 	std::mutex m_mutex;
 	bool m_playing;
 	bool m_localPlayback;

@@ -22,6 +22,8 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	//setAttribute(Qt::WA_DeleteOnClose);
 
 	createButtons();
+
+	ui->cb_advanced_config->hide();
 	
 	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));
 	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
@@ -89,6 +91,7 @@ void ConfigQt::onClickedAdvanced()
 	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.advanced == button;}) - m_buttons.begin();
 
 	SoundSettingsQt dlg(*m_model->getSoundInfo(buttonId), this);
+	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId)));
 	if(dlg.exec() == QDialog::Accepted)
 		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
 }

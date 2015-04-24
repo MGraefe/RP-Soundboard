@@ -24,6 +24,10 @@ public:
 protected:
 	void done(int r);
 
+private slots:
+	void onVolumeChanged(int value);
+	void onBrowsePressed();
+
 private:
 	void initGui(const SoundInfo &sound);
 	void fillFromGui(SoundInfo &sound);

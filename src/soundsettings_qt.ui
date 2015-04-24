@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>266</height>
+    <width>471</width>
+    <height>281</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,10 +53,13 @@
         <item>
          <widget class="QSlider" name="soundVolumeSlider">
           <property name="minimum">
-           <number>-20</number>
+           <number>-10</number>
           </property>
           <property name="maximum">
-           <number>20</number>
+           <number>10</number>
+          </property>
+          <property name="pageStep">
+           <number>5</number>
           </property>
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -65,14 +68,23 @@
            <enum>QSlider::TicksBelow</enum>
           </property>
           <property name="tickInterval">
-           <number>20</number>
+           <number>10</number>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QLabel" name="soundVolumeDbLabel">
+          <property name="minimumSize">
+           <size>
+            <width>40</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="text">
            <string>+0 dB</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
          </widget>
         </item>

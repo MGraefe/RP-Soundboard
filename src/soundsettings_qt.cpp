@@ -3,6 +3,7 @@
 #include "ui_soundsettings_qt.h"
 #include "soundsettings_qt.h"
 #include "ConfigModel.h"
+#include <QtWidgets/QFileDialog>
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -13,14 +14,15 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent /*=
 	m_soundInfo(soundInfo)
 {
 	ui->setupUi(this);
-
+	ui->previewSoundButton->hide();
 	ui->startSoundUnitCombo->addItem("milliseconds");
 	ui->startSoundUnitCombo->addItem("seconds");
 	ui->stopSoundUnitCombo->addItem("milliseconds");
 	ui->stopSoundUnitCombo->addItem("seconds");
 	ui->stopSoundAtAfterCombo->addItem("after");
 	ui->stopSoundAtAfterCombo->addItem("at");
-
+	connect(ui->soundVolumeSlider, SIGNAL(valueChanged(int)), this, SLOT(onVolumeChanged(int)));
+	connect(ui->filenameBrowseButton, SIGNAL(released()), this, SLOT(onBrowsePressed()));
 	initGui(m_soundInfo);
 }
 
@@ -64,6 +66,27 @@ void SoundSettingsQt::done( int r )
 {
 	fillFromGui(m_soundInfo);
 	QDialog::done(r);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundSettingsQt::onVolumeChanged(int value)
+{
+	ui->soundVolumeDbLabel->setText(QString("%1%2 dB").arg(value > 0 ? "+" : "", QString::number(value)));
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundSettingsQt::onBrowsePressed()
+{
+	QString filePath = ui->filenameEdit->text();
+	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
+	if(!fn.isNull())
+		ui->filenameEdit->setText(fn);
 }
 
 
