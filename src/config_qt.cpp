@@ -8,6 +8,13 @@
 #include "ConfigModel.h"
 #include "device.h"
 #include "soundsettings_qt.h"
+#include "ts3log.h"
+
+enum button_choices_e {
+	BC_CHOOSE = 0,
+	BC_ADVANCED,
+};
+
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -20,6 +27,14 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 {
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
+
+	QAction *actChooseFile = new QAction("Choose File", this);
+	actChooseFile->setData((int)BC_CHOOSE);
+	m_buttonContextMenu.addAction(actChooseFile);
+
+	QAction *actAdvancedOpts = new QAction("Advanced Options", this);
+	actAdvancedOpts->setData((int)BC_ADVANCED);
+	m_buttonContextMenu.addAction(actAdvancedOpts);
 
 	createButtons();
 
@@ -61,41 +76,9 @@ void ConfigQt::onClickedPlay()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
 	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
-	const SoundInfo *info = m_model->getSoundInfo(buttonId);
-	if(info)
-		sb_playFile(*info);
+
+	playSound(buttonId);
 }
-
-
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-void ConfigQt::onClickedChoose()
-{
-	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.choose == button;}) - m_buttons.begin();
-
-	QString filePath = m_model->getFileName(buttonId);
-	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
-	if(!fn.isNull())
-		m_model->setFileName(buttonId, fn);
-}
-
-
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-void ConfigQt::onClickedAdvanced()
-{
-	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.advanced == button;}) - m_buttons.begin();
-
-	SoundSettingsQt dlg(*m_model->getSoundInfo(buttonId), this);
-	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId)));
-	if(dlg.exec() == QDialog::Accepted)
-		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
-}
-
 
 
 //---------------------------------------------------------------
@@ -159,14 +142,8 @@ void ConfigQt::createButtons()
 {
 	for(button_element_t &elem : m_buttons)
 	{
-		elem.subLayout->removeWidget(elem.choose);
-		delete elem.choose;
-		elem.subLayout->removeWidget(elem.advanced);
-		delete elem.advanced;
 		elem.layout->removeWidget(elem.play);
 		delete elem.play;
-		elem.layout->removeItem(elem.subLayout);
-		delete elem.subLayout;
 		ui->gridLayout->removeItem(elem.layout);
 		delete elem.layout;
 	}
@@ -180,7 +157,7 @@ void ConfigQt::createButtons()
 	{
 		for(int j = 0; j < numCols; j++)
 		{
-			button_element_t elem;
+			button_element_t elem = {0};
 			elem.layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
 			elem.layout->setSpacing(0);
 			ui->gridLayout->addLayout(elem.layout, i, j);
@@ -191,24 +168,11 @@ void ConfigQt::createButtons()
 			elem.play->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 			elem.layout->addWidget(elem.play);
 			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
-
-			elem.subLayout = new QBoxLayout(QBoxLayout::Direction::LeftToRight);
-			elem.layout->addLayout(elem.subLayout);
-
-			elem.choose = new QPushButton(this);
-			elem.choose->setText("...");
-			elem.subLayout->addWidget(elem.choose);
-			connect(elem.choose, SIGNAL(released()), this, SLOT(onClickedChoose()));
-
-			elem.advanced = new QPushButton(this);
-			elem.advanced->setText("adv");
-			elem.subLayout->addWidget(elem.advanced);
-			connect(elem.advanced, SIGNAL(released()), this, SLOT(onClickedAdvanced()));
+			elem.play->setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(elem.play, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+				SLOT(showButtonContextMenu(const QPoint&)));
 
 			elem.play->updateGeometry();
-			elem.choose->updateGeometry();
-			elem.advanced->updateGeometry();
-
 			m_buttons.push_back(elem);
 		}
 	}
@@ -233,6 +197,74 @@ void ConfigQt::updateButtonText(int i)
 		m_buttons[i].play->setText(info.baseName());
 		m_buttons[i].play->setEnabled(true);
 	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::showButtonContextMenu( const QPoint &point )
+{
+	QPushButton *button = dynamic_cast<QPushButton*>(sender());
+	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
+
+	QPoint globalPos = m_buttons[buttonId].play->mapToGlobal(point);
+	QAction *action = m_buttonContextMenu.exec(globalPos);
+	if(action)
+	{
+		bool ok = false;
+		int choice = action->data().toInt(&ok);
+		if(ok)
+		{
+			switch(choice)
+			{
+			case BC_CHOOSE: 
+				chooseFile(buttonId); 
+				break;
+			case BC_ADVANCED: 
+				openAdvanced(buttonId); 
+				break;
+			default: break;
+			}
+		}
+		else
+			logError("Invalid user data in context menu");
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::playSound( size_t buttonId )
+{
+	const SoundInfo *info = m_model->getSoundInfo(buttonId);
+	if(info)
+		sb_playFile(*info);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::chooseFile( size_t buttonId )
+{
+	QString filePath = m_model->getFileName(buttonId);
+	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
+	if(!fn.isNull())
+		m_model->setFileName(buttonId, fn);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::openAdvanced( size_t buttonId )
+{
+	SoundSettingsQt dlg(*m_model->getSoundInfo(buttonId), this);
+	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId + 1)));
+	if(dlg.exec() == QDialog::Accepted)
+		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
 }
 
 

@@ -6,6 +6,7 @@
 #include <QtWidgets/QGridLayout>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QBoxLayout>
+#include <QtWidgets/QMenu>
 
 
 #include "ui_config_qt.h"
@@ -28,16 +29,18 @@ protected:
 
 private slots:
 	void onClickedPlay();
-	void onClickedChoose();
-	void onClickedAdvanced();
 	void onClickedStop();
 	void onUpdateVolume(int val);
 	void onUpdatePlaybackLocal(bool val);
 	void onUpdateCols(int val);
 	void onUpdateRows(int val);
 	void onUpdateMuteMyself(bool val);
+	void showButtonContextMenu(const QPoint &point);
 
 private:
+	void playSound(size_t buttonId);
+	void chooseFile(size_t buttonId);
+	void openAdvanced(size_t buttonId);
 	void createButtons();
 	void updateButtonText(int i);
 	// layout
@@ -48,10 +51,8 @@ private:
 	{
 		QBoxLayout *layout;
 		QPushButton *play;
-		QBoxLayout *subLayout;
-		QPushButton *choose;
-		QPushButton *advanced;
 	};
+
 
 	class ModelObserver : public ConfigModel::Observer
 	{
@@ -67,6 +68,7 @@ private:
 	ConfigModel *m_model;
 	QBoxLayout *m_configArea;
 	ModelObserver m_modelObserver;
+	QMenu m_buttonContextMenu;
 };
 
 #endif // config_qt_H__
