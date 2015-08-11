@@ -7,7 +7,9 @@
 
 #include <queue>
 #include <vector>
+#include <cassert>
 
+#define USE_SSE2
 #ifdef USE_SSE2
 #include <emmintrin.h>
 #endif
@@ -17,6 +19,16 @@ using std::vector;
 using std::queue;
 
 static_assert(sizeof(short) == 2, "Short is weird size");
+
+#if defined(_MSC_VER)
+#define ALIGNED_(x) __declspec(align(x))
+#elif defined(__GNUC__)
+#define ALIGNED_(x) __attribute__ ((aligned(x)))
+#else
+#error Unknown compiler
+#endif
+
+#define ALIGNED_STACK_ARRAY(name, size, alignment) name[size] ALIGNED_(alignment) 
 
 
 //---------------------------------------------------------------
@@ -98,6 +110,14 @@ inline void scaleSSE(__m128i &v, int factor)
 	//TODO: Finish
 	
 }
+
+static inline __m128i muly(const __m128i &a, const __m128i &b)
+{
+	__m128i tmp1 = _mm_mul_epu32(a, b); /* mul 2,0*/
+	__m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); /* mul 3,1 */
+	return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE (0,0,2,0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE (0,0,2,0))); /* shuffle results to [63..0] and pack */
+}
+
 #endif
 
 //---------------------------------------------------------------
@@ -138,24 +158,65 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 		}
 	}
 #else
-	for(int i = 0; i < write; i += 8)
+	if(channels == 1)
 	{
-		//Load channel data to in_l, in_r
-		__m128i in_l, in_r;
-		loadStridedChannels(in + i*2, in_l, in_r);
-
-		if(channels == 1)
+		__m128i ones = _mm_set1_epi16(1);
+		__m128i volumeDivider = _mm_set1_epi32(m_volumeDivider);
+		for(int i = 0; i < write; i += 8)
 		{
-			// av = (in_l + in_r) / 2
-			__m128i a = _mm_add_epi16(a, _mm_set1_epi16(32768));
-			__m128i b = _mm_add_epi16(b, _mm_set1_epi16(32768));
-			__m128i av = _mm_avg_epu16(a, b);
+			__m128i a, b;
+			a = _mm_loadu_si128(reinterpret_cast<__m128i*>(in + i*2));
+			b = _mm_loadu_si128(reinterpret_cast<__m128i*>(in + i*2 + 8));
 
-			__m128i outv = _mm_loadu_si128(reinterpret_cast<__m128i*>(out + i));
-			outv = _mm_add_epi16(outv, av);
+			// merge channels via mad
+			// mad returns the following: (x0 * y0 + x1 * y1, x2 * y2 + x3 * y3, ... )
+			// If we set y to only ones we just add every second member
+			// madd also returns the result as 32 bit integers
+			a = _mm_madd_epi16(a, ones); // = (a0 + a1, a2 + a3, a4 + a5, a6 + a7)
+			b = _mm_madd_epi16(b, ones); // = (b0 + b1, b2 + b3, b4 + b5, b6 + b7)
+
+			// scale, multiply with volume divider and divide by 8192
+			// normally we would divide by 4096 but we haven't divided our samples
+			// by two in the channel merge stage.
+			// The resulting operation is essentially a = (a * volumeDivider) / 4096 / 2
+			a = _mm_srai_epi32(muly(a, volumeDivider), 13);
+			b = _mm_srai_epi32(muly(b, volumeDivider), 13);
+
+			//Now convert 4*32 bits from a and 4*32 bits from b to 8*16 bits output
+			a = _mm_packs_epi32(a, b);
+
+			b = _mm_loadu_si128(reinterpret_cast<__m128i*>(out + i)); //b = out[i]
+			b = _mm_adds_epi16(a, b); // b = sat(a + b)
+			_mm_storeu_si128(reinterpret_cast<__m128i*>(out + i), b);
 		}
 	}
-	//TODO: finish
+	else
+	{
+		__m128i volumeDivider = _mm_set1_epi32(m_volumeDivider);
+		__declspec(align(16)) short outbuf[8]; //TODO: generalize
+		assert(reinterpret_cast<size_t>(outbuf) % 16 == 0);
+		for(int i = 0; i < write; i += 4)
+		{
+			__m128i v = _mm_loadu_si128(reinterpret_cast<__m128i*>(in + i*2));
+			//widen to 32 bits
+			__m128i a = _mm_srai_epi32(_mm_unpacklo_epi16(v, v), 16);
+			__m128i b = _mm_srai_epi32(_mm_unpackhi_epi16(v, v), 16);
+
+			// scale, multiply with volume divider and divide by 4096
+			a = _mm_srai_epi32(muly(a, volumeDivider), 12);
+			b = _mm_srai_epi32(muly(b, volumeDivider), 12);
+
+			//store into aligned memory
+			_mm_store_si128(reinterpret_cast<__m128i*>(outbuf), _mm_packs_epi32(a, b));
+
+			for(int k = 0; k < 4; ++k)
+			{
+				int id = (i + k) * channels;
+				out[id + ciLeft] += outbuf[k*2];
+				out[id + ciRight] += outbuf[k*2+1];
+			}
+		}
+	}
 #endif
 
 	return write;
