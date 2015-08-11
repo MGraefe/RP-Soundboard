@@ -25,16 +25,15 @@ static_assert(sizeof(short) == 2, "Short is weird size");
 Sampler::Sampler() :
 	m_sbCapture(2),
 	m_sbPlayback(2),
-	m_sampleProducerThread(&m_sbCapture),
-	m_onBufferProduceCB(*this),
+	m_sampleProducerThread(),
 	m_inputFile(NULL),
 	m_volumeDivider(1),
-	m_playing(false),
+	m_state(SILENT),
 	m_localPlayback(true),
 	m_globalDbSetting(-1.0),
 	m_soundDbSetting(0.0)
 {
-	m_sbCapture.setOnProduce(&m_onBufferProduceCB);
+
 }
 
 
@@ -52,6 +51,8 @@ Sampler::~Sampler()
 //---------------------------------------------------------------
 void Sampler::init()
 {
+	m_sampleProducerThread.addBuffer(&m_sbCapture);
+	m_sampleProducerThread.addBuffer(&m_sbPlayback, m_localPlayback);
 	m_sampleProducerThread.start();
 }
 
@@ -175,9 +176,9 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
 	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
-	if(m_playing && m_inputFile->done() && m_sbCapture.avail() == 0)
+	if(m_state == PLAYING && m_inputFile->done() && m_sbCapture.avail() == 0)
 	{
-		m_playing = false;
+		m_state = SILENT;
 		if(finished)
 			*finished = true;
 	}
@@ -224,7 +225,7 @@ bool Sampler::playFile(const SoundInfo &sound)
 	m_sbCapture.consume(NULL, m_sbCapture.avail());
 	m_sbPlayback.consume(NULL, m_sbPlayback.avail());
 
-	m_playing = true;
+	m_state = PLAYING;
 	m_sampleProducerThread.setSource(m_inputFile);
 
 	return true;
@@ -238,7 +239,7 @@ void Sampler::stopPlayback()
 {
 	if(m_inputFile)
 	{
-		m_playing = false;
+		m_state = SILENT;
 		m_sampleProducerThread.setSource(NULL);
 		m_inputFile->close();
 		delete m_inputFile;
@@ -266,6 +267,7 @@ void Sampler::setVolume( int vol )
 void Sampler::setLocalPlayback( bool enabled )
 {
 	m_localPlayback = enabled;
+	m_sampleProducerThread.setBufferEnabled(&m_sbPlayback, enabled);
 }
 
 
@@ -288,12 +290,3 @@ void Sampler::setVolumeDb( double decibel )
 	m_volumeDivider = (int)(factor * 4096.0 + 0.5);
 }
 
-
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-void Sampler::OnBufferProduceCB::onProduceSamples( const short *samples, int count, SampleBuffer *caller )
-{
-	if(parent.m_localPlayback)
-		parent.m_sbPlayback.produce(samples, count);
-}

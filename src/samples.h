@@ -12,6 +12,14 @@ class SoundInfo;
 class Sampler
 {
 public:
+	enum state_e
+	{
+		SILENT = 0,
+		PLAYING,
+		PLAYING_PREVIEW,
+	};
+
+public:
 	Sampler();
 	~Sampler();
 	void init();
@@ -19,10 +27,12 @@ public:
 	int fetchInputSamples(short *samples, int count, int channels, bool *finished);
 	int fetchOutputSamples(short *samples, int count, int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask);
 	bool playFile(const SoundInfo &sound);
+	bool playPreview(const SoundInfo &sound);
 	void stopPlayback();
 	void setVolume(int vol);
 	void setLocalPlayback(bool enabled);
 	void setMuteMyself(bool enabled);
+	inline state_e getState() const { return m_state; }
 
 private:
 	void setVolumeDb(double decibel);
@@ -32,30 +42,17 @@ private:
 		//return (short)((val << 16) / m_volumeDivider);
 		return (short)((val * m_volumeDivider) >> 12);
 	}
-
-private:
-	class OnBufferProduceCB : public SampleBuffer::ProduceCallback
-	{
-	public:
-		OnBufferProduceCB(Sampler &parent) :
-			parent(parent)
-		{}
-		void onProduceSamples(const short *samples, int count, SampleBuffer *caller);
-	private:
-		Sampler &parent;
-	};
 	
 private:
 	SampleBuffer m_sbCapture;
 	SampleBuffer m_sbPlayback;
 	SampleProducerThread m_sampleProducerThread;
-	OnBufferProduceCB m_onBufferProduceCB;
 	InputFile *m_inputFile;
 	int m_volumeDivider;
 	double m_globalDbSetting;
 	double m_soundDbSetting;
 	std::mutex m_mutex;
-	bool m_playing;
+	state_e m_state;
 	bool m_localPlayback;
 	bool m_muteMyself;
 };

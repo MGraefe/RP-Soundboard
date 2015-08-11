@@ -4,6 +4,7 @@
 #define SampleProducerThread_H__
 
 #include <thread>
+#include <vector>
 
 class SampleBuffer;
 class SampleSource;
@@ -11,8 +12,17 @@ class SampleSource;
 
 class SampleProducerThread
 {
+	struct buffer_t
+	{
+		SampleBuffer *buffer;
+		bool enabled;
+	};
+
 public:
-	SampleProducerThread(SampleBuffer *sampleBuffer);
+	SampleProducerThread();
+	void addBuffer(SampleBuffer *buffer, bool enableBuffer = true);
+	void remBuffer(SampleBuffer *buffer);
+	void setBufferEnabled(SampleBuffer *buffer, bool enabled);
 	void start();
 	void stop(bool wait = true);
 	bool isRunning();
@@ -24,7 +34,7 @@ private:
 
 	std::thread m_thread;
 	SampleSource * volatile m_source;
-	SampleBuffer * const m_buffer;
+	std::vector<buffer_t> m_buffers;
 	bool m_running;
 	volatile bool m_stop;
 	std::mutex m_mutex;	

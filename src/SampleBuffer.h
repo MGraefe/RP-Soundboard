@@ -72,10 +72,13 @@ public:
 		return 2 * m_channels;
 	}
 
+	//Copy a number of samples to another buffer
+	void copyToOther(SampleBuffer *other, int count, int start = 0) const;
+
 private:
 	const int m_channels;
 	std::vector<short> m_buf;
-	std::mutex m_mutex;
+	mutable std::mutex m_mutex;
 	ProduceCallback *m_cbProd;
 	ConsumeCallback *m_cbCons;
 };
