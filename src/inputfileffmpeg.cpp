@@ -26,9 +26,9 @@ extern "C"
 
 #define OUTPUT_BUFFER_COUNT 32768
 #define OUTPUT_FORMAT AV_SAMPLE_FMT_S16
-#define OUTPUT_CHANNELS 2
-#define OUTPUT_CHANNEL_LAYOUT AV_CH_LAYOUT_STEREO
-#define OUTPUT_SAMPLERATE 48000
+//#define OUTPUT_CHANNELS 2
+//#define OUTPUT_CHANNEL_LAYOUT AV_CH_LAYOUT_STEREO
+//#define OUTPUT_SAMPLERATE 48000
 
 //#ifdef _WIN32
 //void LoadWildcardDll(const TCHAR *path, const TCHAR *name)
@@ -82,7 +82,7 @@ int LogFFmpegError(int code, char *msg = NULL)
 class InputFileFFmpeg : public InputFile
 {
 public:
-	InputFileFFmpeg();
+	InputFileFFmpeg(const InputFileOptions &options);
 	~InputFileFFmpeg();
 	int open(const char *filename, double startPosSeconds = 0.0, double playTimeSeconds = -1.0) override;
 	int close() override;
@@ -90,6 +90,7 @@ public:
 	int readSamples(SampleBuffer *sampleBuffer) override;
 	bool done() const override;
 	int seek(double seconds) override;
+	int64_t outputSamplesEstimation() const;
 
 private:
 	int _close();
@@ -97,6 +98,13 @@ private:
 	int getAudioStreamNum() const;
 	int handleDecoded(AVFrame *frame, SampleBuffer *sb);
 	int64_t getTargetSamples(int64_t sourceSamples, int64_t sourceSampleRate, int64_t targetSampleRate);
+
+private:
+	const InputFileOptions m_inputFileOptions;
+	const int m_outputChannels;
+	const int m_outputSamplerate;
+	const int64_t m_outputChannelLayout;
+
 	AVFormatContext *m_fmtCtx;
 	AVCodecContext *m_codecCtx;
 	SwrContext *m_swrCtx;
@@ -112,14 +120,34 @@ private:
 	typedef std::lock_guard<std::mutex> Lock;
 };
 
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+inline int64_t getChannelLayoutFromOptions(const InputFileOptions &options)
+{
+	switch(options.outputChannelLayout)
+	{
+	case InputFileOptions::MONO:
+		return AV_CH_LAYOUT_MONO;
+	case InputFileOptions::STEREO:
+		return AV_CH_LAYOUT_STEREO;
+	default:
+		return AV_CH_LAYOUT_STEREO;
+	}
+}
+
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-InputFileFFmpeg::InputFileFFmpeg()
+InputFileFFmpeg::InputFileFFmpeg(const InputFileOptions &options) :
+	m_inputFileOptions(options),
+	m_outputChannels(options.getNumChannels()),
+	m_outputSamplerate(options.outputSampleRate),
+	m_outputChannelLayout(getChannelLayoutFromOptions(options))
 {
 	reset();
-	av_samples_alloc(&m_outBuf, NULL, OUTPUT_CHANNELS, OUTPUT_BUFFER_COUNT, OUTPUT_FORMAT, 0);
+	av_samples_alloc(&m_outBuf, NULL, m_outputChannels, OUTPUT_BUFFER_COUNT, OUTPUT_FORMAT, 0);
 }
 
 
@@ -184,6 +212,7 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 		return -1;
 	}
 
+	
 	m_codecCtx = m_fmtCtx->streams[m_streamIndex]->codec;
 	AVCodec *codec = avcodec_find_decoder(m_codecCtx->codec_id);
 	if(!codec)
@@ -195,7 +224,6 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 
 	m_codecCtx->codec = codec;
 	m_codecCtx->channel_layout = av_get_default_channel_layout(m_codecCtx->channels);
-
 	if(LogFFmpegError(avcodec_open2(m_codecCtx, m_codecCtx->codec, NULL), "Cannot open codec") < 0)
 	{
 		_close();
@@ -205,9 +233,9 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 
 	//Open Resample context
 	m_swrCtx = swr_alloc_set_opts(NULL,
-		OUTPUT_CHANNEL_LAYOUT,		//Output layout (stereo)
+		m_outputChannelLayout,		//Output layout (stereo)
 		OUTPUT_FORMAT,				//Output format (signed 16bit int)
-		OUTPUT_SAMPLERATE,			//Output Sample Rate
+		m_outputSamplerate,			//Output Sample Rate
 		m_codecCtx->channel_layout, //Input layout
 		m_codecCtx->sample_fmt,		//Input format
 		m_codecCtx->sample_rate,	//Input Sample Rate
@@ -236,7 +264,7 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 		seek(startPosSeconds);
 
 	if(playTimeSeconds > 0.0)
-		m_maxConvertedSamples = uint64_t(playTimeSeconds * OUTPUT_SAMPLERATE + 0.5);
+		m_maxConvertedSamples = uint64_t(playTimeSeconds * (double)m_outputSamplerate + 0.5);
 
 	return 0;
 }
@@ -321,7 +349,7 @@ int InputFileFFmpeg::readSamples(SampleBuffer *sampleBuffer)
 					decodePacket.size -= consumed;
 					decodePacket.data += consumed;
 					m_decodedSamples += frame->nb_samples;
-					m_decodedSamplesTargetSR += getTargetSamples(frame->nb_samples, OUTPUT_SAMPLERATE, m_codecCtx->sample_rate);
+					m_decodedSamplesTargetSR += getTargetSamples(frame->nb_samples, m_outputSamplerate, m_codecCtx->sample_rate);
 
 					//Resample
 					int res = handleDecoded(frame, sampleBuffer);
@@ -441,7 +469,21 @@ int InputFileFFmpeg::_close()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-InputFile *CreateInputFileFFmpeg()
+int64_t InputFileFFmpeg::outputSamplesEstimation() const
 {
-	return new InputFileFFmpeg();
+	AVStream *stream = m_fmtCtx->streams[m_streamIndex];
+	int64_t duration = stream->duration;
+	AVRational timeBase = stream->time_base;
+	int64_t samples = duration * (int64_t)timeBase.num * 
+		(int64_t)m_outputSamplerate / (int64_t)timeBase.den;
+	return samples;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+InputFile *CreateInputFileFFmpeg(InputFileOptions options /*= InputFileOptions()*/)
+{
+	return new InputFileFFmpeg(options);
 }

@@ -29,6 +29,7 @@
     <ClCompile Include="..\src\SampleBuffer.cpp" />
     <ClCompile Include="..\src\SampleProducerThread.cpp" />
     <ClCompile Include="..\src\samples.cpp" />
+    <ClCompile Include="..\src\SampleVisualizerThread.cpp" />
     <ClCompile Include="..\src\SoundInfo.cpp" />
     <ClCompile Include="..\src\soundsettings_qt.cpp" />
     <ClCompile Include="..\src\ts3log.cpp" />
@@ -96,6 +97,7 @@
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp</Outputs>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -D_WINDLL -D_UNICODE "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
+    <ClInclude Include="..\src\SampleVisualizerThread.h" />
     <ClInclude Include="..\src\SoundInfo.h" />
     <ClInclude Include="..\src\ts3log.h" />
     <CustomBuild Include="..\src\UpdateChecker.h">

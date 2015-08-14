@@ -7,6 +7,34 @@
 
 class SampleBuffer;
 
+struct InputFileOptions
+{
+	enum channel_layout_e
+	{
+		MONO = 0,
+		STEREO,
+	};
+
+	channel_layout_e outputChannelLayout;
+	int outputSampleRate;
+
+	InputFileOptions() :
+		outputChannelLayout(STEREO),
+		outputSampleRate(48000)
+	{}
+
+	inline int getNumChannels() const
+	{
+		switch(outputChannelLayout)
+		{
+		case MONO:   return 1;
+		case STEREO: return 2;
+		default: return 0;
+		}
+	}
+};
+
+
 class InputFile : public SampleSource
 {
 public:
@@ -17,7 +45,7 @@ public:
 	virtual int seek(double seconds) = 0;
 };
 
-extern InputFile *CreateInputFileFFmpeg();
+extern InputFile *CreateInputFileFFmpeg(InputFileOptions options = InputFileOptions());
 extern void InitFFmpegLibrary();
 
 
