@@ -4,12 +4,17 @@
 #include "inputfile.h"
 #include "samples.h"
 #include "SoundInfo.h"
+#include "ts3log.h"
+#include "HighResClock.h"
 
 #include <queue>
 #include <vector>
 #include <cassert>
 
+
 #define USE_SSE2
+//#define MEASURE_PERFORMANCE
+
 #ifdef USE_SSE2
 #include <emmintrin.h>
 #endif
@@ -120,28 +125,43 @@ static inline __m128i muly(const __m128i &a, const __m128i &b)
 
 #endif
 
+#ifdef MEASURE_PERFORMANCE
+size_t g_perfMeasureCount = 0;
+double g_perfMeasurement = 0.0;
+#endif
+
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
 int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight )
 {
+#ifdef MEASURE_PERFORMANCE
+	std::chrono::time_point<HighResClock> start, end;
+	start = HighResClock::now();
+#endif
+
 	if(sb.avail() == 0)
 		return 0;
 
 	if(overLeft)
-		for(int i = 0; i < count; i++)
-			samples[i*channels+ciLeft] = 0;
+	{
+		if(channels == 1)
+			memset(samples, 0, count * sizeof(short));
+		else
+			for(int i = 0; i < count; i++)
+				samples[i*channels+ciLeft] = 0;
+	}
 
 	if(overRight && channels > 1)
 		for(int i = 0; i < count; i++)
 			samples[i*channels+ciRight] = 0;
 
-	int maxSamples = std::min(count, sb.avail());
-	std::vector<short> buffer(maxSamples * 2);
-	int write = sb.consume(buffer.data(), maxSamples, eraseConsumed);
+	const int write = std::min(count, sb.avail());
+	//std::vector<short> buffer(maxSamples * 2);
+	//int write = sb.consume(buffer.data(), maxSamples, eraseConsumed);
 
-	short *in = buffer.data();
-	short *out = samples;
+	const short* const in = sb.getBufferData();
+	short* const out = samples;
 
 #ifndef USE_SSE2
 	if(channels == 1)
@@ -165,8 +185,8 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 		for(int i = 0; i < write; i += 8)
 		{
 			__m128i a, b;
-			a = _mm_loadu_si128(reinterpret_cast<__m128i*>(in + i*2));
-			b = _mm_loadu_si128(reinterpret_cast<__m128i*>(in + i*2 + 8));
+			a = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2));
+			b = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2 + 8));
 
 			// merge channels via mad
 			// mad returns the following: (x0 * y0 + x1 * y1, x2 * y2 + x3 * y3, ... )
@@ -197,7 +217,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 		assert(reinterpret_cast<size_t>(outbuf) % 16 == 0);
 		for(int i = 0; i < write; i += 4)
 		{
-			__m128i v = _mm_loadu_si128(reinterpret_cast<__m128i*>(in + i*2));
+			__m128i v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2));
 			//widen to 32 bits
 			__m128i a = _mm_srai_epi32(_mm_unpacklo_epi16(v, v), 16);
 			__m128i b = _mm_srai_epi32(_mm_unpackhi_epi16(v, v), 16);
@@ -219,6 +239,19 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	}
 #endif
 
+	sb.consume(NULL, write, true);
+
+#ifdef MEASURE_PERFORMANCE
+	end = HighResClock::now();
+	std::chrono::duration<double> elapsed = end - start;
+	g_perfMeasurement += elapsed.count();
+	if(++g_perfMeasureCount >= 1000)
+	{
+		logInfo("Avg. time in fetchSamples: %f us", g_perfMeasurement / (double)g_perfMeasureCount * 1000000.0);
+		g_perfMeasureCount = 0;
+		g_perfMeasurement = 0.0;
+	}
+#endif
 	return write;
 }
 
@@ -237,7 +270,7 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
 	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
-	if(m_state == PLAYING && m_inputFile->done() && m_sbCapture.avail() == 0)
+	if(m_state == PLAYING && m_inputFile && m_inputFile->done() && m_sbCapture.avail() == 0)
 	{
 		m_state = SILENT;
 		if(finished)
@@ -260,36 +293,28 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	
 	if(written > 0)
 		*channelFillMask |= (SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT);
+
+	if(m_state == PLAYING_PREVIEW && m_inputFile && m_inputFile->done() && m_sbPlayback.avail() == 0)
+	{
+		m_state = SILENT;
+	}
+
 	return written;
 }
 
 
 bool Sampler::playFile(const SoundInfo &sound)
 {
-	std::lock_guard<std::mutex> Lock(m_mutex);
+	return playSoundInternal(sound, false);
+}
 
-	stopPlayback();
 
-	m_inputFile = CreateInputFileFFmpeg();
-
-	if(m_inputFile->open(sound.filename.toUtf8(), sound.getStartTime(), sound.getPlayTime()) != 0)
-	{
-		delete m_inputFile;
-		m_inputFile = NULL;
-		return false;
-	}
-
-	m_soundDbSetting = (double)sound.volume;
-	setVolumeDb(m_globalDbSetting + m_soundDbSetting);
-
-	//Clear buffers
-	m_sbCapture.consume(NULL, m_sbCapture.avail());
-	m_sbPlayback.consume(NULL, m_sbPlayback.avail());
-
-	m_state = PLAYING;
-	m_sampleProducerThread.setSource(m_inputFile);
-
-	return true;
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+bool Sampler::playPreview(const SoundInfo &sound)
+{
+	return playSoundInternal(sound, true);
 }
 
 
@@ -347,7 +372,50 @@ void Sampler::setMuteMyself(bool enabled)
 void Sampler::setVolumeDb( double decibel )
 {
 	double factor = pow(10.0, decibel/10.0);
-	//m_volumeDivider = (int)(std::min(std::max(65536.0 * (1.0 / factor), 1.0), (double)INT_MAX));
 	m_volumeDivider = (int)(factor * 4096.0 + 0.5);
 }
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
+{
+	std::lock_guard<std::mutex> Lock(m_mutex);
+
+	stopPlayback();
+
+	m_inputFile = CreateInputFileFFmpeg();
+
+	if(m_inputFile->open(sound.filename.toUtf8(), sound.getStartTime(), sound.getPlayTime()) != 0)
+	{
+		delete m_inputFile;
+		m_inputFile = NULL;
+		return false;
+	}
+
+	m_soundDbSetting = (double)sound.volume;
+	setVolumeDb(m_globalDbSetting + m_soundDbSetting);
+
+	//Clear buffers
+	m_sbCapture.consume(NULL, m_sbCapture.avail());
+	m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+
+	if(preview)
+	{
+		m_state = PLAYING_PREVIEW;
+		m_sampleProducerThread.setBufferEnabled(&m_sbCapture, false);
+		m_sampleProducerThread.setBufferEnabled(&m_sbPlayback, true);
+	}
+	else
+	{
+		m_state = PLAYING;
+		m_sampleProducerThread.setBufferEnabled(&m_sbCapture, true);
+	}
+
+	m_sampleProducerThread.setSource(m_inputFile);
+
+	return true;
+}
+
 

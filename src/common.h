@@ -10,11 +10,12 @@
 #include "ts3_functions.h"
 
 
-
+#ifndef CAPI
 #ifdef __cplusplus
 #define CAPI extern "C"
 #else
 #define CAPI extern
+#endif
 #endif
 
 #ifdef __cplusplus

@@ -3,6 +3,8 @@
 #include "ui_soundsettings_qt.h"
 #include "soundsettings_qt.h"
 #include "ConfigModel.h"
+#include "device.h"
+#include "samples.h"
 #include <QtWidgets/QFileDialog>
 
 //---------------------------------------------------------------
@@ -11,10 +13,11 @@
 SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent /*= 0*/) :
 	QDialog(parent),
 	ui(new Ui::SoundSettingsQt),
-	m_soundInfo(soundInfo)
+	m_soundInfo(soundInfo),
+	m_iconPlay(":/icon/img/playarrow_32.png"),
+	m_iconStop(":/icon/img/stoparrow_32.png")
 {
 	ui->setupUi(this);
-	ui->previewSoundButton->hide();
 	ui->startSoundUnitCombo->addItem("milliseconds");
 	ui->startSoundUnitCombo->addItem("seconds");
 	ui->stopSoundUnitCombo->addItem("milliseconds");
@@ -23,7 +26,10 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent /*=
 	ui->stopSoundAtAfterCombo->addItem("at");
 	connect(ui->soundVolumeSlider, SIGNAL(valueChanged(int)), this, SLOT(onVolumeChanged(int)));
 	connect(ui->filenameBrowseButton, SIGNAL(released()), this, SLOT(onBrowsePressed()));
+	connect(ui->previewSoundButton, SIGNAL(released()), this, SLOT(onPreviewPressed()));
 	initGui(m_soundInfo);
+	m_timer = new QTimer(this);
+	connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimer()));
 }
 
 
@@ -87,6 +93,44 @@ void SoundSettingsQt::onBrowsePressed()
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
 	if(!fn.isNull())
 		ui->filenameEdit->setText(fn);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundSettingsQt::onPreviewPressed()
+{
+	Sampler *sampler = sb_getSampler();
+	if(sampler->getState() != Sampler::PLAYING_PREVIEW)
+	{
+		SoundInfo sound;
+		fillFromGui(sound);
+		if(sampler->playPreview(sound))
+		{
+			ui->previewSoundButton->setIcon(m_iconStop);
+			m_timer->start(100);
+		}
+	}
+	else
+	{
+		sampler->stopPlayback();
+		ui->previewSoundButton->setIcon(m_iconPlay);
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundSettingsQt::onTimer()
+{
+	Sampler *sampler = sb_getSampler();
+	if(sampler->getState() != Sampler::PLAYING_PREVIEW)
+	{
+		ui->previewSoundButton->setIcon(m_iconPlay);
+		m_timer->stop();
+	}
 }
 
 

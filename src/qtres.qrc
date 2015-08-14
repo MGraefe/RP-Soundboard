@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="icon">
+    <file>../img/stoparrow_32.png</file>
+    <file>../img/playarrow_32.png</file>
     <file>../img/rpmb_icon_16.png</file>
     <file>../img/rpmb_icon_64.png</file>
   </qresource>

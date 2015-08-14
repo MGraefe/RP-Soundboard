@@ -75,6 +75,11 @@ public:
 	//Copy a number of samples to another buffer
 	void copyToOther(SampleBuffer *other, int count, int start = 0) const;
 
+	//Directly return bare memory adress
+	//Be careful!
+	inline short *getBufferData() {
+		return m_buf.data();
+	}
 private:
 	const int m_channels;
 	std::vector<short> m_buf;

@@ -194,6 +194,10 @@
      <property name="text">
       <string>Preview Sound</string>
      </property>
+     <property name="icon">
+      <iconset resource="qtres.qrc">
+       <normaloff>:/icon/img/playarrow_32.png</normaloff>:/icon/img/playarrow_32.png</iconset>
+     </property>
     </widget>
    </item>
    <item>

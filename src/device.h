@@ -3,9 +3,14 @@
 #ifndef DEVICE_H__
 #define DEVICE_H__
 
+#include "common.h"
+
 #ifdef __cplusplus
 class SoundInfo;
 int sb_playFile(const SoundInfo &sound);
+
+class Sampler;
+Sampler *sb_getSampler();
 #endif
 
 CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,

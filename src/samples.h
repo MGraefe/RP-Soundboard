@@ -35,6 +35,7 @@ public:
 	inline state_e getState() const { return m_state; }
 
 private:
+	bool playSoundInternal(const SoundInfo &sound, bool preview);
 	void setVolumeDb(double decibel);
 	int fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
 	int findChannelId(int channel, const unsigned int *channelSpeakerArray, int count);

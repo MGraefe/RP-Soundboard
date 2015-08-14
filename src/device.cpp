@@ -166,6 +166,12 @@ int sb_playFile(const SoundInfo &sound)
 }
 
 
+Sampler *sb_getSampler()
+{
+	return sampler;
+}
+
+
 CAPI void sb_init()
 {
 	InitFFmpegLibrary();
@@ -260,3 +266,5 @@ CAPI void sb_openAbout()
 		aboutDialog = new AboutQt();
 	aboutDialog->show();
 }
+
+

@@ -35,8 +35,9 @@ int SampleBuffer::consume( short *samples, int maxCount, bool eraseConsumed )
 {
 	Lock lock(m_mutex);
 	int count = std::min(avail(), maxCount);
+	size_t shorts = count * m_channels;
 	if(samples)
-		memcpy(samples, m_buf.data(), count * m_channels * sizeof(short));
+		memcpy(samples, m_buf.data(), shorts * 2);
 	if(eraseConsumed)
 		m_buf.erase(m_buf.begin(), m_buf.begin() + count * m_channels);
 	if(m_cbCons)

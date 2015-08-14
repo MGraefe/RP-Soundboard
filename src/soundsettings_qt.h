@@ -4,6 +4,8 @@
 
 #include <QtWidgets/QDialog>
 #include <QtGui/QCloseEvent>
+#include <QtGui/QIcon>
+#include <QtCore/QTimer>
 #include "SoundInfo.h"
 
 class ConfigModel;
@@ -27,6 +29,8 @@ protected:
 private slots:
 	void onVolumeChanged(int value);
 	void onBrowsePressed();
+	void onPreviewPressed();
+	void onTimer();
 
 private:
 	void initGui(const SoundInfo &sound);
@@ -36,6 +40,9 @@ private:
 	ConfigModel *m_model;
 	size_t m_soundIndex;
 	SoundInfo m_soundInfo;
+	QIcon m_iconPlay;
+	QIcon m_iconStop;
+	QTimer *m_timer;
 };
 
 

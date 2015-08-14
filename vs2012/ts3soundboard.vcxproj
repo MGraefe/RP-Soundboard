@@ -23,6 +23,7 @@
     <ClCompile Include="..\src\ConfigModel.cpp" />
     <ClCompile Include="..\src\config_qt.cpp" />
     <ClCompile Include="..\src\device.cpp" />
+    <ClCompile Include="..\src\HighResClock.cpp" />
     <ClCompile Include="..\src\inputfileffmpeg.cpp" />
     <ClCompile Include="..\src\plugin.c" />
     <ClCompile Include="..\src\SampleBuffer.cpp" />
@@ -70,6 +71,7 @@
     <ClInclude Include="..\src\common.h" />
     <ClInclude Include="..\src\ConfigModel.h" />
     <ClInclude Include="..\src\device.h" />
+    <ClInclude Include="..\src\HighResClock.h" />
     <ClInclude Include="..\src\inputfile.h" />
     <ClInclude Include="..\src\plugin.h" />
     <ClInclude Include="..\src\SampleBuffer.h" />
@@ -391,6 +393,7 @@ xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamsp
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
