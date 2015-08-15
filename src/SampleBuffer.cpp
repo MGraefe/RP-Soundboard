@@ -7,8 +7,9 @@ typedef std::lock_guard<std::mutex> Lock;
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-SampleBuffer::SampleBuffer( int channels ) :
+SampleBuffer::SampleBuffer( int channels, size_t maxSize /*= 0*/ ) :
 	m_channels(channels),
+	m_maxSize(maxSize),
 	m_cbProd(NULL),
 	m_cbCons(NULL)
 {
@@ -22,9 +23,12 @@ SampleBuffer::SampleBuffer( int channels ) :
 void SampleBuffer::produce( const short *samples, int count )
 {
 	Lock lock(m_mutex);
-	m_buf.insert(m_buf.end(), samples, samples + (count * m_channels));
-	if(m_cbProd)
-		m_cbProd->onProduceSamples(samples, count, this);
+	if(m_maxSize == 0 || avail() < m_maxSize)
+	{
+		m_buf.insert(m_buf.end(), samples, samples + (count * m_channels));
+		if(m_cbProd)
+			m_cbProd->onProduceSamples(samples, count, this);
+	}
 }
 
 

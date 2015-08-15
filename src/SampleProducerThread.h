@@ -6,11 +6,13 @@
 #include <thread>
 #include <vector>
 
+#include "SampleProducer.h"
+
 class SampleBuffer;
 class SampleSource;
 
 
-class SampleProducerThread
+class SampleProducerThread : public SampleProducer
 {
 	struct buffer_t
 	{
@@ -31,6 +33,10 @@ public:
 private:
 	void run();
 	void threadFunc();
+	int singleBufferFill();
+	void produce(const short *samples, int count) override;
+
+	typedef std::lock_guard<std::mutex> Lock;
 
 	std::thread m_thread;
 	SampleSource * volatile m_source;

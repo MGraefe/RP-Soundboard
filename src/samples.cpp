@@ -35,13 +35,14 @@ static_assert(sizeof(short) == 2, "Short is weird size");
 
 #define ALIGNED_STACK_ARRAY(name, size, alignment) name[size] ALIGNED_(alignment) 
 
+#define MAX_SAMPLEBUFFER_SIZE (48000 * 5)
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
 Sampler::Sampler() :
-	m_sbCapture(2),
-	m_sbPlayback(2),
+	m_sbCapture(2, MAX_SAMPLEBUFFER_SIZE),
+	m_sbPlayback(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sampleProducerThread(),
 	m_inputFile(NULL),
 	m_volumeDivider(1),
@@ -417,5 +418,4 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 
 	return true;
 }
-
 

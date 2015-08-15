@@ -5,7 +5,9 @@
 #include <vector>
 #include <mutex>
 
-class SampleBuffer
+#include "SampleProducer.h"
+
+class SampleBuffer : public SampleProducer
 {
 public:
 	class ProduceCallback
@@ -21,7 +23,7 @@ public:
 	};
 
 public:
-	SampleBuffer(int channels);
+	SampleBuffer(int channels, size_t maxSize = 0);
 
 	//Set the callback that is called when samples are placed into the buffer (produced)
 	inline void setOnProduce(ProduceCallback *cb) { 
@@ -54,11 +56,16 @@ public:
 		return m_channels;
 	}
 
+	//Return max size as set
+	inline size_t maxSize() const {
+		return m_maxSize;
+	}
+
 	//Place some samples into the buffer
 	//samples: The sample buffer
 	//count: Number of samples in buffer
 	//One sample is (2 * channels) bytes in size
-	void produce(const short *samples, int count);
+	void produce(const short *samples, int count) override;
 
 	//Consume some samples from the buffer
 	//samples: The sample buffer
@@ -82,6 +89,7 @@ public:
 	}
 private:
 	const int m_channels;
+	const size_t m_maxSize;
 	std::vector<short> m_buf;
 	mutable std::mutex m_mutex;
 	ProduceCallback *m_cbProd;

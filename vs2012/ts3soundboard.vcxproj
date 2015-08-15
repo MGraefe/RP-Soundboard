@@ -76,6 +76,7 @@
     <ClInclude Include="..\src\inputfile.h" />
     <ClInclude Include="..\src\plugin.h" />
     <ClInclude Include="..\src\SampleBuffer.h" />
+    <ClInclude Include="..\src\SampleProducer.h" />
     <ClInclude Include="..\src\SampleProducerThread.h" />
     <ClInclude Include="..\src\samples.h" />
     <ClInclude Include="..\src\SampleSource.h" />

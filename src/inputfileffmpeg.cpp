@@ -87,7 +87,7 @@ public:
 	int open(const char *filename, double startPosSeconds = 0.0, double playTimeSeconds = -1.0) override;
 	int close() override;
 
-	int readSamples(SampleBuffer *sampleBuffer) override;
+	int readSamples(SampleProducer *sampleBuffer) override;
 	bool done() const override;
 	int seek(double seconds) override;
 	int64_t outputSamplesEstimation() const;
@@ -96,9 +96,10 @@ private:
 	int _close();
 	void reset();
 	int getAudioStreamNum() const;
-	int handleDecoded(AVFrame *frame, SampleBuffer *sb);
+	int handleDecoded(AVFrame *frame, SampleProducer *sb);
 	int64_t getTargetSamples(int64_t sourceSamples, int64_t sourceSampleRate, int64_t targetSampleRate);
 
+	typedef std::lock_guard<std::mutex> Lock;
 private:
 	const InputFileOptions m_inputFileOptions;
 	const int m_outputChannels;
@@ -117,7 +118,6 @@ private:
 	int64_t m_convertedSamples;
 	int64_t m_decodedSamplesTargetSR;
 	int64_t m_maxConvertedSamples;
-	typedef std::lock_guard<std::mutex> Lock;
 };
 
 //---------------------------------------------------------------
@@ -254,9 +254,10 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 		return -1;
 	}
 
-	logInfo("Opened file: %s; Codec: %s, Channels: %i, Rate: %i, Format: %s, Timebase: %i/%i",
+	logInfo("Opened file: %s; Codec: %s, Channels: %i, Rate: %i, Format: %s, Timebase: %i/%i, Sample-Estimation: %ll",
 		filename, codec->long_name, m_codecCtx->channels, m_codecCtx->sample_rate,
-		av_get_sample_fmt_name(m_codecCtx->sample_fmt), m_codecCtx->time_base.num, m_codecCtx->time_base.den);
+		av_get_sample_fmt_name(m_codecCtx->sample_fmt), m_codecCtx->time_base.num, m_codecCtx->time_base.den,
+		outputSamplesEstimation());
 
 	m_opened = true;
 
@@ -295,7 +296,7 @@ int InputFileFFmpeg::close()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleBuffer *sb)
+int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 {
 	int res = swr_convert(m_swrCtx, &m_outBuf, OUTPUT_BUFFER_COUNT,
 		frame ? (const uint8_t **)frame->extended_data : NULL,
@@ -317,7 +318,7 @@ int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleBuffer *sb)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-int InputFileFFmpeg::readSamples(SampleBuffer *sampleBuffer)
+int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 {
 	Lock lock(m_mutex);
 
@@ -472,11 +473,8 @@ int InputFileFFmpeg::_close()
 int64_t InputFileFFmpeg::outputSamplesEstimation() const
 {
 	AVStream *stream = m_fmtCtx->streams[m_streamIndex];
-	int64_t duration = stream->duration;
-	AVRational timeBase = stream->time_base;
-	int64_t samples = duration * (int64_t)timeBase.num * 
-		(int64_t)m_outputSamplerate / (int64_t)timeBase.den;
-	return samples;
+	return stream->duration * (int64_t)stream->time_base.num * 
+		(int64_t)m_outputSamplerate / (int64_t)stream->time_base.den;
 }
 
 
