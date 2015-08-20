@@ -23,6 +23,7 @@
 #include "UpdateChecker.h"
 #include "SoundInfo.h"
 
+
 class ModelObserver_Prog : public ConfigModel::Observer
 {
 public:

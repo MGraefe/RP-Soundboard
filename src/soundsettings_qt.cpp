@@ -5,7 +5,11 @@
 #include "ConfigModel.h"
 #include "device.h"
 #include "samples.h"
+#include "soundview_qt.h"
 #include <QtWidgets/QFileDialog>
+#include <QtGui/QPainter>
+
+
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -17,6 +21,11 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent /*=
 	m_iconPlay(":/icon/img/playarrow_32.png"),
 	m_iconStop(":/icon/img/stoparrow_32.png")
 {
+	m_soundview = new SoundView(this);
+	m_soundview->setObjectName(QStringLiteral("soundview"));
+	m_soundview->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding));
+	m_soundview->setMinimumSize(QSize(0, 30));
+
 	ui->setupUi(this);
 	ui->startSoundUnitCombo->addItem("milliseconds");
 	ui->startSoundUnitCombo->addItem("seconds");
@@ -28,8 +37,11 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent /*=
 	connect(ui->filenameBrowseButton, SIGNAL(released()), this, SLOT(onBrowsePressed()));
 	connect(ui->previewSoundButton, SIGNAL(released()), this, SLOT(onPreviewPressed()));
 	initGui(m_soundInfo);
+
 	m_timer = new QTimer(this);
 	connect(m_timer, SIGNAL(timeout()), this, SLOT(onTimer()));
+
+	ui->groupCrop->layout()->addWidget(m_soundview);
 }
 
 
@@ -46,6 +58,8 @@ void SoundSettingsQt::initGui(const SoundInfo &sound)
 	ui->stopSoundAtAfterCombo->setCurrentIndex(sound.cropStopAfterAt);
 	ui->stopSoundValueSpin->setValue(sound.cropStopValue);
 	ui->stopSoundUnitCombo->setCurrentIndex(sound.cropStopUnit);
+
+	m_soundview->setSound(sound);
 }
 
 
@@ -132,6 +146,7 @@ void SoundSettingsQt::onTimer()
 		m_timer->stop();
 	}
 }
+
 
 
 

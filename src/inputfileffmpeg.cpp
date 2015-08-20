@@ -90,7 +90,7 @@ public:
 	int readSamples(SampleProducer *sampleBuffer) override;
 	bool done() const override;
 	int seek(double seconds) override;
-	int64_t outputSamplesEstimation() const;
+	int64_t outputSamplesEstimation() const override;
 
 private:
 	int _close();

@@ -9,6 +9,7 @@
 #include "SoundInfo.h"
 
 class ConfigModel;
+class SoundView;
 
 namespace Ui {
 	class SoundSettingsQt;
@@ -35,6 +36,8 @@ private slots:
 private:
 	void initGui(const SoundInfo &sound);
 	void fillFromGui(SoundInfo &sound);
+	
+
 private:
 	Ui::SoundSettingsQt *ui;
 	ConfigModel *m_model;
@@ -43,6 +46,7 @@ private:
 	QIcon m_iconPlay;
 	QIcon m_iconStop;
 	QTimer *m_timer;
+	SoundView *m_soundview;
 };
 
 
