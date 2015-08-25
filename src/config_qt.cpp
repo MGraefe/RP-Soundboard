@@ -164,7 +164,7 @@ void ConfigQt::createButtons()
 
 			elem.play = new QPushButton(this);
 			elem.play->setText("(no file)");
-			elem.play->setEnabled(false);
+			elem.play->setEnabled(true);
 			elem.play->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 			elem.layout->addWidget(elem.play);
 			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
@@ -191,12 +191,7 @@ void ConfigQt::updateButtonText(int i)
 		return;
 
 	QString fn = m_model->getFileName(i);
-	if(!fn.isNull())
-	{
-		QFileInfo info = QFileInfo(fn);
-		m_buttons[i].play->setText(info.baseName());
-		m_buttons[i].play->setEnabled(true);
-	}
+	m_buttons[i].play->setText(fn.isEmpty() ? "(no file)" : QFileInfo(fn).baseName());
 }
 
 
@@ -261,7 +256,10 @@ void ConfigQt::chooseFile( size_t buttonId )
 //---------------------------------------------------------------
 void ConfigQt::openAdvanced( size_t buttonId )
 {
-	SoundSettingsQt dlg(*m_model->getSoundInfo(buttonId), this);
+	const SoundInfo *buttonInfo = m_model->getSoundInfo(buttonId);
+	SoundInfo defaultInfo;
+	const SoundInfo &info = buttonInfo ? *buttonInfo : defaultInfo;
+	SoundSettingsQt dlg(info, this);
 	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId + 1)));
 	if(dlg.exec() == QDialog::Accepted)
 		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());

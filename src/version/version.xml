@@ -2,9 +2,10 @@
 
 <versionDescription>
   <product descVersion="1" name="rp_soundboard">
-    <latestVersion>1186</latestVersion>
+    <latestVersion>1307</latestVersion>
+	<latestVersionString>1.2.1.1307</latestVersionString>
     <latestDownload>
-      <url>http://mgraefe.de/rpsb/dl/rp_soundboard_1186.ts3_plugin</url>
+      <url>http://mgraefe.de/rpsb/dl/rp_soundboard_1307.ts3_plugin</url>
     </latestDownload>
   </product>
 </versionDescription>

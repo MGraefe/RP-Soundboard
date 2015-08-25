@@ -17,12 +17,15 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QtWidgets/QMessageBox>
+#include <QtCore/QFileInfo>
+#include <QtCore/QDir>
 
 #include "version/version.h"
 #include "buildinfo.h"
 
 #include "UpdateChecker.h"
 #include "ts3log.h"
+#include "updater_qt.h"
 
 #define CHECK_URL "http://mgraefe.de/rpsb/version/version.xml"
 
@@ -40,7 +43,8 @@ bool isValid(const QXmlStreamReader &xml)
 // Purpose: 
 //---------------------------------------------------------------
 UpdateChecker::UpdateChecker( QObject *parent /*= NULL*/ ) :
-	QObject(parent)
+	QObject(parent),
+	m_updater(NULL)
 {
 
 }
@@ -77,17 +81,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 		parseXml(reply);
 		if(m_verInfo.valid() && m_verInfo.build > TS3SB_VERSION_BUILD)
 		{
-			QMessageBox msgBox;
-			msgBox.setTextFormat(Qt::RichText);
-			msgBox.setText(QString("A new version of RP Soundboard is available (build %1).<br /><br />"\
-				"You can download it here:<br /><a href=\"%2\">%2</a>")
-				.arg(m_verInfo.build)
-				.arg(m_verInfo.latestDownload));
-			msgBox.setIcon(QMessageBox::Information);
-			msgBox.setWindowTitle("New version!");
-			msgBox.setStandardButtons(QMessageBox::Close);
-			msgBox.setDefaultButton(QMessageBox::Close);
-			msgBox.exec();
+			askUserForUpdate();
 		}
 	}
 }
@@ -144,6 +138,11 @@ void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
 		xml.readNext();
 		m_verInfo.build = xml.text().toInt();
 	}
+	else if(xml.name() == "latestVersionString")
+	{
+		xml.readNext();
+		m_verInfo.version = xml.text().toString();
+	}
 	else if(xml.name() == "latestDownload")
 	{
 		xml.readNext();
@@ -163,11 +162,67 @@ void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void UpdateChecker::askUserForUpdate()
+{
+	QMessageBox msgBox0;
+	msgBox0.setTextFormat(Qt::RichText);
+	msgBox0.setText(QString("A new version of RP Soundboard is available (build %1).<br /><br />"\
+		"Would you like to download and install it?").arg(m_verInfo.build));
+	msgBox0.setIcon(QMessageBox::Information);
+	msgBox0.setWindowTitle("New version of RP Soundboard!");
+	msgBox0.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+	msgBox0.setDefaultButton(QMessageBox::Yes);
+	if(msgBox0.exec() == QMessageBox::Yes)
+	{
+		QUrl url(m_verInfo.latestDownload);
+		QFileInfo info(QDir::temp(), url.fileName());
+		m_updater = new UpdaterWindow();
+		connect(m_updater, SIGNAL(finished()), this, SLOT(onFinishedUpdate()));
+		m_updater->show();
+		m_updater->startDownload(url, info, true);
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void UpdateChecker::onFinishedUpdate()
+{
+	if(m_updater->getSuccess())
+	{
+		QApplication::closeAllWindows();
+		//QMessageBox::information(NULL, "Update finished", QString("RP Soundboard was successfully updated to build %1").arg(m_verInfo.build));
+	}
+	else
+	{
+		QMessageBox msgBox;
+		msgBox.setTextFormat(Qt::RichText);
+		msgBox.setText(QString("The Update to %1 failed.<br /><br />"\
+			"Please download it manually here: <br /><a href=\"%2\">%2</a>")
+			.arg(m_verInfo.version.isEmpty() ? QString("build %1").arg(m_verInfo.build) : QString("version %1").arg(m_verInfo.version))
+			.arg(m_verInfo.latestDownload));
+		msgBox.setIcon(QMessageBox::Information);
+		msgBox.setWindowTitle("Update failed");
+		msgBox.setStandardButtons(QMessageBox::Close);
+		msgBox.setDefaultButton(QMessageBox::Close);
+		msgBox.exec();
+	}
+
+	m_updater->deleteLater();
+	m_updater = NULL;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void UpdateChecker::version_info_t::reset()
 {
 	productName = QString();
 	build = 0;
 	latestDownload = QString();
+	version = QString();
 }
 
 
