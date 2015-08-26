@@ -10,6 +10,6 @@ AboutQt::AboutQt(QWidget *parent) :
 	ui(new Ui::AboutQt)
 {
 	ui->setupUi(this);
-	ui->l_version->setText(PLUGIN_VERSION);
+	ui->l_version->setText(buildinfo_getPluginVersion());
 	setFixedSize(size());
 }

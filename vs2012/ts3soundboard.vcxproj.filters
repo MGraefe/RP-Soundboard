@@ -113,6 +113,9 @@
     <ClCompile Include="..\src\updater_qt.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\buildinfo.c">
+      <Filter>Source Dateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\common.h">

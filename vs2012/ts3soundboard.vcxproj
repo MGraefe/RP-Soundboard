@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\about_qt.cpp" />
+    <ClCompile Include="..\src\buildinfo.c" />
     <ClCompile Include="..\src\ConfigModel.cpp" />
     <ClCompile Include="..\src\config_qt.cpp" />
     <ClCompile Include="..\src\device.cpp" />

@@ -10,7 +10,6 @@
 #endif
 
 #include "common.h"
-#include "version/version.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -73,12 +72,12 @@ const char* ts3plugin_name() {
 //#else
 //	return PLUGIN_NAME;
 //#endif
-	return PLUGIN_NAME;
+	return buildinfo_getPluginName();
 }
 
 /* Plugin version */
 const char* ts3plugin_version() {
-    return PLUGIN_VERSION;
+    return buildinfo_getPluginVersion();
 }
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
@@ -88,12 +87,12 @@ int ts3plugin_apiVersion() {
 
 /* Plugin author */
 const char* ts3plugin_author() {
-	return PLUGIN_AUTHOR;
+	return buildinfo_getPluginAuthor();
 }
 
 /* Plugin description */
 const char* ts3plugin_description() {
-	return PLUGIN_DESCRIPTION;
+	return buildinfo_getPluginDescription();
 }
 
 /* Set TeamSpeak 3 callback functions */

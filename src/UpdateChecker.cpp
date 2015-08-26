@@ -20,7 +20,6 @@
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
 
-#include "version/version.h"
 #include "buildinfo.h"
 
 #include "UpdateChecker.h"
@@ -61,7 +60,7 @@ void UpdateChecker::startCheck()
 	QUrl url(CHECK_URL);
 	QNetworkRequest request;
 	request.setUrl(url);
-	request.setRawHeader("User-Agent", QByteArray("RP Soundboard Update Checker, ") + PLUGIN_VERSION);
+	request.setRawHeader("User-Agent", QByteArray("RP Soundboard Update Checker, ") + buildinfo_getPluginVersion());
 	m_mgr->get(request);
 }
 
@@ -79,7 +78,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 	else
 	{
 		parseXml(reply);
-		if(m_verInfo.valid() && m_verInfo.build > TS3SB_VERSION_BUILD)
+		if(m_verInfo.valid() && m_verInfo.build > buildinfo_getVersionNumber(3))
 		{
 			askUserForUpdate();
 		}

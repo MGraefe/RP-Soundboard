@@ -1,8 +1,10 @@
 
+#include "buildinfo.h"
 #include "updater_qt.h"
 #include "ts3log.h"
 #include <QtWidgets/QMessageBox>
 #include <QtCore/QProcess>
+
 
 
 //---------------------------------------------------------------
@@ -62,6 +64,8 @@ void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bo
 //---------------------------------------------------------------
 void UpdaterWindow::startRequest(const QUrl &url)
 {
+	QNetworkRequest request(url);
+	request.setRawHeader("User-Agent", QByteArray("RP Soundboard Updater, ") + buildinfo_getPluginVersion());
 	m_reply = m_manager->get(QNetworkRequest(url));
 	connect(m_reply, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
 	connect(m_reply, SIGNAL(downloadProgress(qint64,qint64)), this, 
