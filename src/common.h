@@ -1,5 +1,14 @@
-#ifndef common_H__
-#define common_H__
+// src/common.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__common_H__
+#define rpsbsrc__common_H__
 
 #include <stdint.h>
 
@@ -40,4 +49,4 @@ CAPI struct TS3Functions ts3Functions;
 #define RETURNCODE_BUFSIZE 128
 
 
-#endif // common_H__
+#endif // rpsbsrc__common_H__

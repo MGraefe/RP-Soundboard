@@ -1,6 +1,15 @@
+// src/buildinfo.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
 
-#ifndef buildinfo_H__
-#define buildinfo_H__
+
+#pragma once
+#ifndef rpsbsrc__buildinfo_H__
+#define rpsbsrc__buildinfo_H__
 
 #ifdef __cplusplus
 extern "C" {

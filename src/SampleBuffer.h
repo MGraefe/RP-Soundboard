@@ -1,6 +1,15 @@
+// src/SampleBuffer.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
 
-#ifndef SampleBuffer_H__
-#define SampleBuffer_H__
+
+#pragma once
+#ifndef rpsbsrc__SampleBuffer_H__
+#define rpsbsrc__SampleBuffer_H__
 
 #include <vector>
 #include <mutex>
@@ -96,4 +105,4 @@ private:
 	ConsumeCallback *m_cbCons;
 };
 
-#endif // SampleBuffer_H__
+#endif // rpsbsrc__SampleBuffer_H__

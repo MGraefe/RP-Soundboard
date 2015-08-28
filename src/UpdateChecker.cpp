@@ -1,3 +1,11 @@
+// src/UpdateChecker.cpp
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
 
 //Parses XML Files from a server
 //Example File:

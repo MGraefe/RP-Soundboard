@@ -1,5 +1,14 @@
-#ifndef SoundInfo_H__
-#define SoundInfo_H__
+// src/SoundInfo.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__SoundInfo_H__
+#define rpsbsrc__SoundInfo_H__
 
 #include <QtCore/QSettings>
 
@@ -25,4 +34,4 @@ public:
 	int cropStopUnit;
 };
 
-#endif // SoundInfo_H__
+#endif // rpsbsrc__SoundInfo_H__

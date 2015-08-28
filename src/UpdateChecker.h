@@ -1,5 +1,14 @@
-#ifndef UpdateChecker_H__
-#define UpdateChecker_H__
+// src/UpdateChecker.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__UpdateChecker_H__
+#define rpsbsrc__UpdateChecker_H__
 
 #include <QtCore/QObject>
 #include <QtCore/QXmlStreamReader>
@@ -45,4 +54,4 @@ private:
 	UpdaterWindow *m_updater;
 };
 
-#endif // UpdateChecker_H__
+#endif // rpsbsrc__UpdateChecker_H__

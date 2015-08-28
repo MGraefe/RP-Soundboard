@@ -1,5 +1,14 @@
-#ifndef inputfile_H__
-#define inputfile_H__
+// src/inputfile.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__inputfile_H__
+#define rpsbsrc__inputfile_H__
 
 #include <stdint.h>
 #include "SampleSource.h"
@@ -49,4 +58,4 @@ extern InputFile *CreateInputFileFFmpeg(InputFileOptions options = InputFileOpti
 extern void InitFFmpegLibrary();
 
 
-#endif // inputfile_H__
+#endif // rpsbsrc__inputfile_H__

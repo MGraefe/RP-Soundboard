@@ -1,5 +1,14 @@
-#ifndef samples_H__
-#define samples_H__
+// src/samples.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__samples_H__
+#define rpsbsrc__samples_H__
 
 #include "SampleBuffer.h"
 #include "SampleProducerThread.h"
@@ -59,4 +68,4 @@ private:
 };
 
 
-#endif // samples_H__
+#endif // rpsbsrc__samples_H__

@@ -1,5 +1,14 @@
-#ifndef HighResClock_H__
-#define HighResClock_H__
+// src/HighResClock.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__HighResClock_H__
+#define rpsbsrc__HighResClock_H__
 
 #include <chrono>
 
@@ -18,4 +27,4 @@ struct HighResClock
 typedef std::chrono::high_resolution_clock HighResClock;
 #endif
 
-#endif // HighResClock_H__
+#endif // rpsbsrc__HighResClock_H__

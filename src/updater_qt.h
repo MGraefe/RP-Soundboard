@@ -1,5 +1,14 @@
-#ifndef updater_qt_H__
-#define updater_qt_H__
+// src/updater_qt.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__updater_qt_H__
+#define rpsbsrc__updater_qt_H__
 
 
 #include <QtWidgets/QDialog>
@@ -52,4 +61,4 @@ private:
 };
 
 
-#endif // updater_qt_H__
+#endif // rpsbsrc__updater_qt_H__

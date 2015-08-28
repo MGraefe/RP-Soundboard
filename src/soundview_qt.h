@@ -1,5 +1,14 @@
-#ifndef soundview_qt_H__
-#define soundview_qt_H__
+// src/soundview_qt.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__soundview_qt_H__
+#define rpsbsrc__soundview_qt_H__
 
 #include <QtWidgets/QWidget>
 #include <memory>
@@ -34,4 +43,4 @@ private:
 	QPainterPath m_path[2];
 };
 
-#endif // soundview_qt_H__
+#endif // rpsbsrc__soundview_qt_H__

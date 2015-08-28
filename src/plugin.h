@@ -1,11 +1,20 @@
+// src/plugin.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
 /*
  * TeamSpeak 3 demo plugin
  *
  * Copyright (c) 2008-2014 TeamSpeak Systems GmbH
  */
 
-#ifndef PLUGIN_H
-#define PLUGIN_H
+#pragma once
+#ifndef rpsbsrc__plugin_H__
+#define rpsbsrc__plugin_H__
 
 #ifdef WIN32
 #define PLUGINS_EXPORTDLL __declspec(dllexport)

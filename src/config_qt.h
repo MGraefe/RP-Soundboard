@@ -1,5 +1,14 @@
-#ifndef config_qt_H__
-#define config_qt_H__
+// src/config_qt.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__config_qt_H__
+#define rpsbsrc__config_qt_H__
 
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QWidget>
@@ -71,4 +80,4 @@ private:
 	QMenu m_buttonContextMenu;
 };
 
-#endif // config_qt_H__
+#endif // rpsbsrc__config_qt_H__

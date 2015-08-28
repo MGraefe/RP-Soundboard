@@ -1,7 +1,16 @@
+// src/device.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
 
 
-#ifndef DEVICE_H__
-#define DEVICE_H__
+
+#pragma once
+#ifndef rpsbsrc__device_H__
+#define rpsbsrc__device_H__
 
 #include "common.h"
 

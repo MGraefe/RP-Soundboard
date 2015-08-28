@@ -1,6 +1,15 @@
+// src/ConfigModel.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
 
-#ifndef ConfigModel_H__
-#define ConfigModel_H__
+
+#pragma once
+#ifndef rpsbsrc__ConfigModel_H__
+#define rpsbsrc__ConfigModel_H__
 
 #include <vector>
 #include "SoundInfo.h"
@@ -75,4 +84,4 @@ private:
 	int m_windowHeight;
 };
 
-#endif // ConfigModel_H__
+#endif // rpsbsrc__ConfigModel_H__

@@ -1,5 +1,14 @@
-#ifndef SampleVisualizerThread_H__
-#define SampleVisualizerThread_H__
+// src/SampleVisualizerThread.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
+
+#pragma once
+#ifndef rpsbsrc__SampleVisualizerThread_H__
+#define rpsbsrc__SampleVisualizerThread_H__
 
 #include <thread>
 #include <mutex>
@@ -56,4 +65,4 @@ private:
 };
 
 
-#endif // SampleVisualizerThread_H__
+#endif // rpsbsrc__SampleVisualizerThread_H__

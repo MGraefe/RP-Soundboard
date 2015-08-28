@@ -1,7 +1,16 @@
+// src/SampleProducerThread.h
+//----------------------------------
+// RP Soundboard Source Code
+// Copyright (c) 2015 Marius Graefe
+// All rights reserved
+// Contact: rp_soundboard@mgraefe.de
+//----------------------------------
 
 
-#ifndef SampleProducerThread_H__
-#define SampleProducerThread_H__
+
+#pragma once
+#ifndef rpsbsrc__SampleProducerThread_H__
+#define rpsbsrc__SampleProducerThread_H__
 
 #include <thread>
 #include <vector>
@@ -46,4 +55,4 @@ private:
 	std::mutex m_mutex;	
 };
 
-#endif // SampleProducerThread_H__
+#endif // rpsbsrc__SampleProducerThread_H__
