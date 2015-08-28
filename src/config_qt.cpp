@@ -9,6 +9,7 @@
 #include "device.h"
 #include "soundsettings_qt.h"
 #include "ts3log.h"
+#include "SpeechBubble.h"
 
 enum button_choices_e {
 	BC_CHOOSE = 0,
@@ -46,6 +47,13 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
+
+	//SpeechBubble *bubble = new SpeechBubble(this);
+	//bubble->setMinimumSize(150, 20);
+	//bubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+	//bubble->setFixedSize(150,20);
+	//bubble->setText("Test text asd 1234");
+	//bubble->show();
 
 	m_model->addObserver(&m_modelObserver);
 }

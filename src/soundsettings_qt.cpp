@@ -84,6 +84,9 @@ void SoundSettingsQt::fillFromGui(SoundInfo &sound)
 //---------------------------------------------------------------
 void SoundSettingsQt::done( int r )
 {
+	Sampler *sampler = sb_getSampler();
+	if(sampler->getState() == Sampler::PLAYING_PREVIEW)
+		sampler->stopPlayback();
 	fillFromGui(m_soundInfo);
 	QDialog::done(r);
 }
@@ -106,7 +109,13 @@ void SoundSettingsQt::onBrowsePressed()
 	QString filePath = ui->filenameEdit->text();
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
 	if(!fn.isNull())
+	{
 		ui->filenameEdit->setText(fn);
+
+		SoundInfo info;
+		fillFromGui(info);
+		m_soundview->setSound(info);
+	}
 }
 
 
