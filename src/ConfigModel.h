@@ -27,6 +27,9 @@ public:
 		NOTIFY_SET_PLAYBACK_LOCAL,
 		NOTIFY_SET_MUTE_MYSELF_DURING_PB,
 		NOTIFY_SET_WINDOW_SIZE,
+		NOTIFY_SET_BUBBLE_BUTTONS_BUILD,
+		NOTIFY_SET_BUBBLE_STOP_BUILD,
+		NOTIFY_SET_BUBBLE_COLS_BUILD,
 	};
 
 	class Observer
@@ -67,11 +70,21 @@ public:
 	void getWindowSize(int *width, int *height) const;
 	void setWindowSize(int width, int height);
 
+	inline int getBubbleButtonsBuild() const { return m_bubbleButtonsBuild; }
+	void setBubbleButtonsBuild(int build);
+
+	inline int getBubbleStopBuild() const { return m_bubbleStopBuild; }
+	void setBubbleStopBuild(int build);
+
+	inline int getBubbleColsBuild() const { return m_bubbleColsBuild; }
+	void setBubbleColsBuild(int build);
+
 	void addObserver(Observer *obs);
 	void remObserver(Observer *obs);
 
 private:
 	void notify(notifications_e what, int data);
+	void fillInitialSounds();
 
 	std::vector<Observer*> m_obs;
 	std::vector<SoundInfo> m_sounds;
@@ -82,6 +95,10 @@ private:
 	bool m_muteMyselfDuringPb;
 	int m_windowWidth;
 	int m_windowHeight;
+
+	int m_bubbleButtonsBuild;
+	int m_bubbleStopBuild;
+	int m_bubbleColsBuild;
 };
 
 #endif // rpsbsrc__ConfigModel_H__

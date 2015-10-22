@@ -183,9 +183,14 @@ Sampler *sb_getSampler()
 
 CAPI void sb_init()
 {
+#ifdef _DEBUG
+	QMessageBox::information(NULL, "", "rp soundboard plugin init");
+#endif
+
 	InitFFmpegLibrary();
 
 	configModel = new ConfigModel();
+	configModel->readConfig();
 	configDialog = new ConfigQt(configModel);
 	sampler = new Sampler();
 	sampler->init();

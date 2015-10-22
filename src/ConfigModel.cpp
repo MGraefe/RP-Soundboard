@@ -13,6 +13,7 @@
 
 #include "ConfigModel.h"
 #include "device.h"
+#include "buildinfo.h"
 
 
 
@@ -21,11 +22,17 @@
 //---------------------------------------------------------------
 ConfigModel::ConfigModel()
 {
-	m_rows = 4;
-	m_cols = 6;
-	m_volume = 50;
+	m_rows = 2;
+	m_cols = 5;
+	m_volume = 80;
 	m_playbackLocal = true;
 	m_muteMyselfDuringPb = false;
+	m_windowWidth = 600;
+	m_windowHeight = 240;
+
+	m_bubbleButtonsBuild = 0;
+	m_bubbleStopBuild = 0;
+	m_bubbleColsBuild = 0;
 }
 
 
@@ -37,21 +44,30 @@ void ConfigModel::readConfig()
 	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
 
 	int size = settings.beginReadArray("files");
-	m_sounds.resize(size);
-	for(int i = 0; i < size; i++)
+	if (size == 0)
+		fillInitialSounds();
+	else
 	{
-		settings.setArrayIndex(i);
-		m_sounds[i].readFromConfig(settings);
+		m_sounds.resize(size);
+		for(int i = 0; i < size; i++)
+		{
+			settings.setArrayIndex(i);
+			m_sounds[i].readFromConfig(settings);
+		}
 	}
 	settings.endArray();
 
-	m_rows = settings.value("num_rows", 4).toInt();
-	m_cols = settings.value("num_cols", 6).toInt();
+
+	m_rows = settings.value("num_rows", 2).toInt();
+	m_cols = settings.value("num_cols", 5).toInt();
 	m_volume = settings.value("volume", 50).toInt();
 	m_playbackLocal = settings.value("playback_local", true).toBool();
 	m_muteMyselfDuringPb = settings.value("mute_myself_during_pb", false).toBool();
-	m_windowWidth = settings.value("window_width", 650).toInt();
-	m_windowHeight = settings.value("window_height", 450).toInt();
+	m_windowWidth = settings.value("window_width", 600).toInt();
+	m_windowHeight = settings.value("window_height", 240).toInt();
+	m_bubbleButtonsBuild = settings.value("bubble_buttons_build", 0).toInt();
+	m_bubbleStopBuild = settings.value("bubble_stop_build", 0).toInt();
+	m_bubbleColsBuild = settings.value("bubble_cols_build", 0).toInt();
 
 	//Notify all changes
 	for(int i = 0; i < m_sounds.size(); i++)
@@ -62,6 +78,9 @@ void ConfigModel::readConfig()
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
 	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
 	notify(NOTIFY_SET_WINDOW_SIZE, 0);
+	notify(NOTIFY_SET_BUBBLE_BUTTONS_BUILD, m_bubbleButtonsBuild);
+	notify(NOTIFY_SET_BUBBLE_STOP_BUILD, m_bubbleStopBuild);
+	notify(NOTIFY_SET_BUBBLE_COLS_BUILD, m_bubbleColsBuild);
 }
 
 
@@ -80,6 +99,7 @@ void ConfigModel::writeConfig()
 	}
 	settings.endArray();
 
+	settings.setValue("config_build", buildinfo_getBuildNumber());
 	settings.setValue("num_rows", m_rows);
 	settings.setValue("num_cols", m_cols);
 	settings.setValue("volume", m_volume);
@@ -87,6 +107,9 @@ void ConfigModel::writeConfig()
 	settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
 	settings.setValue("window_width", m_windowWidth);
 	settings.setValue("window_height", m_windowHeight);
+	settings.setValue("bubble_buttons_build", m_bubbleButtonsBuild);
+	settings.setValue("bubble_stop_build", m_bubbleStopBuild);
+	settings.setValue("bubble_cols_build", m_bubbleColsBuild);
 }
 
 
@@ -149,7 +172,7 @@ QString ConfigModel::GetConfigPath()
 	// Find config path for config class
 	char* configPath = (char*)malloc(PATH_BUFSIZE);
 	ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
-	return configPath;
+	return QString::fromUtf8(configPath);
 }
 
 
@@ -159,6 +182,9 @@ QString ConfigModel::GetConfigPath()
 QString ConfigModel::GetFullConfigPath()
 {
 	QString fullPath = GetConfigPath();
+	QChar last = fullPath[fullPath.count() - 1];
+	if (last != '/' && last != '\\')
+		fullPath.append('/');
 	fullPath.append("rp_soundboard.ini");
 	return fullPath;
 }
@@ -266,5 +292,65 @@ void ConfigModel::addObserver(Observer *obs)
 void ConfigModel::remObserver(Observer *obs)
 {
 	m_obs.erase(std::remove(m_obs.begin(), m_obs.end(), obs), m_obs.end());
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setBubbleButtonsBuild(int build)
+{
+	m_bubbleButtonsBuild = build;
+	writeConfig();
+	notify(NOTIFY_SET_BUBBLE_BUTTONS_BUILD, build);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setBubbleStopBuild(int build)
+{
+	m_bubbleStopBuild = build;
+	writeConfig();
+	notify(NOTIFY_SET_BUBBLE_STOP_BUILD, build);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setBubbleColsBuild(int build)
+{
+	m_bubbleColsBuild = build;
+	writeConfig();
+	notify(NOTIFY_SET_BUBBLE_COLS_BUILD, build);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::fillInitialSounds()
+{
+	char* pluginPath = (char*)malloc(PATH_BUFSIZE);
+	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE);
+	QString fullPath = QString::fromUtf8(pluginPath);
+	QChar last = fullPath[fullPath.count() - 1];
+	if (last != '/' && last != '\\')
+		fullPath.append('/');
+	fullPath.append("rp_soundboard/");
+
+	static const char* files[] = {
+		"Airhorn Sonata.mp3",
+		"Airhorn.mp3",
+		"Airporn.mp3",
+		"Peter Griffin Laugh.webm",
+		"Spooky.mp3",
+		NULL,
+	};
+
+	for(int i = 0; files[i] != NULL; i++)
+		setFileName(i, fullPath + files[i]);
 }
 

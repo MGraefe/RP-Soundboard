@@ -81,3 +81,9 @@ const char * buildinfo_getBuildTarget()
 {
 	return BUILD_TARGET;
 }
+
+
+int buildinfo_getBuildNumber()
+{
+	return TS3SB_VERSION_BUILD;
+}

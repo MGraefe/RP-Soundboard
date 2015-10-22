@@ -26,6 +26,7 @@ const char *buildinfo_getBuildTarget();
 
 //index: 0 = major, 1 = minor, 2 = revision, 3 = build
 int buildinfo_getVersionNumber(int index);
+int buildinfo_getBuildNumber();
 
 
 #ifdef __cplusplus

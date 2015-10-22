@@ -11,6 +11,7 @@
 #include <QtWidgets/QFileDialog>
 #include <QtCore/QFileInfo>
 #include <QtGui/QResizeEvent>
+#include <QtWidgets/QMessageBox>
 
 #include "config_qt.h"
 #include "ConfigModel.h"
@@ -18,6 +19,7 @@
 #include "soundsettings_qt.h"
 #include "ts3log.h"
 #include "SpeechBubble.h"
+#include "buildinfo.h"
 
 enum button_choices_e {
 	BC_CHOOSE = 0,
@@ -32,7 +34,8 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	QWidget(parent),
 	ui(new Ui::ConfigQt),
 	m_model(model),
-	m_modelObserver(*this)
+	m_modelObserver(*this),
+	m_buttonBubble(nullptr)
 {
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
@@ -56,12 +59,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
 
-	//SpeechBubble *bubble = new SpeechBubble(this);
-	//bubble->setMinimumSize(150, 20);
-	//bubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-	//bubble->setFixedSize(150,20);
-	//bubble->setText("Test text asd 1234");
-	//bubble->show();
+	createBubbles();
 
 	m_model->addObserver(&m_modelObserver);
 }
@@ -195,6 +193,9 @@ void ConfigQt::createButtons()
 
 	for(int i = 0; i < m_buttons.size(); i++)
 		updateButtonText(i);
+
+	if(m_buttonBubble)
+		m_buttonBubble->attachTo(m_buttons[0].play);
 }
 
 
@@ -279,6 +280,70 @@ void ConfigQt::openAdvanced( size_t buttonId )
 	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId + 1)));
 	if(dlg.exec() == QDialog::Accepted)
 		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::createBubbles()
+{
+	if(m_model->getBubbleButtonsBuild() == 0)
+	{
+		m_buttonBubble = new SpeechBubble(this);
+		m_buttonBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+		m_buttonBubble->setFixedSize(180, 60);
+		m_buttonBubble->setText("Right click to choose sound file\nor open advanced options.");
+		m_buttonBubble->attachTo(m_buttons[0].play);
+		connect(m_buttonBubble, SIGNAL(closePressed()), this, SLOT(onButtonBubbleFinished()));
+	}
+
+	if(m_model->getBubbleStopBuild() == 0)
+	{
+		SpeechBubble *stopBubble = new SpeechBubble(this);
+		stopBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+		stopBubble->setFixedSize(180, 60);
+		stopBubble->setText("Stop the currently playing sound.");
+		stopBubble->attachTo(ui->b_stop);
+		connect(stopBubble, SIGNAL(closePressed()), this, SLOT(onStopBubbleFinished()));
+	}
+
+	if(m_model->getBubbleColsBuild() == 0)
+	{
+		SpeechBubble *colsBubble = new SpeechBubble(this);
+		colsBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+		colsBubble->setFixedSize(180, 60);
+		colsBubble->setText("Change the number of buttons\non the soundboard.");
+		colsBubble->attachTo(ui->sb_cols);
+		connect(colsBubble, SIGNAL(closePressed()), this, SLOT(onColsBubbleFinished()));
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onStopBubbleFinished()
+{
+	m_model->setBubbleStopBuild(buildinfo_getBuildNumber());
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onButtonBubbleFinished()
+{
+	m_model->setBubbleButtonsBuild(buildinfo_getBuildNumber());
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onColsBubbleFinished()
+{
+	m_model->setBubbleColsBuild(buildinfo_getBuildNumber());
 }
 
 

@@ -16,10 +16,13 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QMenu>
+#include <QtCore/QPointer>
 
 
 #include "ui_config_qt.h"
 #include "ConfigModel.h"
+
+class SpeechBubble;
 
 namespace Ui {
 	class ConfigQt;
@@ -31,6 +34,9 @@ class ConfigQt : public QWidget
 
 public:
 	explicit ConfigQt(ConfigModel *model, QWidget *parent = 0);
+
+	void createBubbles();
+
 	virtual ~ConfigQt();
 
 protected:
@@ -45,6 +51,9 @@ private slots:
 	void onUpdateRows(int val);
 	void onUpdateMuteMyself(bool val);
 	void showButtonContextMenu(const QPoint &point);
+	void onStopBubbleFinished();
+	void onButtonBubbleFinished();
+	void onColsBubbleFinished();
 
 private:
 	void playSound(size_t buttonId);
@@ -52,6 +61,7 @@ private:
 	void openAdvanced(size_t buttonId);
 	void createButtons();
 	void updateButtonText(int i);
+
 	// layout
 	//   | play
 	//   | subLayout
@@ -78,6 +88,7 @@ private:
 	QBoxLayout *m_configArea;
 	ModelObserver m_modelObserver;
 	QMenu m_buttonContextMenu;
+	QPointer<SpeechBubble> m_buttonBubble;
 };
 
 #endif // rpsbsrc__config_qt_H__

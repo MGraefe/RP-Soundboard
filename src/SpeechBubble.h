@@ -19,6 +19,7 @@ class QLabel;
 class SpeechBubble : public QDialog
 {
 	Q_OBJECT
+	typedef QDialog BaseClass;
 
 public:
 	explicit SpeechBubble(QWidget *parent = 0);
@@ -28,10 +29,22 @@ public:
 protected:
 	void paintEvent(QPaintEvent *evt) override;
 	bool eventFilter(QObject *object, QEvent *evt) override;
+	void mouseReleaseEvent(QMouseEvent *evt) override;
+	void mouseMoveEvent(QMouseEvent *evt) override;
+
+signals:
+	void closePressed();
 
 private:
+	void recalcPos();
+	QRect getCloseButtonRect();
+
 	QString m_text;
 	QWidget *m_attach;
+	int m_tipHeight;
+	int m_tipWidth;
+	int m_tipDistLeft;
+	bool m_mouseOverCloseButton;
 };
 
 #endif // rpsbsrc__SpeechBubble_H__
