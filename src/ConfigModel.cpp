@@ -345,7 +345,7 @@ void ConfigModel::fillInitialSounds()
 		"Airhorn Sonata.mp3",
 		"Airhorn.mp3",
 		"Airporn.mp3",
-		"Peter Griffin Laugh.webm",
+		"Peter Griffin Laugh.mp3",
 		"Spooky.mp3",
 		NULL,
 	};

@@ -50,7 +50,7 @@ void SpeechBubble::paintEvent(QPaintEvent *evt)
 	//painter.setRenderHint(QPainter::Antialiasing, false);
 
 	painter.setPen(QColor(0, 0, 0));
-	painter.setBrush(QColor(232, 247, 255));
+	painter.setBrush(QColor(255, 183, 59));
 
 	// Draw outer appearance
 	QPoint polygonPoints[] = {
@@ -145,7 +145,7 @@ void SpeechBubble::mouseReleaseEvent( QMouseEvent *evt )
 //---------------------------------------------------------------
 void SpeechBubble::mouseMoveEvent( QMouseEvent *evt )
 {
-	if (getCloseButtonRect().contains(evt->pos()))
+	if ((getCloseButtonRect() + QMargins(1, 1, 1, 1)).contains(evt->pos()))
 	{
 		if(!m_mouseOverCloseButton)
 		{

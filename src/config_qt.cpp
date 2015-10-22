@@ -292,7 +292,7 @@ void ConfigQt::createBubbles()
 	{
 		m_buttonBubble = new SpeechBubble(this);
 		m_buttonBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-		m_buttonBubble->setFixedSize(180, 60);
+		m_buttonBubble->setFixedSize(180, 80);
 		m_buttonBubble->setText("Right click to choose sound file\nor open advanced options.");
 		m_buttonBubble->attachTo(m_buttons[0].play);
 		connect(m_buttonBubble, SIGNAL(closePressed()), this, SLOT(onButtonBubbleFinished()));
@@ -312,7 +312,7 @@ void ConfigQt::createBubbles()
 	{
 		SpeechBubble *colsBubble = new SpeechBubble(this);
 		colsBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-		colsBubble->setFixedSize(180, 60);
+		colsBubble->setFixedSize(180, 80);
 		colsBubble->setText("Change the number of buttons\non the soundboard.");
 		colsBubble->attachTo(ui->sb_cols);
 		connect(colsBubble, SIGNAL(closePressed()), this, SLOT(onColsBubbleFinished()));
