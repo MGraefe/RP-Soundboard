@@ -41,7 +41,7 @@ public:
 
 
 static uint64 activeServerId = 1;
-static uint64 playingServerId = 0;
+static uint64 playingServerId = 1;
 
 ConfigModel *configModel = NULL;
 ConfigQt *configDialog = NULL;
@@ -104,6 +104,9 @@ talk_state_e getTalkState(uint64 scHandlerID)
 
 bool setTalkState(uint64 scHandlerID, talk_state_e state)
 {
+	if (scHandlerID == 0)
+		return false;
+
 	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
 	bool in = state == TS_CONT_TRANS  || state == TS_VOICE_ACTIVATION;
 
@@ -281,9 +284,12 @@ CAPI void sb_openDialog()
 
 CAPI void sb_stopPlayback()
 {
-	sampler->stopPlayback();
-	setTalkState(activeServerId, previousTalkState);
-	playing = false;
+	if(playing)
+	{
+		sampler->stopPlayback();
+		setTalkState(activeServerId, previousTalkState);
+		playing = false;
+	}
 }
 
 

@@ -135,7 +135,7 @@ void SpeechBubble::mouseReleaseEvent( QMouseEvent *evt )
 	if (getCloseButtonRect().contains(this->mapFromGlobal(QCursor::pos())))
 	{
 		emit closePressed();
-		close();
+		delete this;
 	}
 }
 
