@@ -41,6 +41,7 @@ public:
 
 
 static uint64 activeServerId = 1;
+static uint64 playingServerId = 0;
 
 ConfigModel *configModel = NULL;
 ConfigQt *configDialog = NULL;
@@ -150,7 +151,7 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 	int written = sampler->fetchInputSamples(samples, sampleCount, channels, &finished);
 	if(finished)
 	{
-		setTalkState(activeServerId, previousTalkState);
+		setTalkState(playingServerId, previousTalkState);
 		playing = false;
 	}
 	if(written > 0)
@@ -160,6 +161,8 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 
 int sb_playFile(const SoundInfo &sound)
 {
+	playingServerId = activeServerId;
+
 	if(!playing)
 	{
 		talk_state_e s = getTalkState(activeServerId);
