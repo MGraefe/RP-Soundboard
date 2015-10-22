@@ -311,9 +311,10 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 
 /* Clientlib */
 
+
 void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) 
 {
-    /* Some example code following to show how to use the information query functions. */
+    sb_onConnectStatusChange(serverConnectionHandlerID, newStatus, errorNumber);
 
     if(newStatus == STATUS_CONNECTION_ESTABLISHED) /* connection established and we have client and channels available */
 	{

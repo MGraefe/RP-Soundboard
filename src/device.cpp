@@ -17,6 +17,7 @@
 #include <fstream>
 #include <vector>
 #include <cstdarg>
+#include <map>
 
 #include <QtWidgets/qmessagebox.h>
 #include <QtCore/QString>
@@ -47,6 +48,7 @@ AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
 UpdateChecker *updateChecker = NULL;
+std::map<uint64, int> connectionStatusMap;
 bool playing = false;
 
 
@@ -181,10 +183,18 @@ Sampler *sb_getSampler()
 }
 
 
+void sb_enableInterface(bool enabled) 
+{
+	if (!enabled)
+		sb_stopPlayback();
+	configDialog->setEnabled(enabled);
+}
+
+
 CAPI void sb_init()
 {
 #ifdef _DEBUG
-	QMessageBox::information(NULL, "", "rp soundboard plugin init");
+	QMessageBox::information(NULL, "", "rp soundboard plugin init, attach debugger now");
 #endif
 
 	InitFFmpegLibrary();
@@ -247,6 +257,9 @@ CAPI void sb_kill()
 CAPI void sb_onServerChange(uint64 serverID)
 {
 	activeServerId = serverID;
+	if (connectionStatusMap.find(serverID) == connectionStatusMap.end())
+		connectionStatusMap[serverID] = STATUS_DISCONNECTED;
+	sb_enableInterface(connectionStatusMap[serverID] == STATUS_CONNECTION_ESTABLISHED);
 }
 
 
@@ -255,6 +268,11 @@ CAPI void sb_openDialog()
 	if(!configDialog)
 		configDialog = new ConfigQt(configModel);
 	configDialog->show();
+
+	if (connectionStatusMap[activeServerId] != STATUS_CONNECTION_ESTABLISHED)
+		QMessageBox::information(configDialog, "No server connection",
+		"You are not connected to a server.\n"
+		"RP Soundboard is disabled until you are connected properly.");
 }
 
 
@@ -282,3 +300,13 @@ CAPI void sb_openAbout()
 }
 
 
+CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) 
+{
+	if(newStatus == STATUS_DISCONNECTED)
+		connectionStatusMap.erase(serverConnectionHandlerID);
+	else
+		connectionStatusMap[serverConnectionHandlerID] = newStatus;
+
+	if (serverConnectionHandlerID == activeServerId)
+		sb_enableInterface(newStatus == STATUS_CONNECTION_ESTABLISHED);
+}
