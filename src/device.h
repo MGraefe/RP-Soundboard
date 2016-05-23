@@ -32,7 +32,6 @@ CAPI void sb_stopPlayback();
 CAPI void sb_init();
 CAPI void sb_kill();
 CAPI void sb_onServerChange(uint64 serverID);
-CAPI void sb_readConfig();
 CAPI void sb_saveConfig();
 CAPI void sb_openDialog();
 CAPI void sb_playButton(int btn);

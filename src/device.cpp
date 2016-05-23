@@ -204,15 +204,22 @@ CAPI void sb_init()
 #endif
 
 	InitFFmpegLibrary();
-
+	
 	configModel = new ConfigModel();
 	configModel->readConfig();
-	configDialog = new ConfigQt(configModel);
+
 	sampler = new Sampler();
 	sampler->init();
+
+	configDialog = new ConfigQt(configModel);
+	configDialog->showMinimized();
+	configDialog->hide();
+
 	modelObserver = new ModelObserver_Prog();
 	configModel->addObserver(modelObserver);
-	configModel->readConfig();
+
+	configModel->notifyAllEvents();
+
 	updateChecker = new UpdateChecker();
 	updateChecker->startCheck();
 }
@@ -221,12 +228,6 @@ CAPI void sb_init()
 CAPI void sb_saveConfig()
 {
 	configModel->writeConfig();
-}
-
-
-CAPI void sb_readConfig()
-{
-	configModel->readConfig();
 }
 
 
@@ -273,7 +274,7 @@ CAPI void sb_openDialog()
 {
 	if(!configDialog)
 		configDialog = new ConfigQt(configModel);
-	configDialog->show();
+	configDialog->showNormal();
 	configDialog->raise();
 	configDialog->activateWindow();
 

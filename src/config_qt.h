@@ -41,6 +41,7 @@ public:
 
 protected:
 	virtual void closeEvent(QCloseEvent * evt) override;
+	virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 
 private slots:
 	void onClickedPlay();
@@ -61,7 +62,7 @@ private:
 	void openAdvanced(size_t buttonId);
 	void createButtons();
 	void updateButtonText(int i);
-
+	void openHotkeySetDialog(size_t buttonId);
 	// layout
 	//   | play
 	//   | subLayout

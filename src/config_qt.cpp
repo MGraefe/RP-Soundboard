@@ -20,10 +20,16 @@
 #include "ts3log.h"
 #include "SpeechBubble.h"
 #include "buildinfo.h"
+#include "HotkeySetDialog.h"
+
+#ifdef _WIN32
+#include "Windows.h"
+#endif
 
 enum button_choices_e {
 	BC_CHOOSE = 0,
 	BC_ADVANCED,
+	BC_SET_HOTKEY,
 };
 
 
@@ -48,6 +54,10 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	actAdvancedOpts->setData((int)BC_ADVANCED);
 	m_buttonContextMenu.addAction(actAdvancedOpts);
 
+	QAction *actSetHotkey = new QAction("Set hotkey", this);
+	actSetHotkey->setData((int)BC_SET_HOTKEY);
+	m_buttonContextMenu.addAction(actSetHotkey);
+
 	createButtons();
 
 	ui->cb_advanced_config->hide();
@@ -62,6 +72,10 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	createBubbles();
 
 	m_model->addObserver(&m_modelObserver);
+
+	// Register hotkeys to this window
+	for(const auto &hotkeyIt : model->getHotkeys())
+		hotkeyIt.second->registerHotkey(this);
 }
 
 
@@ -236,6 +250,9 @@ void ConfigQt::showButtonContextMenu( const QPoint &point )
 			case BC_ADVANCED: 
 				openAdvanced(buttonId); 
 				break;
+			case BC_SET_HOTKEY:
+				openHotkeySetDialog(buttonId);
+				break;
 			default: break;
 			}
 		}
@@ -344,6 +361,54 @@ void ConfigQt::onButtonBubbleFinished()
 void ConfigQt::onColsBubbleFinished()
 {
 	m_model->setBubbleColsBuild(buildinfo_getBuildNumber());
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+bool ConfigQt::nativeEvent(const QByteArray &eventType, void *message, long *result)
+{
+#ifdef _WIN32
+	MSG *msg = static_cast<MSG*>(message);
+	if (msg->message == WM_HOTKEY)
+	{
+		uint32_t id = msg->wParam;
+		for(const auto &hk : m_model->getHotkeys())
+		{
+			if (id == hk.second->getId())
+			{
+				hk.second->performAction();
+				break;
+			}
+		}
+	}
+#endif
+
+	return QWidget::nativeEvent(eventType, message, result);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::openHotkeySetDialog(size_t buttonId)
+{
+	// Unregister all before we open dialog or else the dialog doesnt receive already existing hotkeys
+	for (const auto &hk : m_model->getHotkeys())
+		hk.second->unregisterHotkey();
+
+	uint32_t modifiers, keycode;
+	HotkeySetDialog *dlg = new HotkeySetDialog(this, &modifiers, &keycode);
+	int res = dlg->exec();
+	if (res == 1)
+	{
+		HotkeyInfo hk((int)buttonId, modifiers, keycode);
+		m_model->setHotkey(buttonId, hk);
+
+		for (const auto &hk : m_model->getHotkeys())
+			hk.second->registerHotkey(this);
+	}
 }
 
 

@@ -14,6 +14,7 @@
 #include "ConfigModel.h"
 #include "device.h"
 #include "buildinfo.h"
+#include "HotkeyInfo.h"
 
 
 
@@ -57,6 +58,15 @@ void ConfigModel::readConfig()
 	}
 	settings.endArray();
 
+	int numHotkeys = settings.beginReadArray("hotkeys");
+	m_hotkeys.clear();
+	for(int i = 0; i < numHotkeys; i++)
+	{
+		settings.setArrayIndex(i);
+		auto ptr = HotkeyPtr(new HotkeyInfo(settings));
+		m_hotkeys.insert(std::make_pair(ptr->getButtonId(), std::move(ptr)));
+	}
+	settings.endArray();
 
 	m_rows = settings.value("num_rows", 2).toInt();
 	m_cols = settings.value("num_cols", 5).toInt();
@@ -69,18 +79,8 @@ void ConfigModel::readConfig()
 	m_bubbleStopBuild = settings.value("bubble_stop_build", 0).toInt();
 	m_bubbleColsBuild = settings.value("bubble_cols_build", 0).toInt();
 
-	//Notify all changes
-	for(int i = 0; i < m_sounds.size(); i++)
-		notify(NOTIFY_SET_SOUND, i);
-	notify(NOTIFY_SET_COLS, m_cols);
-	notify(NOTIFY_SET_ROWS, m_rows);
-	notify(NOTIFY_SET_VOLUME, m_volume);
-	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
-	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
-	notify(NOTIFY_SET_WINDOW_SIZE, 0);
-	notify(NOTIFY_SET_BUBBLE_BUTTONS_BUILD, m_bubbleButtonsBuild);
-	notify(NOTIFY_SET_BUBBLE_STOP_BUILD, m_bubbleStopBuild);
-	notify(NOTIFY_SET_BUBBLE_COLS_BUILD, m_bubbleColsBuild);
+	notifyAllEvents();
+
 }
 
 
@@ -96,6 +96,15 @@ void ConfigModel::writeConfig()
 	{
 		settings.setArrayIndex(i);
 		m_sounds[i].saveToConfig(settings);
+	}
+	settings.endArray();
+
+	settings.beginWriteArray("hotkeys");
+	int hotkeyIndex = 0;
+	for(const auto &hkp : m_hotkeys)
+	{
+		settings.setArrayIndex(hotkeyIndex++);
+		hkp.second->saveToConfig(settings);
 	}
 	settings.endArray();
 
@@ -352,5 +361,55 @@ void ConfigModel::fillInitialSounds()
 
 	for(int i = 0; files[i] != NULL; i++)
 		setFileName(i, fullPath + files[i]);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+HotkeyInfo * ConfigModel::getHotkey(int itemId) const
+{
+	const auto it = m_hotkeys.find(itemId);
+	if (it != m_hotkeys.end())
+		return it->second;
+	return nullptr;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setHotkey(int itemId, HotkeyInfo hk)
+{
+	HotkeyInfo *newHk = new HotkeyInfo(hk);
+	auto it = m_hotkeys.find(itemId);
+	if (it != m_hotkeys.end())
+	{
+		it->second->unregisterHotkey();
+		delete it->second;
+		it->second = newHk;
+	}
+	else
+		m_hotkeys.insert(std::make_pair(itemId, newHk));
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::notifyAllEvents()
+{
+	//Notify all changes
+	for(int i = 0; i < m_sounds.size(); i++)
+		notify(NOTIFY_SET_SOUND, i);
+	notify(NOTIFY_SET_COLS, m_cols);
+	notify(NOTIFY_SET_ROWS, m_rows);
+	notify(NOTIFY_SET_VOLUME, m_volume);
+	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
+	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
+	notify(NOTIFY_SET_WINDOW_SIZE, 0);
+	notify(NOTIFY_SET_BUBBLE_BUTTONS_BUILD, m_bubbleButtonsBuild);
+	notify(NOTIFY_SET_BUBBLE_STOP_BUILD, m_bubbleStopBuild);
+	notify(NOTIFY_SET_BUBBLE_COLS_BUILD, m_bubbleColsBuild);
 }
 

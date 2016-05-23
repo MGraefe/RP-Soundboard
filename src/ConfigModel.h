@@ -14,6 +14,9 @@
 #include <vector>
 #include "SoundInfo.h"
 #include <QtCore/QString>
+#include "HotkeyInfo.h"
+#include <memory>
+#include <set>
 
 class ConfigModel
 {
@@ -38,9 +41,16 @@ public:
 		virtual void notify(ConfigModel &model, notifications_e what, int data) = 0;
 	};
 
+	typedef HotkeyInfo* HotkeyPtr;
+	typedef std::map<int, HotkeyPtr> HotkeyMap;
+
 public:
 	ConfigModel();
+
 	void readConfig();
+
+	void notifyAllEvents();
+
 	void writeConfig();
 	
 	static QString GetConfigPath();
@@ -79,6 +89,10 @@ public:
 	inline int getBubbleColsBuild() const { return m_bubbleColsBuild; }
 	void setBubbleColsBuild(int build);
 
+	HotkeyInfo *getHotkey(int itemId) const;
+	const HotkeyMap &getHotkeys() const { return m_hotkeys; }
+	void setHotkey(int itemId, HotkeyInfo hk);
+
 	void addObserver(Observer *obs);
 	void remObserver(Observer *obs);
 
@@ -88,6 +102,8 @@ private:
 
 	std::vector<Observer*> m_obs;
 	std::vector<SoundInfo> m_sounds;
+	HotkeyMap m_hotkeys;
+
 	int m_rows;
 	int m_cols;
 	int m_volume;
