@@ -26,7 +26,6 @@
     <ClCompile Include="..\src\device.cpp" />
     <ClCompile Include="..\src\HighResClock.cpp" />
     <ClCompile Include="..\src\HotKeyInfo.cpp" />
-    <ClCompile Include="..\src\hotkeys.cpp" />
     <ClCompile Include="..\src\HotkeySetDialog.cpp" />
     <ClCompile Include="..\src\inputfileffmpeg.cpp" />
     <ClCompile Include="..\src\plugin.c" />
@@ -141,7 +140,6 @@
     <ClInclude Include="..\src\device.h" />
     <ClInclude Include="..\src\HighResClock.h" />
     <ClInclude Include="..\src\HotkeyInfo.h" />
-    <ClInclude Include="..\src\hotkeys.h" />
     <CustomBuild Include="..\src\HotkeySetDialog.h">
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(QTDIR)\bin\moc.exe;%(FullPath)</AdditionalInputs>
       <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Moc%27ing HotkeySetDialog.h...</Message>

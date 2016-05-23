@@ -137,9 +137,6 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_UpdateChecker.cpp">
       <Filter>Generierte Dateien\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\hotkeys.cpp">
-      <Filter>Source Dateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\HotKeyInfo.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
@@ -216,9 +213,6 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_updater_qt.h">
       <Filter>Generierte Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\hotkeys.h">
-      <Filter>Header Dateien</Filter>
     </ClInclude>
     <ClInclude Include="..\src\HotkeyInfo.h">
       <Filter>Header Dateien</Filter>
