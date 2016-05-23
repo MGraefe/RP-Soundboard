@@ -274,6 +274,8 @@ CAPI void sb_openDialog()
 	if(!configDialog)
 		configDialog = new ConfigQt(configModel);
 	configDialog->show();
+	configDialog->raise();
+	configDialog->activateWindow();
 
 	if (connectionStatusMap[activeServerId] != STATUS_CONNECTION_ESTABLISHED)
 		QMessageBox::information(configDialog, "No server connection",
