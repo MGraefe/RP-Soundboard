@@ -16,16 +16,17 @@
 #include "soundview_qt.h"
 #include <QtWidgets/QFileDialog>
 #include <QtGui/QPainter>
-
+#include "config_qt.h"
 
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent /*= 0*/) :
+SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QWidget *parent /*= 0*/) :
 	QDialog(parent),
 	ui(new Ui::SoundSettingsQt),
 	m_soundInfo(soundInfo),
+	m_buttonId(buttonId),
 	m_iconPlay(":/icon/img/playarrow_32.png"),
 	m_iconStop(":/icon/img/stoparrow_32.png")
 {
@@ -44,6 +45,8 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent /*=
 	connect(ui->soundVolumeSlider, SIGNAL(valueChanged(int)), this, SLOT(onVolumeChanged(int)));
 	connect(ui->filenameBrowseButton, SIGNAL(released()), this, SLOT(onBrowsePressed()));
 	connect(ui->previewSoundButton, SIGNAL(released()), this, SLOT(onPreviewPressed()));
+	connect(ui->hotkeyChangeButton, SIGNAL(clicked()), this, SLOT(onHotkeyChangePressed()));
+	connect(parent, SIGNAL(hotkeyRecordedEvent(QString,QString)), this, SLOT(updateHotkeyText()));
 	initGui(m_soundInfo);
 
 	m_timer = new QTimer(this);
@@ -66,6 +69,8 @@ void SoundSettingsQt::initGui(const SoundInfo &sound)
 	ui->stopSoundAtAfterCombo->setCurrentIndex(sound.cropStopAfterAt);
 	ui->stopSoundValueSpin->setValue(sound.cropStopValue);
 	ui->stopSoundUnitCombo->setCurrentIndex(sound.cropStopUnit);
+	
+	updateHotkeyText();
 
 	m_soundview->setSound(sound);
 }
@@ -162,6 +167,26 @@ void SoundSettingsQt::onTimer()
 		ui->previewSoundButton->setIcon(m_iconPlay);
 		m_timer->stop();
 	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundSettingsQt::onHotkeyChangePressed()
+{
+	ConfigQt::openHotkeySetDialog(m_buttonId, this);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundSettingsQt::updateHotkeyText()
+{
+	QString hotkeyText = ConfigQt::getShortcutString(m_buttonId);
+	ui->hotkeyCurrentLabel->setText(QString("Current hotkey: ") + 
+		(hotkeyText.isEmpty() ? QString("None") : hotkeyText));
 }
 
 

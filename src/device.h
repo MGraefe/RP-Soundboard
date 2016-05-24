@@ -38,5 +38,6 @@ CAPI void sb_playButton(int btn);
 CAPI void sb_openAbout();
 CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
 CAPI void sb_getInternalHotkeyName(int buttonId, char *buf); // buf should be at sized 16
+CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key);
 
 #endif

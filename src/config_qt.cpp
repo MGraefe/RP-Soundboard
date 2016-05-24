@@ -294,7 +294,7 @@ void ConfigQt::openAdvanced( size_t buttonId )
 	const SoundInfo *buttonInfo = m_model->getSoundInfo(buttonId);
 	SoundInfo defaultInfo;
 	const SoundInfo &info = buttonInfo ? *buttonInfo : defaultInfo;
-	SoundSettingsQt dlg(info, this);
+	SoundSettingsQt dlg(info, buttonId, this);
 	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId + 1)));
 	if(dlg.exec() == QDialog::Accepted)
 		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
@@ -370,9 +370,18 @@ void ConfigQt::onColsBubbleFinished()
 //---------------------------------------------------------------
 void ConfigQt::openHotkeySetDialog(size_t buttonId)
 {
+	openHotkeySetDialog(buttonId, this);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::openHotkeySetDialog( size_t buttonId, QWidget *parent )
+{
 	char intName[16];
 	sb_getInternalHotkeyName((int)buttonId, intName);
-	ts3Functions.requestHotkeyInputDialog(getPluginID(), intName, 0, this);
+	ts3Functions.requestHotkeyInputDialog(getPluginID(), intName, 0, parent);
 }
 
 
@@ -390,6 +399,17 @@ QString ConfigQt::getShortcutString(size_t buttonId)
 	delete[] intName;
 	delete[] hotkeyName;
 	return name;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
+{
+	QString sKeyword = keyword;
+	QString sKey = key;
+	emit hotkeyRecordedEvent(sKey, sKeyword);
 }
 
 

@@ -328,3 +328,9 @@ CAPI void sb_getInternalHotkeyName(int buttonId, char *buf)
 {
 	sprintf(buf, "button_%i", buttonId + 1);
 }
+
+CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key)
+{
+	if (configDialog)
+		configDialog->onHotkeyRecordedEvent(keyword, key);
+}

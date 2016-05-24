@@ -40,6 +40,8 @@ public:
 	virtual ~ConfigQt();
 
 	static QString getShortcutString(size_t buttonId);
+	static void openHotkeySetDialog(size_t buttonId, QWidget *parent);
+	void onHotkeyRecordedEvent(const char *keyword, const char *key);
 
 protected:
 	virtual void closeEvent(QCloseEvent * evt) override;
@@ -56,6 +58,9 @@ private slots:
 	void onStopBubbleFinished();
 	void onButtonBubbleFinished();
 	void onColsBubbleFinished();
+
+signals:
+	void hotkeyRecordedEvent(QString keyword, QString key);
 
 private:
 	void playSound(size_t buttonId);

@@ -30,7 +30,7 @@ class SoundSettingsQt: public QDialog
 	Q_OBJECT
 
 public:
-	explicit SoundSettingsQt(const SoundInfo &soundInfo, QWidget *parent = 0);
+	explicit SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QWidget *parent = 0);
 	const SoundInfo &getSoundInfo() const { return m_soundInfo; }
 
 protected:
@@ -41,17 +41,17 @@ private slots:
 	void onBrowsePressed();
 	void onPreviewPressed();
 	void onTimer();
+	void onHotkeyChangePressed();
+	void updateHotkeyText();
 
 private:
 	void initGui(const SoundInfo &sound);
 	void fillFromGui(SoundInfo &sound);
-	
 
 private:
 	Ui::SoundSettingsQt *ui;
-	ConfigModel *m_model;
-	size_t m_soundIndex;
 	SoundInfo m_soundInfo;
+	size_t m_buttonId;
 	QIcon m_iconPlay;
 	QIcon m_iconStop;
 	QTimer *m_timer;

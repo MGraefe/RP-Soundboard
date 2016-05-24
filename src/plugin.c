@@ -379,7 +379,16 @@ void ts3plugin_onHotkeyEvent(const char* keyword)
 }
 
 
+void ts3plugin_onHotkeyRecordedEvent(const char* keyword, const char* key)
+{
+	sb_onHotkeyRecordedEvent(keyword, key);
+}
+
+
 const char * getPluginID()
 {
 	return pluginID;
 }
+
+
+
