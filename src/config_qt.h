@@ -39,9 +39,10 @@ public:
 
 	virtual ~ConfigQt();
 
+	static QString getShortcutString(size_t buttonId);
+
 protected:
 	virtual void closeEvent(QCloseEvent * evt) override;
-	virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
 
 private slots:
 	void onClickedPlay();
@@ -90,6 +91,7 @@ private:
 	ModelObserver m_modelObserver;
 	QMenu m_buttonContextMenu;
 	QPointer<SpeechBubble> m_buttonBubble;
+	QAction *actSetHotkey;
 };
 
 #endif // rpsbsrc__config_qt_H__

@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -321,4 +321,10 @@ CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStat
 
 	if (serverConnectionHandlerID == activeServerId)
 		sb_enableInterface(newStatus == STATUS_CONNECTION_ESTABLISHED);
+}
+
+
+CAPI void sb_getInternalHotkeyName(int buttonId, char *buf)
+{
+	sprintf(buf, "button_%i", buttonId + 1);
 }

@@ -20,7 +20,7 @@
 #include "ts3log.h"
 #include "SpeechBubble.h"
 #include "buildinfo.h"
-#include "HotkeySetDialog.h"
+#include "plugin.h"
 
 #ifdef _WIN32
 #include "Windows.h"
@@ -54,7 +54,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	actAdvancedOpts->setData((int)BC_ADVANCED);
 	m_buttonContextMenu.addAction(actAdvancedOpts);
 
-	QAction *actSetHotkey = new QAction("Set hotkey", this);
+	actSetHotkey = new QAction("Set hotkey", this);
 	actSetHotkey->setData((int)BC_SET_HOTKEY);
 	m_buttonContextMenu.addAction(actSetHotkey);
 
@@ -72,10 +72,6 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	createBubbles();
 
 	m_model->addObserver(&m_modelObserver);
-
-	// Register hotkeys to this window
-	for(const auto &hotkeyIt : model->getHotkeys())
-		hotkeyIt.second->registerHotkey(this);
 }
 
 
@@ -234,6 +230,11 @@ void ConfigQt::showButtonContextMenu( const QPoint &point )
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
 	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
 
+	QString shortcutName = getShortcutString(buttonId);
+	QString hotkeyText = "Set hotkey (Current: " +
+		(shortcutName.isEmpty() ? QString("None") : shortcutName) + ")";
+	actSetHotkey->setText(hotkeyText);
+
 	QPoint globalPos = m_buttons[buttonId].play->mapToGlobal(point);
 	QAction *action = m_buttonContextMenu.exec(globalPos);
 	if(action)
@@ -367,48 +368,28 @@ void ConfigQt::onColsBubbleFinished()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-bool ConfigQt::nativeEvent(const QByteArray &eventType, void *message, long *result)
+void ConfigQt::openHotkeySetDialog(size_t buttonId)
 {
-#ifdef _WIN32
-	MSG *msg = static_cast<MSG*>(message);
-	if (msg->message == WM_HOTKEY)
-	{
-		uint32_t id = msg->wParam;
-		for(const auto &hk : m_model->getHotkeys())
-		{
-			if (id == hk.second->getId())
-			{
-				hk.second->performAction();
-				break;
-			}
-		}
-	}
-#endif
-
-	return QWidget::nativeEvent(eventType, message, result);
+	char intName[16];
+	sb_getInternalHotkeyName((int)buttonId, intName);
+	ts3Functions.requestHotkeyInputDialog(getPluginID(), intName, 0, this);
 }
 
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::openHotkeySetDialog(size_t buttonId)
+QString ConfigQt::getShortcutString(size_t buttonId)
 {
-	// Unregister all before we open dialog or else the dialog doesnt receive already existing hotkeys
-	for (const auto &hk : m_model->getHotkeys())
-		hk.second->unregisterHotkey();
-
-	uint32_t modifiers, keycode;
-	HotkeySetDialog *dlg = new HotkeySetDialog(this, &modifiers, &keycode);
-	int res = dlg->exec();
-	if (res == 1)
-	{
-		HotkeyInfo hk((int)buttonId, modifiers, keycode);
-		m_model->setHotkey(buttonId, hk);
-
-		for (const auto &hk : m_model->getHotkeys())
-			hk.second->registerHotkey(this);
-	}
+	char *intName = new char[16];
+	char *hotkeyName = new char[128];
+	sb_getInternalHotkeyName((int)buttonId, intName);
+	unsigned int res = ts3Functions.getHotkeyFromKeyword(
+		getPluginID(), (const char**)&intName, &hotkeyName, 1, 128);
+	QString name = res == 0 ? QString(hotkeyName) : QString();
+	delete[] intName;
+	delete[] hotkeyName;
+	return name;
 }
 
 

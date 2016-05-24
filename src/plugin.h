@@ -28,6 +28,8 @@ extern "C" {
 
 extern struct TS3Functions ts3Functions;
 
+const char *getPluginID();
+
 /* Required functions */
 PLUGINS_EXPORTDLL const char* ts3plugin_name();
 PLUGINS_EXPORTDLL const char* ts3plugin_version();

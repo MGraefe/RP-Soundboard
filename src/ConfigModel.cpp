@@ -14,7 +14,6 @@
 #include "ConfigModel.h"
 #include "device.h"
 #include "buildinfo.h"
-#include "HotkeyInfo.h"
 
 
 
@@ -58,16 +57,6 @@ void ConfigModel::readConfig()
 	}
 	settings.endArray();
 
-	int numHotkeys = settings.beginReadArray("hotkeys");
-	m_hotkeys.clear();
-	for(int i = 0; i < numHotkeys; i++)
-	{
-		settings.setArrayIndex(i);
-		auto ptr = HotkeyPtr(new HotkeyInfo(settings));
-		m_hotkeys.insert(std::make_pair(ptr->getButtonId(), std::move(ptr)));
-	}
-	settings.endArray();
-
 	m_rows = settings.value("num_rows", 2).toInt();
 	m_cols = settings.value("num_cols", 5).toInt();
 	m_volume = settings.value("volume", 50).toInt();
@@ -96,15 +85,6 @@ void ConfigModel::writeConfig()
 	{
 		settings.setArrayIndex(i);
 		m_sounds[i].saveToConfig(settings);
-	}
-	settings.endArray();
-
-	settings.beginWriteArray("hotkeys");
-	int hotkeyIndex = 0;
-	for(const auto &hkp : m_hotkeys)
-	{
-		settings.setArrayIndex(hotkeyIndex++);
-		hkp.second->saveToConfig(settings);
 	}
 	settings.endArray();
 
@@ -361,36 +341,6 @@ void ConfigModel::fillInitialSounds()
 
 	for(int i = 0; files[i] != NULL; i++)
 		setFileName(i, fullPath + files[i]);
-}
-
-
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-HotkeyInfo * ConfigModel::getHotkey(int itemId) const
-{
-	const auto it = m_hotkeys.find(itemId);
-	if (it != m_hotkeys.end())
-		return it->second;
-	return nullptr;
-}
-
-
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-void ConfigModel::setHotkey(int itemId, HotkeyInfo hk)
-{
-	HotkeyInfo *newHk = new HotkeyInfo(hk);
-	auto it = m_hotkeys.find(itemId);
-	if (it != m_hotkeys.end())
-	{
-		it->second->unregisterHotkey();
-		delete it->second;
-		it->second = newHk;
-	}
-	else
-		m_hotkeys.insert(std::make_pair(itemId, newHk));
 }
 
 

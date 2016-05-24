@@ -292,7 +292,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 	BEGIN_CREATE_HOTKEYS(numKeys + numExtra);
 	for(i = 0; i < numKeys; i++)
 	{
-		sprintf(kw, "button_%i", i+1);
+		sb_getInternalHotkeyName(i, kw);
 		sprintf(desc, "Press button %i", i+1);
 		CREATE_HOTKEY(kw, desc);
 	}
@@ -376,4 +376,10 @@ void ts3plugin_onHotkeyEvent(const char* keyword)
 	{
 		sb_stopPlayback();
 	}
+}
+
+
+const char * getPluginID()
+{
+	return pluginID;
 }
