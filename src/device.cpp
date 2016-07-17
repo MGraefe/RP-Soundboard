@@ -144,12 +144,18 @@ bool setContinuousTransmission(uint64 scHandlerID)
 CAPI void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
 	int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask)
 {
+	if (serverConnectionHandlerID != activeServerId)
+		return; //Ignore other servers
+
 	sampler->fetchOutputSamples(samples, sampleCount, channels, channelSpeakerArray, channelFillMask);
 }
 
 
 CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited)
 {
+	if (serverConnectionHandlerID != activeServerId)
+		return; //Ignore other servers
+
 	bool finished = false;
 	int written = sampler->fetchInputSamples(samples, sampleCount, channels, &finished);
 	if(finished)
