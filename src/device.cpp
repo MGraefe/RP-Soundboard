@@ -73,7 +73,8 @@ void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e
 
 enum talk_state_e
 {
-	TS_PTT_WITHOUT_VA = 1,
+	TS_INVALID,
+	TS_PTT_WITHOUT_VA,
 	TS_PTT_WITH_VA,
 	TS_VOICE_ACTIVATION,
 	TS_CONT_TRANS,
@@ -86,13 +87,13 @@ talk_state_e getTalkState(uint64 scHandlerID)
 {
 	char *vadStr;
 	if(checkError(ts3Functions.getPreProcessorConfigValue(scHandlerID, "vad", &vadStr), "Error retrieving vad setting"))
-		return (talk_state_e)0;
+		return TS_INVALID;
 	bool vad = strcmp(vadStr, "true") == 0;
 	ts3Functions.freeMemory(vadStr);
 
 	int input;
 	if(checkError(ts3Functions.getClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, &input), "Error retrieving input setting"))
-		return (talk_state_e)0;
+		return TS_INVALID;
 	bool ptt = input == INPUT_DEACTIVATED;
 	
 	if(ptt)
@@ -175,7 +176,7 @@ int sb_playFile(const SoundInfo &sound)
 	if(!playing)
 	{
 		talk_state_e s = getTalkState(activeServerId);
-		if(s != 0)
+		if(s != TS_INVALID)
 			previousTalkState = s;
 	}
 
@@ -197,8 +198,6 @@ Sampler *sb_getSampler()
 
 void sb_enableInterface(bool enabled) 
 {
-	if (!enabled)
-		sb_stopPlayback();
 	configDialog->setEnabled(enabled);
 }
 
@@ -269,10 +268,22 @@ CAPI void sb_kill()
 
 CAPI void sb_onServerChange(uint64 serverID)
 {
-	activeServerId = serverID;
+	talk_state_e talkState = getTalkState(activeServerId);
 	if (connectionStatusMap.find(serverID) == connectionStatusMap.end())
 		connectionStatusMap[serverID] = STATUS_DISCONNECTED;
-	sb_enableInterface(connectionStatusMap[serverID] == STATUS_CONNECTION_ESTABLISHED);
+	bool connected = connectionStatusMap[serverID] == STATUS_CONNECTION_ESTABLISHED;
+
+	if (playing && activeServerId != serverID)
+	{
+		setTalkState(activeServerId, previousTalkState);
+		if (connected && talkState != TS_INVALID)
+			setTalkState(serverID, talkState);
+		else
+			sb_stopPlayback();
+	}
+
+	activeServerId = serverID;
+	sb_enableInterface(connected);
 }
 
 
@@ -326,7 +337,11 @@ CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStat
 		connectionStatusMap[serverConnectionHandlerID] = newStatus;
 
 	if (serverConnectionHandlerID == activeServerId)
+	{
+		if (newStatus == STATUS_DISCONNECTED)
+			sb_stopPlayback();
 		sb_enableInterface(newStatus == STATUS_CONNECTION_ESTABLISHED);
+	}
 }
 
 
