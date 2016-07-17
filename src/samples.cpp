@@ -265,10 +265,10 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 }
 
 
-int Sampler::findChannelId(int channel, const unsigned int *channelSpeakerArray, int count)
+int Sampler::findChannelId(unsigned int channel, const unsigned int *channelSpeakerArray, int count)
 {
 	for(int i = 0; i < count; i++)
-		if(channelSpeakerArray[i] == channel)
+		if(channelSpeakerArray[i] & channel)
 			return i;
 	return 0;
 }
@@ -294,8 +294,8 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
-	int ciLeft = findChannelId(SPEAKER_FRONT_LEFT, channelSpeakerArray, channels);
-	int ciRight = findChannelId(SPEAKER_FRONT_RIGHT, channelSpeakerArray, channels);
+	int ciLeft = findChannelId(SPEAKER_FRONT_LEFT | SPEAKER_HEADPHONES_LEFT, channelSpeakerArray, channels);
+	int ciRight = findChannelId(SPEAKER_FRONT_RIGHT | SPEAKER_HEADPHONES_RIGHT, channelSpeakerArray, channels);
 	int written = fetchSamples(m_sbPlayback, samples, count, channels, true, ciLeft, ciRight,
 		(*channelFillMask & SPEAKER_FRONT_LEFT) == 0,
 		(*channelFillMask & SPEAKER_FRONT_RIGHT) == 0);
