@@ -297,11 +297,11 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	int ciLeft = findChannelId(SPEAKER_FRONT_LEFT | SPEAKER_HEADPHONES_LEFT, channelSpeakerArray, channels);
 	int ciRight = findChannelId(SPEAKER_FRONT_RIGHT | SPEAKER_HEADPHONES_RIGHT, channelSpeakerArray, channels);
 	int written = fetchSamples(m_sbPlayback, samples, count, channels, true, ciLeft, ciRight,
-		(*channelFillMask & SPEAKER_FRONT_LEFT) == 0,
-		(*channelFillMask & SPEAKER_FRONT_RIGHT) == 0);
+		(*channelFillMask & channelSpeakerArray[ciLeft]) == 0,
+		(*channelFillMask & channelSpeakerArray[ciRight]) == 0);
 	
 	if(written > 0)
-		*channelFillMask |= (SPEAKER_FRONT_LEFT | SPEAKER_FRONT_RIGHT);
+		*channelFillMask |= (channelSpeakerArray[ciLeft] | channelSpeakerArray[ciRight]);
 
 	if(m_state == PLAYING_PREVIEW && m_inputFile && m_inputFile->done() && m_sbPlayback.avail() == 0)
 	{
