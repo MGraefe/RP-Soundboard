@@ -13,12 +13,17 @@
 
 #include <vector>
 #include <mutex>
+#include <cassert>
+
 
 #include "SampleProducer.h"
 
 class SampleBuffer : public SampleProducer
 {
 public:
+	typedef std::mutex Mutex;
+	typedef std::lock_guard<Mutex> Lock;
+
 	class ProduceCallback
 	{
 	public:
@@ -36,37 +41,44 @@ public:
 
 	//Set the callback that is called when samples are placed into the buffer (produced)
 	inline void setOnProduce(ProduceCallback *cb) { 
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		m_cbProd = cb;
 	}
 
 	//Get the callback that is called when samples are placed into the buffer (produced)
 	inline ConsumeCallback *getOnProduce() const {
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		return m_cbCons;
 	}
 
 	//Set the callback that is called when samples are read from the buffer (consumed)
 	inline void setOnConsume(ConsumeCallback *cb) {
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		m_cbCons = cb;
 	}
 
 	//Get the callback that is called when samples are read from the buffer (consumed)
 	inline ConsumeCallback *getOnConsume() const {
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		return m_cbCons;
 	}
 
 	//Get the number of available samples
 	//One sample is (2 * channels) bytes in size
 	inline int avail() const { 
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		return m_buf.size() / m_channels; 
 	}
 
 	//Return the number of channels this buffer was initialized with
 	inline int channels() const {
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		return m_channels;
 	}
 
 	//Return max size as set
 	inline size_t maxSize() const {
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		return m_maxSize;
 	}
 
@@ -74,7 +86,7 @@ public:
 	//samples: The sample buffer
 	//count: Number of samples in buffer
 	//One sample is (2 * channels) bytes in size
-	void produce(const short *samples, int count) override;
+	virtual void produce(const short *samples, int count) override;
 
 	//Consume some samples from the buffer
 	//samples: The sample buffer
@@ -85,17 +97,28 @@ public:
 
 	//Get size of a sample in bytes
 	inline int sampleSize() const {
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		return 2 * m_channels;
 	}
 
 	//Copy a number of samples to another buffer
-	void copyToOther(SampleBuffer *other, int count, int start = 0) const;
+	//void copyToOther(SampleBuffer *other, int count, int start = 0) const;
 
 	//Directly return bare memory adress
 	//Be careful!
 	inline short *getBufferData() {
+		assert(!m_mutex.try_lock() && "Mutex not locked");
 		return m_buf.data();
 	}
+
+	inline const std::mutex &getMutex() const {
+		return m_mutex;
+	}
+
+	inline std::mutex &getMutex() {
+		return m_mutex;
+	}
+
 private:
 	const int m_channels;
 	const size_t m_maxSize;

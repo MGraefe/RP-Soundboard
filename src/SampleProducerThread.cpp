@@ -84,48 +84,7 @@ void SampleProducerThread::run()
 	{
 		m_mutex.lock();
 		if(m_source)
-		{
 			while(singleBufferFill() > 0) {}
-
-		//	// Loop over all buffers and see if any of them is going to be empty soon.
-		//	// If so fill the one buffer with data from the source, and copy that data
-		//	// to all other attached playback buffers
-		//	int readTotal = 0;
-		//	size_t availBuffer = -1;
-		//	for(size_t i = 0; i < m_buffers.size(); ++i)
-		//	{
-		//		if(!m_buffers[i].enabled)
-		//			continue;
-		//		if(m_buffers[i].buffer->avail() < 48000 / 2)
-		//		{
-		//			availBuffer = i;
-		//			while(m_buffers[i].buffer->avail() < 48000 / 2)
-		//			{
-		//				int read = m_source->readSamples(m_buffers[i].buffer);
-		//				if(read <= 0)
-		//					break;
-		//				readTotal += read;
-		//			}
-		//			break;
-		//		}
-		//	}
-
-		//	// Now we have 'read' bytes available in buffer nr. 'availBuffer',
-		//	// copy those to the other buffers
-		//	if(readTotal > 0 && availBuffer != -1)
-		//	{
-		//		SampleBuffer *sourceBuffer = m_buffers[availBuffer].buffer;
-		//		int start = sourceBuffer->avail() - readTotal;
-		//		assert(start > 0 && "Start is negative?!");
-		//		for(size_t i = 0; i < m_buffers.size(); ++i)
-		//		{
-		//			//Do not copy to ourselves or to disabled buffers
-		//			if(i == availBuffer || !m_buffers[i].enabled)
-		//				continue;
-		//			sourceBuffer->copyToOther(m_buffers[i].buffer, readTotal, start);
-		//		}
-		//	}
-		}
 		m_mutex.unlock();
 
 		// We now have half a second of samples available and have done
@@ -189,8 +148,13 @@ void SampleProducerThread::setBufferEnabled( SampleBuffer *buffer, bool enabled 
 void SampleProducerThread::produce( const short *samples, int count )
 {
 	for(const buffer_t &buffer : m_buffers)
+	{
 		if(buffer.enabled)
+		{
+			SampleBuffer::Lock lock(buffer.buffer->getMutex());
 			buffer.buffer->produce(samples, count);
+		}
+	}
 }
 
 
@@ -201,10 +165,15 @@ int SampleProducerThread::singleBufferFill()
 {
 	for(const buffer_t &buffer : m_buffers)
 	{
-		if(buffer.enabled && buffer.buffer->avail() < MIN_BUFFER_SAMPLES)
+		if (buffer.enabled)
 		{
-			assert(buffer.buffer->maxSize() > MIN_BUFFER_SAMPLES && "Buffer too small");
-			return m_source->readSamples(this);
+			std::unique_lock<SampleBuffer::Mutex> sbl(buffer.buffer->getMutex());
+			if (buffer.buffer->avail() < MIN_BUFFER_SAMPLES)
+			{
+				assert(buffer.buffer->maxSize() > MIN_BUFFER_SAMPLES && "Buffer too small");
+				sbl.unlock();
+				return m_source->readSamples(this);
+			}
 		}
 	}
 	return 0;

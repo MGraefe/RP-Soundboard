@@ -10,8 +10,6 @@
 #include "SampleBuffer.h"
 
 
-typedef std::lock_guard<std::mutex> Lock;
-
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
@@ -30,7 +28,7 @@ SampleBuffer::SampleBuffer( int channels, size_t maxSize /*= 0*/ ) :
 //---------------------------------------------------------------
 void SampleBuffer::produce( const short *samples, int count )
 {
-	Lock lock(m_mutex);
+	assert(!m_mutex.try_lock() && "Mutex not locked");
 	if(m_maxSize == 0 || avail() < m_maxSize)
 	{
 		m_buf.insert(m_buf.end(), samples, samples + (count * m_channels));
@@ -45,7 +43,7 @@ void SampleBuffer::produce( const short *samples, int count )
 //---------------------------------------------------------------
 int SampleBuffer::consume( short *samples, int maxCount, bool eraseConsumed )
 {
-	Lock lock(m_mutex);
+	assert(!m_mutex.try_lock() && "Mutex not locked");
 	int count = std::min(avail(), maxCount);
 	size_t shorts = count * m_channels;
 	if(samples)
@@ -61,14 +59,14 @@ int SampleBuffer::consume( short *samples, int maxCount, bool eraseConsumed )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void SampleBuffer::copyToOther( SampleBuffer *other, int count, int start /*= 0*/ ) const
-{
-	Lock lock(m_mutex);
-	if(m_channels != other->m_channels)
-		throw std::logic_error("Copying to buffers with different channel count is not supported.");
-	start = std::min(start, avail());
-	count = std::min(count, avail() - start);
-	if(count > 0)
-		other->produce(&m_buf[start * m_channels], count);
-}
+//void SampleBuffer::copyToOther( SampleBuffer *other, int count, int start /*= 0*/ ) const
+//{
+//	assert(!m_mutex.try_lock() && "Mutex not locked");
+//	if(m_channels != other->m_channels)
+//		throw std::logic_error("Copying to buffers with different channel count is not supported.");
+//	start = std::min(start, avail());
+//	count = std::min(count, avail() - start);
+//	if(count > 0)
+//		other->produce(&m_buf[start * m_channels], count);
+//}
 

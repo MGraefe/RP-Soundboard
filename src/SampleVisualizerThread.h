@@ -16,9 +16,18 @@
 
 #include "SampleBuffer.h"
 
+
 class InputFile;
 class SampleVisualizerThread
 {
+public:
+	class SampleBufferSynced : public SampleBuffer
+	{
+	public:
+		SampleBufferSynced(int channels, size_t maxSize = 0);
+		virtual void produce(const short *samples, int count) override;
+	};
+
 public:
 	SampleVisualizerThread();
 	~SampleVisualizerThread();
@@ -46,7 +55,7 @@ private:
 	typedef std::lock_guard<std::mutex> Lock;
 
 private:
-	SampleBuffer m_buffer;
+	SampleBufferSynced m_buffer;
 	size_t m_numBins;
 	size_t m_numBinsProcessed;
 	int64_t m_numSamplesProcessed;

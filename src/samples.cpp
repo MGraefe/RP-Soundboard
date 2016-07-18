@@ -149,6 +149,8 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	start = HighResClock::now();
 #endif
 
+	SampleBuffer::Lock sbl(sb.getMutex());
+
 	if(sb.avail() == 0)
 		return 0;
 
@@ -279,6 +281,8 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
 	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
+	
+	SampleBuffer::Lock sbl(m_sbCapture.getMutex());
 	if(m_state == PLAYING && m_inputFile && m_inputFile->done() && m_sbCapture.avail() == 0)
 	{
 		m_state = SILENT;
@@ -294,14 +298,16 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
-	int ciLeft = findChannelId(SPEAKER_FRONT_LEFT | SPEAKER_HEADPHONES_LEFT, channelSpeakerArray, channels);
-	int ciRight = findChannelId(SPEAKER_FRONT_RIGHT | SPEAKER_HEADPHONES_RIGHT, channelSpeakerArray, channels);
+	const unsigned int bitMaskLeft = SPEAKER_FRONT_LEFT | SPEAKER_HEADPHONES_LEFT;
+	const unsigned int bitMaskRight = SPEAKER_FRONT_RIGHT | SPEAKER_HEADPHONES_RIGHT;
+	int ciLeft = findChannelId(bitMaskLeft, channelSpeakerArray, channels);
+	int ciRight = findChannelId(bitMaskRight, channelSpeakerArray, channels);
 	int written = fetchSamples(m_sbPlayback, samples, count, channels, true, ciLeft, ciRight,
-		(*channelFillMask & channelSpeakerArray[ciLeft]) == 0,
-		(*channelFillMask & channelSpeakerArray[ciRight]) == 0);
+		(*channelFillMask & bitMaskLeft) == 0,
+		(*channelFillMask & bitMaskRight) == 0);
 	
 	if(written > 0)
-		*channelFillMask |= (channelSpeakerArray[ciLeft] | channelSpeakerArray[ciRight]);
+		*channelFillMask |= (bitMaskLeft | bitMaskRight);
 
 	if(m_state == PLAYING_PREVIEW && m_inputFile && m_inputFile->done() && m_sbPlayback.avail() == 0)
 	{
@@ -405,6 +411,9 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 
 	m_soundDbSetting = (double)sound.volume;
 	setVolumeDb(m_globalDbSetting + m_soundDbSetting);
+
+	SampleBuffer::Lock sblc(m_sbCapture.getMutex());
+	SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
 
 	//Clear buffers
 	m_sbCapture.consume(NULL, m_sbCapture.avail());

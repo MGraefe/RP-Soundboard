@@ -18,6 +18,24 @@
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+SampleVisualizerThread::SampleBufferSynced::SampleBufferSynced(int channels, size_t maxSize) :
+	SampleBuffer(channels, maxSize)
+{}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SampleVisualizerThread::SampleBufferSynced::produce(const short *samples, int count)
+{
+	SampleBuffer::Lock l(getMutex());
+	SampleBuffer::produce(samples, count);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 SampleVisualizerThread & SampleVisualizerThread::GetInstance()
 {
 	static SampleVisualizerThread t;
@@ -188,6 +206,7 @@ void SampleVisualizerThread::processSamples(size_t newSamples)
 			m_min = std::numeric_limits<short>::max();
 			m_max = std::numeric_limits<short>::min();
 		}
+		SampleBuffer::Lock sbl(m_buffer.getMutex());
 		size_t numSamplesThisIt = std::min((size_t)m_buffer.avail(), samplesPerBin - m_numSamplesProcessedThisBin);
 		if(numSamplesThisIt == 0)
 			break;
