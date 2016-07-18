@@ -72,7 +72,7 @@
        <item>
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>Copyright (C) 2015 Marius Gräfe</string>
+          <string>Copyright © 2016 Marius Gräfe</string>
          </property>
         </widget>
        </item>
