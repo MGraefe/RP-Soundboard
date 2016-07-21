@@ -1,11 +1,22 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+# Copyright (c) 2016 Marius Gräfe
+# Script to generate version.h from version.txt
+# version.txt should be a simple text document with
+# four dot separated numbers in it (e.g. "1,2,3,1234")
+# Options:
+#   -inc	Increment version (fourth number by default)
+#   -major	Increment first number if -inc is given
+#   -minor	Increment second number if -inc is given
+#   -revision   Increment third number if -inc is given
+
 
 import re
 import sys
 
-productName = 'ts3sb';
+productName = 'ts3sb'; # Set product name here
+
 
 def findPatternNum():
 	if '-major' in sys.argv:
@@ -17,6 +28,7 @@ def findPatternNum():
 	return 4;
 
 def replaceVersion():
+	incVersion = '-inc' in sys.argv;
 	f = open('version.txt', 'r');
 	if f == None:
 		print('File not found');
@@ -25,7 +37,7 @@ def replaceVersion():
 	s = f.read();
 	f.close();
 	
-	pattern = '([0-9]+),([0-9]+),([0-9]+),([0-9]+)'
+	pattern = '([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)';
 
 	reObj = re.search(pattern, s);
 	if reObj == None:
@@ -34,13 +46,13 @@ def replaceVersion():
 
 	patternNum = findPatternNum();
 	groups = list(reObj.groups());
-	groups[patternNum-1] = str(int(groups[patternNum-1]) + 1);
+	if incVersion:
+		groups[patternNum-1] = str(int(groups[patternNum-1]) + 1);
 
-	ns = re.sub(pattern, ','.join(groups), s);
 	productNameCap = productName.upper();
 	
 	sh = \
-	'//CHANGES WILL BE OVERWRITTEN BY incversion.py\n\n' \
+	'//CHANGES WILL BE OVERWRITTEN BY version.py\n\n' \
 	'#ifndef ' + productName + '_all__version_H__\n' \
 	'#define ' + productName + '_all__version_H__\n\n' \
 	'#define ' + productNameCap + '_VERSION ' + ','.join(groups) + '\n' + \
@@ -55,9 +67,11 @@ def replaceVersion():
 	
 	fh.write(sh);
 	fh.close();
-	ft = open('version.txt', 'w');
-	ft.write(','.join(groups));
-	ft.close();
+
+	if incVersion:
+		ft = open('version.txt', 'w');
+		ft.write('.'.join(groups));
+		ft.close();
 	
 	return 0;
 
