@@ -80,7 +80,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 {
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		std::string err = reply->errorString().toUtf8();
+		std::string err = reply->errorString().toUtf8().toStdString();
 		logError("UpdateChecker: Error requesting version document %s.\nError-String: %s", CHECK_URL, err.c_str());
 	}
 	else

@@ -10,6 +10,7 @@
 #ifndef rpsbsrc__common_H__
 #define rpsbsrc__common_H__
 
+#include <stddef.h>
 #include <stdint.h>
 
 #include "public_errors.h"

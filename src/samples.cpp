@@ -224,7 +224,9 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	else
 	{
 		__m128i volumeDivider = _mm_set1_epi32(m_volumeDivider);
-		__declspec(align(16)) short outbuf[8]; //TODO: generalize
+		// Align outbuf to 16 bytes
+		char outbufBuf[8*sizeof(short)+16];
+		short *outbuf = (short*)(outbufBuf + (16 - (size_t)outbufBuf % 16));
 		assert(reinterpret_cast<size_t>(outbuf) % 16 == 0);
 		for(int i = 0; i < write; i += 4)
 		{
