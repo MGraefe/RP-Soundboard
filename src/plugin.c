@@ -284,7 +284,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 	 * The keyword will be later passed to model. to identify which hotkey was triggered.
 	 * The description is shown in the clients hotkey dialog. */
 	int i;
-	int numKeys = 30;
+	int numKeys = 200;
 	int numExtra = 1;
 	char kw[PLUGIN_HOTKEY_BUFSZ];
 	char desc[PLUGIN_HOTKEY_BUFSZ];
@@ -331,6 +331,11 @@ void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerI
 void ts3plugin_onEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited) 
 {
 	sb_handleCaptureData(serverConnectionHandlerID, samples, sampleCount, channels, edited);
+}
+
+PLUGINS_EXPORTDLL void ts3plugin_onCustom3dRolloffCalculationClientEvent(uint64 serverConnectionHandlerID, anyID clientID, float distance, float * volume)
+{
+    
 }
 
 /*

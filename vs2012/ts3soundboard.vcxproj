@@ -470,7 +470,7 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3_win32\plugins\$(TargetFileName)"
+      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3_win32\config\plugins\$(TargetFileName)"
 xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamspeak3\plugins\rp_soundboard\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -497,7 +497,7 @@ xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamsp
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\plugins\$(TargetFileName)"
+      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\config\plugins\$(TargetFileName)"
 xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamspeak3\plugins\rp_soundboard\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
