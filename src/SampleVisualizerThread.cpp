@@ -8,6 +8,7 @@
 
 
 
+#include <algorithm>
 #include "inputfile.h"
 #include "SampleVisualizerThread.h"
 #include "SampleBuffer.h"

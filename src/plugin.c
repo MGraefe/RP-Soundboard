@@ -29,7 +29,7 @@
 #define _strcpy(dest, destSize, src) { strncpy(dest, src, destSize-1); (dest)[destSize-1] = '\0'; }
 #endif
 
-#define PLUGIN_API_VERSION 20
+#define PLUGIN_API_VERSION 21
 
 
 
@@ -82,7 +82,7 @@ const char* ts3plugin_version() {
 
 /* Plugin API version. Must be the same as the clients API major version, else the plugin fails to load. */
 int ts3plugin_apiVersion() {
-	return PLUGIN_API_VERSION;
+    return PLUGIN_API_VERSION;
 }
 
 /* Plugin author */

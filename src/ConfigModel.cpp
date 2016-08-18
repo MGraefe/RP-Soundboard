@@ -14,6 +14,7 @@
 #include "ConfigModel.h"
 #include "device.h"
 #include "buildinfo.h"
+#include "plugin.h"
 
 
 
@@ -323,7 +324,7 @@ void ConfigModel::setBubbleColsBuild(int build)
 void ConfigModel::fillInitialSounds()
 {
 	char* pluginPath = (char*)malloc(PATH_BUFSIZE);
-	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE);
+	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, getPluginID());
 	QString fullPath = QString::fromUtf8(pluginPath);
 	QChar last = fullPath[fullPath.count() - 1];
 	if (last != '/' && last != '\\')

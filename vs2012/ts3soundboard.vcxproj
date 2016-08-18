@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -384,23 +384,23 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -450,6 +450,7 @@
     <IncludePath>..\include;..\ffmpeg\include;$(IncludePath)</IncludePath>
     <LibraryPath>..\ffmpeg\lib_win_$(PlatformTarget);$(LibraryPath)</LibraryPath>
     <TargetName>rp_soundboard_win$(PlatformArchitecture)</TargetName>
+    <PreBuildEventUseInBuild>true</PreBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -545,12 +546,12 @@ xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamsp
       </Command>
     </CustomBuildStep>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\plugins\$(TargetFileName)"
-xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamspeak3\plugins\rp_soundboard\"</Command>
+      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3\config\plugins\$(TargetFileName)"
+xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamspeak3\config\plugins\rp_soundboard\"</Command>
     </PostBuildEvent>
     <PreBuildEvent>
       <Command>pushd "$(ProjectDir)..\src\version"
-python incversion.py
+python version.py -inc
 popd</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -559,7 +560,7 @@ popd</Command>
   </ImportGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties UicDir=".\GeneratedFiles" MocDir=".\GeneratedFiles\$(ConfigurationName)" MocOptions="" RccDir=".\GeneratedFiles" lupdateOnBuild="0" lupdateOptions="" lreleaseOptions="" Qt5Version_x0020_Win32="Qt5.4.1_x86" Qt5Version_x0020_x64="Qt5.4.1_x64" />
+      <UserProperties MocDir=".\GeneratedFiles\$(ConfigurationName)" UicDir=".\GeneratedFiles" RccDir=".\GeneratedFiles" lupdateOptions="" lupdateOnBuild="0" lreleaseOptions="" Qt5Version_x0020_Win32="Qt5.6.1_x86" Qt5Version_x0020_x64="Qt5.6.1_x64" MocOptions="" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

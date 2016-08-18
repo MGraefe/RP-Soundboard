@@ -6,6 +6,7 @@
 // Contact: rp_soundboard@mgraefe.de
 //----------------------------------
 
+#include <algorithm>
 #include <cstring>
 #include "SampleBuffer.h"
 
