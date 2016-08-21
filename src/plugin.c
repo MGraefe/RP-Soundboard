@@ -17,7 +17,7 @@
 #include <assert.h>
 
 #include "plugin.h"
-#include "device.h"
+#include "main.h"
 #include "buildinfo.h"
 
 /*static*/ struct TS3Functions ts3Functions;

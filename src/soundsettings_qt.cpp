@@ -11,7 +11,7 @@
 #include "ui_soundsettings_qt.h"
 #include "soundsettings_qt.h"
 #include "ConfigModel.h"
-#include "device.h"
+#include "main.h"
 #include "samples.h"
 #include "soundview_qt.h"
 #include <QtWidgets/QFileDialog>

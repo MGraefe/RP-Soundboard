@@ -20,7 +20,7 @@
 #include "inputfile.h"
 #include "SampleBuffer.h"
 #include "SampleSource.h"
-#include "device.h"
+#include "main.h"
 #include <mutex>
 
 extern "C"

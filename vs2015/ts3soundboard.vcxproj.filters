@@ -41,9 +41,6 @@
     <ClCompile Include="..\src\config_qt.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\device.cpp">
-      <Filter>Source Dateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\inputfileffmpeg.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
@@ -137,12 +134,12 @@
     <ClCompile Include="GeneratedFiles\Debug\moc_UpdateChecker.cpp">
       <Filter>Generierte Dateien\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\main.cpp">
+      <Filter>Source Dateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\common.h">
-      <Filter>Header Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\device.h">
       <Filter>Header Dateien</Filter>
     </ClInclude>
     <ClInclude Include="..\src\inputfile.h">
@@ -201,6 +198,9 @@
     </ClInclude>
     <ClInclude Include="GeneratedFiles\ui_updater_qt.h">
       <Filter>Generierte Dateien</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\main.h">
+      <Filter>Header Dateien</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
