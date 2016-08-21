@@ -61,8 +61,11 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	createButtons();
 
 	ui->cb_advanced_config->hide();
+	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
 	
 	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));
+	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+		SLOT(showStopButtonContextMenu(const QPoint&)));
 	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
 	connect(ui->cb_playback_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdatePlaybackLocal(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
@@ -368,6 +371,27 @@ void ConfigQt::onColsBubbleFinished()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void ConfigQt::showStopButtonContextMenu(const QPoint &point)
+{
+	QString shortcutName = getShortcutString("stop_all");
+	QString hotkeyText = "Set hotkey (Current: " +
+		(shortcutName.isEmpty() ? QString("None") : shortcutName) + ")";
+
+	QMenu menu;
+	menu.addAction(hotkeyText);
+
+	QPoint globalPos = ui->b_stop->mapToGlobal(point);
+	QAction *action = menu.exec(globalPos);
+	if (action)
+	{
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), "stop_all", 0, this);
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void ConfigQt::openHotkeySetDialog(size_t buttonId)
 {
 	openHotkeySetDialog(buttonId, this);
@@ -388,17 +412,26 @@ void ConfigQt::openHotkeySetDialog( size_t buttonId, QWidget *parent )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-QString ConfigQt::getShortcutString(size_t buttonId)
+QString ConfigQt::getShortcutString(const char *internalName)
 {
-	char *intName = new char[16];
 	char *hotkeyName = new char[128];
-	sb_getInternalHotkeyName((int)buttonId, intName);
 	unsigned int res = ts3Functions.getHotkeyFromKeyword(
-		getPluginID(), (const char**)&intName, &hotkeyName, 1, 128);
+		getPluginID(), &internalName, &hotkeyName, 1, 128);
 	QString name = res == 0 ? QString(hotkeyName) : QString();
-	delete[] intName;
 	delete[] hotkeyName;
 	return name;
+}
+
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+QString ConfigQt::getShortcutString(size_t buttonId)
+{
+	char intName[16];
+	sb_getInternalHotkeyName((int)buttonId, intName);
+	return getShortcutString(intName);
 }
 
 

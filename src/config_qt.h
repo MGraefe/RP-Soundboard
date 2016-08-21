@@ -39,6 +39,7 @@ public:
 
 	virtual ~ConfigQt();
 
+	static QString getShortcutString(const char *internalName);
 	static QString getShortcutString(size_t buttonId);
 	static void openHotkeySetDialog(size_t buttonId, QWidget *parent);
 	void onHotkeyRecordedEvent(const char *keyword, const char *key);
@@ -58,6 +59,7 @@ private slots:
 	void onStopBubbleFinished();
 	void onButtonBubbleFinished();
 	void onColsBubbleFinished();
+	void showStopButtonContextMenu(const QPoint &point);
 
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
