@@ -12,6 +12,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QXmlStreamReader>
+#include <QtNetwork/QNetworkRequest>
 
 class QNetworkReply;
 class QNetworkAccessManager;
@@ -28,6 +29,8 @@ public:
 		int build;
 		QString latestDownload;
 		QString version;
+		QString featuresUrl;
+		QString features;
 
 		void reset();
 		bool valid();
@@ -36,19 +39,28 @@ public:
 public:
 	explicit UpdateChecker(QObject *parent = NULL);
 	void startCheck();
-	
+	static QByteArray getUserAgent();
+	static void setUserAgent(QNetworkRequest &request);
 
 public slots:
 	void onFinishedUpdate();
-	void onFinishDownloadXml(QNetworkReply *reply);
+	void onFinishDownload(QNetworkReply *reply);
+
+private:
 	void parseXml(QIODevice *device);
 	void parseProduct(QXmlStreamReader &xml);
 	void parseProductInner(QXmlStreamReader &xml);
-
-private:
+	void onFinishDownloadXml(QNetworkReply *reply);
+	void onFinishDownloadFeatures(QNetworkReply * reply);
 	void askUserForUpdate();
 
 private:
+	enum class Loading
+	{
+		mainXml,
+		features,
+	} loading;
+
 	QNetworkAccessManager *m_mgr;
 	version_info_t m_verInfo;
 	UpdaterWindow *m_updater;

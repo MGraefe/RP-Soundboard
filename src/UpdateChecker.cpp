@@ -18,11 +18,11 @@
 //     <latestDownload>
 //       <url>http://mgraefe.de/rpsb/dl/rp_soundboard_1101.ts3_plugin</url>
 //     </latestDownload>
+//	   <featureUrl>http://mgraefe.de/rpsb/version/features_1101.txt</featureUrl>
 //   </product>
 // </versionDescription>
 
 #include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QtWidgets/QMessageBox>
 #include <QtCore/QFileInfo>
@@ -36,6 +36,16 @@
 
 #define CHECK_URL "http://mgraefe.de/rpsb/version/version.xml"
 
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+std::string toStdStringUtf8(const QString &str)
+{
+	QByteArray arr = str.toUtf8();
+	std::string res(arr.constData(), arr.size());
+	return res;
+}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -63,13 +73,31 @@ UpdateChecker::UpdateChecker( QObject *parent /*= NULL*/ ) :
 void UpdateChecker::startCheck()
 {
 	m_mgr = new QNetworkAccessManager(this);
-	connect(m_mgr, SIGNAL(finished(QNetworkReply*)), this, SLOT(onFinishDownloadXml(QNetworkReply*)));
+	connect(m_mgr, SIGNAL(finished(QNetworkReply*)), this, SLOT(onFinishDownload(QNetworkReply*)));
 
 	QUrl url(CHECK_URL);
 	QNetworkRequest request;
 	request.setUrl(url);
-	request.setRawHeader("User-Agent", QByteArray("RP Soundboard Update Checker, ") + buildinfo_getPluginVersion());
+	setUserAgent(request);
+	loading = Loading::mainXml;
 	m_mgr->get(request);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void UpdateChecker::onFinishDownload(QNetworkReply *reply)
+{
+	switch (loading)
+	{
+	case Loading::mainXml:
+		onFinishDownloadXml(reply);
+		break;
+	case Loading::features:
+		onFinishDownloadFeatures(reply);
+		break;
+	}
 }
 
 
@@ -80,7 +108,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 {
 	if(reply->error() != QNetworkReply::NoError)
 	{
-		std::string err = reply->errorString().toUtf8().toStdString();
+		std::string err = toStdStringUtf8(reply->errorString());
 		logError("UpdateChecker: Error requesting version document %s.\nError-String: %s", CHECK_URL, err.c_str());
 	}
 	else
@@ -88,9 +116,38 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 		parseXml(reply);
 		if(m_verInfo.valid() && m_verInfo.build > buildinfo_getVersionNumber(3))
 		{
-			askUserForUpdate();
+			if (!m_verInfo.featuresUrl.isEmpty())
+			{
+				QNetworkRequest request;
+				request.setUrl(QUrl(m_verInfo.featuresUrl));
+				setUserAgent(request);
+				loading = Loading::features;
+				m_mgr->get(request);
+			}
+			else
+				askUserForUpdate();
 		}
 	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void UpdateChecker::onFinishDownloadFeatures(QNetworkReply *reply)
+{
+	if (reply->error() != QNetworkReply::NoError)
+	{
+		std::string err = toStdStringUtf8(reply->errorString());
+		std::string url = toStdStringUtf8(reply->url().toString());
+		logError("UpdateChecker: Error requesting features document %s.\nError-String: %s", url.c_str(), err.c_str());
+	}
+	else
+	{
+		m_verInfo.features = reply->readAll();
+	}
+
+	askUserForUpdate();
 }
 
 
@@ -108,7 +165,7 @@ void UpdateChecker::parseXml(QIODevice *device)
 	{
 		QXmlStreamReader::TokenType token = xml.readNext();
 		if(token == QXmlStreamReader::StartElement && xml.name() == "product")
-				parseProduct(xml);
+			parseProduct(xml);
 	}
 
 	xml.clear();
@@ -163,6 +220,11 @@ void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
 			xml.readNext();
 		}
 	}
+	else if (xml.name() == "featuresUrl")
+	{
+		xml.readNext();
+		m_verInfo.featuresUrl = xml.text().toString();
+	}
 }
 
 
@@ -173,12 +235,14 @@ void UpdateChecker::askUserForUpdate()
 {
 	QMessageBox msgBox0;
 	msgBox0.setTextFormat(Qt::RichText);
-	msgBox0.setText(QString("A new version of RP Soundboard is available (build %1).<br /><br />"\
-		"Would you like to download and install it?").arg(m_verInfo.build));
+	msgBox0.setText(QString("A new version of RP Soundboard is available (%1).<br /><br />"\
+		"Would you like to download and install it?").arg(m_verInfo.version));
 	msgBox0.setIcon(QMessageBox::Information);
 	msgBox0.setWindowTitle("New version of RP Soundboard!");
 	msgBox0.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 	msgBox0.setDefaultButton(QMessageBox::Yes);
+	if (m_verInfo.features.length() > 0)
+		msgBox0.setDetailedText(m_verInfo.features);
 	if(msgBox0.exec() == QMessageBox::Yes)
 	{
 		QUrl url(m_verInfo.latestDownload);
@@ -230,6 +294,8 @@ void UpdateChecker::version_info_t::reset()
 	build = 0;
 	latestDownload = QString();
 	version = QString();
+	featuresUrl = QString();
+	features = QString();
 }
 
 
@@ -241,4 +307,22 @@ bool UpdateChecker::version_info_t::valid()
 	return !productName.isNull() && !productName.isEmpty() &&
 		!latestDownload.isNull() && !latestDownload.isEmpty() &&
 		build > 0;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+QByteArray UpdateChecker::getUserAgent() // static
+{
+	return QByteArray("RP Soundboard Update Checker, ") + buildinfo_getPluginVersion();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void UpdateChecker::setUserAgent(QNetworkRequest& request) // static
+{
+	request.setRawHeader("User-Agent", getUserAgent());
 }
