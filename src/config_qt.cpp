@@ -15,7 +15,7 @@
 
 #include "config_qt.h"
 #include "ConfigModel.h"
-#include "device.h"
+#include "main.h"
 #include "soundsettings_qt.h"
 #include "ts3log.h"
 #include "SpeechBubble.h"

@@ -12,7 +12,7 @@
 #include <QtCore/QSettings>
 
 #include "ConfigModel.h"
-#include "device.h"
+#include "main.h"
 #include "buildinfo.h"
 
 
