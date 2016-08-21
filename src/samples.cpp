@@ -347,6 +347,12 @@ void Sampler::stopPlayback()
 		m_inputFile->close();
 		delete m_inputFile;
 		m_inputFile = NULL;
+
+		//Clear buffers
+		SampleBuffer::Lock sblc(m_sbCapture.getMutex());
+		SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
+		m_sbCapture.consume(NULL, m_sbCapture.avail());
+		m_sbPlayback.consume(NULL, m_sbPlayback.avail());
 	}
 }
 
