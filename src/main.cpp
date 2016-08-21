@@ -50,7 +50,9 @@ Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
 UpdateChecker *updateChecker = NULL;
 std::map<uint64, int> connectionStatusMap;
-bool playing = false;
+volatile bool playing = false;
+//std::recursive_mutex playingMutex;
+//typedef std::lock_guard<std::recursive_mutex> PlayingMutexLock;
 
 
 void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
@@ -81,7 +83,6 @@ enum talk_state_e
 };
 
 talk_state_e previousTalkState;
-
 
 talk_state_e getTalkState(uint64 scHandlerID)
 {
@@ -159,10 +160,10 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 
 	bool finished = false;
 	int written = sampler->fetchInputSamples(samples, sampleCount, channels, &finished);
-	if(finished)
+	if(playing && finished)
 	{
-		setTalkState(playingServerId, previousTalkState);
 		playing = false;
+		setTalkState(playingServerId, previousTalkState);
 	}
 	if(written > 0)
 		*edited |= 0x1;
@@ -182,8 +183,8 @@ int sb_playFile(const SoundInfo &sound)
 
 	if(sampler->playFile(sound))
 	{
-		setContinuousTransmission(activeServerId);
 		playing = true;
+		setContinuousTransmission(activeServerId);
 	}
 
 	return 0;
@@ -307,8 +308,8 @@ CAPI void sb_stopPlayback()
 	if(playing)
 	{
 		sampler->stopPlayback();
-		setTalkState(activeServerId, previousTalkState);
 		playing = false;
+		setTalkState(activeServerId, previousTalkState);
 	}
 }
 
