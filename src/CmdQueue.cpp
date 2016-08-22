@@ -25,7 +25,7 @@ CmdQueue::~CmdQueue()
 void CmdQueue::enqueue(std::unique_ptr<Command> cmd)
 {
 	Lock lock(cmdsMutex);
-	cmds.push(cmd);
+	cmds.push(std::move(cmd));
 }
 
 

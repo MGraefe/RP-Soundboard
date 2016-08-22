@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\about_qt.cpp" />
     <ClCompile Include="..\src\buildinfo.c" />
+    <ClCompile Include="..\src\CmdQueue.cpp" />
     <ClCompile Include="..\src\ConfigModel.cpp" />
     <ClCompile Include="..\src\config_qt.cpp" />
     <ClCompile Include="..\src\main.cpp" />
@@ -125,6 +126,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DWIN64 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -D_WINDLL -D_UNICODE "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets"</Command>
     </CustomBuild>
     <ClInclude Include="..\src\buildinfo.h" />
+    <ClInclude Include="..\src\CmdQueue.h" />
     <ClInclude Include="..\src\common.h" />
     <ClInclude Include="..\src\ConfigModel.h" />
     <ClInclude Include="..\src\main.h" />
