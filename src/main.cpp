@@ -50,9 +50,11 @@ Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
 UpdateChecker *updateChecker = NULL;
 std::map<uint64, int> connectionStatusMap;
+std::mutex playingMutex;
+typedef std::lock_guard<std::mutex> Lock;
 volatile bool playing = false;
-//std::recursive_mutex playingMutex;
-//typedef std::lock_guard<std::recursive_mutex> PlayingMutexLock;
+
+void stopPlaybackInternal();
 
 
 void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
@@ -82,7 +84,8 @@ enum talk_state_e
 	TS_CONT_TRANS,
 };
 
-talk_state_e previousTalkState;
+talk_state_e previousTalkState = TS_INVALID;
+talk_state_e defaultTalkState = TS_INVALID;
 
 talk_state_e getTalkState(uint64 scHandlerID)
 {
@@ -111,7 +114,7 @@ bool setTalkState(uint64 scHandlerID, talk_state_e state)
 
 	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
 	bool in = state == TS_CONT_TRANS  || state == TS_VOICE_ACTIVATION;
-
+	
 	if(checkError(ts3Functions.setPreProcessorConfigValue(
 		scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"))
 		return false;
@@ -160,11 +163,15 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 
 	bool finished = false;
 	int written = sampler->fetchInputSamples(samples, sampleCount, channels, &finished);
+	playingMutex.lock();
 	if(playing && finished)
 	{
 		playing = false;
-		setTalkState(playingServerId, previousTalkState);
+		talk_state_e ts = previousTalkState;
+		previousTalkState = TS_INVALID;
+		setTalkState(playingServerId, ts);
 	}
+	playingMutex.unlock();
 	if(written > 0)
 		*edited |= 0x1;
 }
@@ -172,18 +179,33 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 
 int sb_playFile(const SoundInfo &sound)
 {
+	std::unique_lock<std::mutex> lock(playingMutex);
 	playingServerId = activeServerId;
 
 	if(!playing)
 	{
 		talk_state_e s = getTalkState(activeServerId);
-		if(s != TS_INVALID)
-			previousTalkState = s;
+		if (defaultTalkState == TS_INVALID)
+			defaultTalkState = s; // Set once at first played file
+		// Don't accept a sudden change to TS_CONT_TRANS except when defaultTalkState is also TS_CONT_TRANS
+		if (s == TS_CONT_TRANS) 
+			s = defaultTalkState;
+
+		// When s is invalid, use defaultTalkState (could also be invalid, care)
+		if (s == TS_INVALID)
+			s = defaultTalkState;
+
+		// If state is still invalid it's bad luck :/
+		if (s == TS_INVALID)
+			return 1;
+
+		previousTalkState = s;
 	}
 
 	if(sampler->playFile(sound))
 	{
 		playing = true;
+		lock.unlock();
 		setContinuousTransmission(activeServerId);
 	}
 
@@ -269,6 +291,7 @@ CAPI void sb_kill()
 
 CAPI void sb_onServerChange(uint64 serverID)
 {
+	Lock lock(playingMutex);
 	talk_state_e talkState = getTalkState(activeServerId);
 	if (connectionStatusMap.find(serverID) == connectionStatusMap.end())
 		connectionStatusMap[serverID] = STATUS_DISCONNECTED;
@@ -280,7 +303,7 @@ CAPI void sb_onServerChange(uint64 serverID)
 		if (connected && talkState != TS_INVALID)
 			setTalkState(serverID, talkState);
 		else
-			sb_stopPlayback();
+			stopPlaybackInternal();
 	}
 
 	activeServerId = serverID;
@@ -302,15 +325,21 @@ CAPI void sb_openDialog()
 		"RP Soundboard is disabled until you are connected properly.");
 }
 
-
-CAPI void sb_stopPlayback()
+void stopPlaybackInternal()
 {
-	if(playing)
+	if (playing)
 	{
 		sampler->stopPlayback();
 		playing = false;
 		setTalkState(activeServerId, previousTalkState);
 	}
+}
+
+
+CAPI void sb_stopPlayback()
+{
+	Lock lock(playingMutex);
+	stopPlaybackInternal();
 }
 
 
