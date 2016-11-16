@@ -72,7 +72,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 		SLOT(showStopButtonContextMenu(const QPoint&)));
 	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
-	connect(ui->cb_playback_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdatePlaybackLocal(bool)));
+	connect(ui->cb_mute_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteLocally(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
@@ -143,9 +143,9 @@ void ConfigQt::onUpdateVolume(int val)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::onUpdatePlaybackLocal(bool val)
+void ConfigQt::onUpdateMuteLocally(bool val)
 {
-	m_model->setPlaybackLocal(val);
+	m_model->setPlaybackLocal(!val);
 }
 
 
@@ -525,8 +525,8 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 			p.ui->sl_volume->setValue(model.getVolume());
 		break;
 	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
-		if (p.ui->cb_playback_locally->isChecked() != model.getPlaybackLocal())
-			p.ui->cb_playback_locally->setChecked(model.getPlaybackLocal());
+		if (p.ui->cb_mute_locally->isChecked() != !model.getPlaybackLocal())
+			p.ui->cb_mute_locally->setChecked(!model.getPlaybackLocal());
 		break;
 	case ConfigModel::NOTIFY_SET_SOUND:
 		p.updateButtonText(data);

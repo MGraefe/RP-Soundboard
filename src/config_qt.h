@@ -53,7 +53,7 @@ private slots:
 	void onClickedPlay();
 	void onClickedStop();
 	void onUpdateVolume(int val);
-	void onUpdatePlaybackLocal(bool val);
+	void onUpdateMuteLocally(bool val);
 	void onUpdateCols(int val);
 	void onUpdateRows(int val);
 	void onUpdateMuteMyself(bool val);
