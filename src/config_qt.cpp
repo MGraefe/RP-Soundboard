@@ -21,6 +21,8 @@
 #include "SpeechBubble.h"
 #include "buildinfo.h"
 #include "plugin.h"
+#include "ExpandableSection.h"
+#include "samples.h"
 
 #ifdef _WIN32
 #include "Windows.h"
@@ -46,6 +48,10 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
 
+	settingsSection = new ExpandableSection("Settings", 200, this);
+	settingsSection->setContentLayout(*ui->settingsWidget->layout());
+	layout()->addWidget(settingsSection);
+
 	QAction *actChooseFile = new QAction("Choose File", this);
 	actChooseFile->setData((int)BC_CHOOSE);
 	m_buttonContextMenu.addAction(actChooseFile);
@@ -61,13 +67,25 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	createButtons();
 
 	ui->cb_advanced_config->hide();
+	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
 	
 	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));
+	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+		SLOT(showStopButtonContextMenu(const QPoint&)));
 	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
 	connect(ui->cb_playback_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdatePlaybackLocal(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
+
+	ui->playingIconLabel->hide();
+	ui->playingLabel->setText("");
+	playingIconTimer = new QTimer(this);
+	connect(playingIconTimer, SIGNAL(timeout()), this, SLOT(onPlayingIconTimer()));
+
+	Sampler *sampler = sb_getSampler();
+	connect(sampler, SIGNAL(onStartPlaying(bool, QString)), this, SLOT(onStartPlayingSound(bool, QString)), Qt::QueuedConnection);
+	connect(sampler, SIGNAL(onStopPlaying()), this, SLOT(onStopPlayingSound()), Qt::QueuedConnection);
 
 	createBubbles();
 
@@ -266,6 +284,16 @@ void ConfigQt::showButtonContextMenu( const QPoint &point )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void ConfigQt::setPlayingLabelIcon(int index)
+{
+	ui->playingIconLabel->setPixmap(QPixmap(QString(":/icon/img/speaker_icon_%1_64.png").arg(index)));
+}
+
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void ConfigQt::playSound( size_t buttonId )
 {
 	const SoundInfo *info = m_model->getSoundInfo(buttonId);
@@ -368,6 +396,62 @@ void ConfigQt::onColsBubbleFinished()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void ConfigQt::showStopButtonContextMenu(const QPoint &point)
+{
+	QString shortcutName = getShortcutString("stop_all");
+	QString hotkeyText = "Set hotkey (Current: " +
+		(shortcutName.isEmpty() ? QString("None") : shortcutName) + ")";
+
+	QMenu menu;
+	menu.addAction(hotkeyText);
+
+	QPoint globalPos = ui->b_stop->mapToGlobal(point);
+	QAction *action = menu.exec(globalPos);
+	if (action)
+	{
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), "stop_all", 0, this);
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onStartPlayingSound(bool preview, QString filename)
+{
+	QFileInfo info(filename);
+	ui->playingLabel->setText(info.fileName());
+	setPlayingLabelIcon(0);
+	ui->playingIconLabel->show();
+	playingIconIndex = 1;
+	playingIconTimer->start(150);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onStopPlayingSound()
+{
+	playingIconTimer->stop();
+	ui->playingLabel->setText("");
+	ui->playingIconLabel->hide();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onPlayingIconTimer()
+{
+	setPlayingLabelIcon(playingIconIndex);
+	++playingIconIndex %= 4;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void ConfigQt::openHotkeySetDialog(size_t buttonId)
 {
 	openHotkeySetDialog(buttonId, this);
@@ -388,17 +472,26 @@ void ConfigQt::openHotkeySetDialog( size_t buttonId, QWidget *parent )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-QString ConfigQt::getShortcutString(size_t buttonId)
+QString ConfigQt::getShortcutString(const char *internalName)
 {
-	char *intName = new char[16];
 	char *hotkeyName = new char[128];
-	sb_getInternalHotkeyName((int)buttonId, intName);
 	unsigned int res = ts3Functions.getHotkeyFromKeyword(
-		getPluginID(), (const char**)&intName, &hotkeyName, 1, 128);
+		getPluginID(), &internalName, &hotkeyName, 1, 128);
 	QString name = res == 0 ? QString(hotkeyName) : QString();
-	delete[] intName;
 	delete[] hotkeyName;
 	return name;
+}
+
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+QString ConfigQt::getShortcutString(size_t buttonId)
+{
+	char intName[16];
+	sb_getInternalHotkeyName((int)buttonId, intName);
+	return getShortcutString(intName);
 }
 
 

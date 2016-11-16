@@ -10,6 +10,8 @@
 #ifndef rpsbsrc__samples_H__
 #define rpsbsrc__samples_H__
 
+#include <QObject>
+
 #include "SampleBuffer.h"
 #include "SampleProducerThread.h"
 
@@ -18,8 +20,11 @@
 class InputFile;
 class SoundInfo;
 
-class Sampler
+
+class Sampler : public QObject
 {
+	Q_OBJECT
+
 public:
 	enum state_e
 	{
@@ -42,6 +47,10 @@ public:
 	void setLocalPlayback(bool enabled);
 	void setMuteMyself(bool enabled);
 	inline state_e getState() const { return m_state; }
+
+signals:
+	void onStartPlaying(bool preview, QString filename);
+	void onStopPlaying();
 
 private:
 	bool playSoundInternal(const SoundInfo &sound, bool preview);

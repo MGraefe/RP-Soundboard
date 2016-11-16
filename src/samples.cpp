@@ -290,6 +290,7 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 		m_state = SILENT;
 		if(finished)
 			*finished = true;
+		emit onStopPlaying();
 	}
 
 	return written;
@@ -314,6 +315,7 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	if(m_state == PLAYING_PREVIEW && m_inputFile && m_inputFile->done() && m_sbPlayback.avail() == 0)
 	{
 		m_state = SILENT;
+		emit onStopPlaying();
 	}
 
 	return written;
@@ -353,6 +355,8 @@ void Sampler::stopPlayback()
 		SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
 		m_sbCapture.consume(NULL, m_sbCapture.avail());
 		m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+
+		emit onStopPlaying();
 	}
 }
 
@@ -440,6 +444,8 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	}
 
 	m_sampleProducerThread.setSource(m_inputFile);
+
+	emit onStartPlaying(preview, sound.filename);
 
 	return true;
 }
