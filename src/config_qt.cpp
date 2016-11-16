@@ -66,7 +66,6 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 	createButtons();
 
-	ui->cb_advanced_config->hide();
 	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
 	
 	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));

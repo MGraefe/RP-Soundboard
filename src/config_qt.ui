@@ -273,13 +273,6 @@
           </item>
          </layout>
         </item>
-        <item>
-         <widget class="QCheckBox" name="cb_advanced_config">
-          <property name="text">
-           <string>Enable advanced config</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
