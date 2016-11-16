@@ -140,6 +140,21 @@
     <ClCompile Include="..\src\CmdQueue.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ExpandableSection.cpp">
+      <Filter>Source Dateien</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ExpandableSection.cpp">
+      <Filter>Generierte Dateien\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ExpandableSection.cpp">
+      <Filter>Generierte Dateien\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_samples.cpp">
+      <Filter>Generierte Dateien\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_samples.cpp">
+      <Filter>Generierte Dateien\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\common.h">
@@ -149,9 +164,6 @@
       <Filter>Header Dateien</Filter>
     </ClInclude>
     <ClInclude Include="..\src\plugin.h">
-      <Filter>Header Dateien</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\samples.h">
       <Filter>Header Dateien</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ts3log.h">
@@ -244,6 +256,12 @@
       <Filter>Header Dateien</Filter>
     </CustomBuild>
     <CustomBuild Include="..\src\SpeechBubble.h">
+      <Filter>Header Dateien</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\ExpandableSection.h">
+      <Filter>Source Dateien</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\samples.h">
       <Filter>Header Dateien</Filter>
     </CustomBuild>
   </ItemGroup>
