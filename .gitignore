@@ -1,0 +1,10 @@
+vs2015/*.db
+vs2015/*.opendb
+vs2015/*.user
+vs2015/.vs/
+vs2015/GeneratedFiles/
+src/version/version.h
+release/releases/
+release/plugins/
+obj/
+bin/
