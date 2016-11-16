@@ -17,12 +17,14 @@
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QMenu>
 #include <QtCore/QPointer>
+#include <QTimer>
 
 
 #include "ui_config_qt.h"
 #include "ConfigModel.h"
 
 class SpeechBubble;
+class ExpandableSection;
 
 namespace Ui {
 	class ConfigQt;
@@ -60,11 +62,15 @@ private slots:
 	void onButtonBubbleFinished();
 	void onColsBubbleFinished();
 	void showStopButtonContextMenu(const QPoint &point);
+	void onStartPlayingSound(bool preview, QString filename);
+	void onStopPlayingSound();
+	void onPlayingIconTimer();
 
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
 
 private:
+	void setPlayingLabelIcon(int index);
 	void playSound(size_t buttonId);
 	void chooseFile(size_t buttonId);
 	void openAdvanced(size_t buttonId);
@@ -99,6 +105,9 @@ private:
 	QMenu m_buttonContextMenu;
 	QPointer<SpeechBubble> m_buttonBubble;
 	QAction *actSetHotkey;
+	ExpandableSection *settingsSection;
+	QTimer *playingIconTimer;
+	int playingIconIndex;
 };
 
 #endif // rpsbsrc__config_qt_H__

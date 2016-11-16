@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="icon">
+    <file>../img/speaker_icon_0_64.png</file>
+    <file>../img/speaker_icon_1_64.png</file>
+    <file>../img/speaker_icon_2_64.png</file>
+    <file>../img/speaker_icon_3_64.png</file>
     <file>../img/stoparrow_32.png</file>
     <file>../img/playarrow_32.png</file>
     <file>../img/rpmb_icon_16.png</file>

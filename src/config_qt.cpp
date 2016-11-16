@@ -21,6 +21,8 @@
 #include "SpeechBubble.h"
 #include "buildinfo.h"
 #include "plugin.h"
+#include "ExpandableSection.h"
+#include "samples.h"
 
 #ifdef _WIN32
 #include "Windows.h"
@@ -45,6 +47,10 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 {
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
+
+	settingsSection = new ExpandableSection("Settings", 200, this);
+	settingsSection->setContentLayout(*ui->settingsWidget->layout());
+	layout()->addWidget(settingsSection);
 
 	QAction *actChooseFile = new QAction("Choose File", this);
 	actChooseFile->setData((int)BC_CHOOSE);
@@ -71,6 +77,15 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
+
+	ui->playingIconLabel->hide();
+	ui->playingLabel->setText("");
+	playingIconTimer = new QTimer(this);
+	connect(playingIconTimer, SIGNAL(timeout()), this, SLOT(onPlayingIconTimer()));
+
+	Sampler *sampler = sb_getSampler();
+	connect(sampler, SIGNAL(onStartPlaying(bool, QString)), this, SLOT(onStartPlayingSound(bool, QString)), Qt::QueuedConnection);
+	connect(sampler, SIGNAL(onStopPlaying()), this, SLOT(onStopPlayingSound()), Qt::QueuedConnection);
 
 	createBubbles();
 
@@ -269,6 +284,16 @@ void ConfigQt::showButtonContextMenu( const QPoint &point )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void ConfigQt::setPlayingLabelIcon(int index)
+{
+	ui->playingIconLabel->setPixmap(QPixmap(QString(":/icon/img/speaker_icon_%1_64.png").arg(index)));
+}
+
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void ConfigQt::playSound( size_t buttonId )
 {
 	const SoundInfo *info = m_model->getSoundInfo(buttonId);
@@ -386,6 +411,41 @@ void ConfigQt::showStopButtonContextMenu(const QPoint &point)
 	{
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), "stop_all", 0, this);
 	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onStartPlayingSound(bool preview, QString filename)
+{
+	QFileInfo info(filename);
+	ui->playingLabel->setText(info.fileName());
+	setPlayingLabelIcon(0);
+	ui->playingIconLabel->show();
+	playingIconIndex = 1;
+	playingIconTimer->start(150);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onStopPlayingSound()
+{
+	playingIconTimer->stop();
+	ui->playingLabel->setText("");
+	ui->playingIconLabel->hide();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onPlayingIconTimer()
+{
+	setPlayingLabelIcon(playingIconIndex);
+	++playingIconIndex %= 4;
 }
 
 
