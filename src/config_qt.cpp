@@ -317,8 +317,25 @@ void ConfigQt::chooseFile( size_t buttonId )
 {
 	QString filePath = m_model->getFileName(buttonId);
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
-	if(!fn.isNull())
-		m_model->setFileName(buttonId, fn);
+	if (fn.isNull())
+		return;
+	const SoundInfo *info = m_model->getSoundInfo(buttonId);
+	if (info->cropEnabled && info->filename != fn)
+	{
+		QMessageBox mb(QMessageBox::Question, "Keep crop settings?",
+			"You selected a new file for a button that has 'crop sound' enabled.", QMessageBox::NoButton, this);
+		QPushButton *btnDisable = mb.addButton("Disable cropping (recommended)", QMessageBox::YesRole);
+		QPushButton *btnKeep = mb.addButton("Keep old crop settings", QMessageBox::NoRole);
+		mb.setDefaultButton(btnDisable);
+		mb.exec();
+		if (mb.clickedButton() != btnKeep)
+		{
+			SoundInfo newInfo(*info);
+			newInfo.cropEnabled = false;
+			m_model->setSoundInfo(buttonId, newInfo);
+		}
+	}
+	m_model->setFileName(buttonId, fn);
 }
 
 
