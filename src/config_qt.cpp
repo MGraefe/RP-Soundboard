@@ -392,6 +392,7 @@ void ConfigQt::createBubbles()
 
 	if(m_model->getBubbleColsBuild() == 0)
 	{
+		settingsSection->setExpanded(true);
 		SpeechBubble *colsBubble = new SpeechBubble(this);
 		colsBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 		colsBubble->setFixedSize(180, 80);

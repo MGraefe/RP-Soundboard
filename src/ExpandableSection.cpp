@@ -39,12 +39,8 @@ ExpandableSection::ExpandableSection(const QString &title, int animationDuration
 	mainLayout.addWidget(&headerLine, row++, 2, 1, 1);
 	mainLayout.addWidget(&contentArea, row, 0, 1, 3);
 	setLayout(&mainLayout);
-	QObject::connect(&toggleButton, &QToolButton::clicked, [this](const bool checked) 
-	{
-		toggleButton.setArrowType(checked ? Qt::ArrowType::DownArrow : Qt::ArrowType::RightArrow);
-		toggleAnimation.setDirection(checked ? QAbstractAnimation::Forward : QAbstractAnimation::Backward);
-		toggleAnimation.start();
-	});
+
+	connect(&toggleButton, SIGNAL(clicked(bool)), SLOT(setExpanded(bool)));
 }
 
 void ExpandableSection::setContentLayout(QLayout & contentLayout)
@@ -64,4 +60,15 @@ void ExpandableSection::setContentLayout(QLayout & contentLayout)
 	contentAnimation->setDuration(animationDuration);
 	contentAnimation->setStartValue(0);
 	contentAnimation->setEndValue(contentHeight);
+}
+
+
+void ExpandableSection::setExpanded(bool expanded)
+{
+	toggleButton.blockSignals(true);
+	toggleButton.setChecked(expanded);
+	toggleButton.blockSignals(false);
+	toggleButton.setArrowType(expanded ? Qt::ArrowType::DownArrow : Qt::ArrowType::RightArrow);
+	toggleAnimation.setDirection(expanded ? QAbstractAnimation::Forward : QAbstractAnimation::Backward);
+	toggleAnimation.start();
 }

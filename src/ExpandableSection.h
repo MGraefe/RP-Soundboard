@@ -13,6 +13,9 @@ public:
 	explicit ExpandableSection(const QString &title = "", int animationDuration = 300, QWidget *parent = 0);
 	void setContentLayout(QLayout & contentLayout);
 
+public slots:
+	void setExpanded(bool expanded);
+
 private:
 	QGridLayout mainLayout;
 	QToolButton toggleButton;
