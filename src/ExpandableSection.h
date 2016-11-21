@@ -22,6 +22,6 @@ private:
 	QFrame headerLine;
 	QParallelAnimationGroup toggleAnimation;
 	QScrollArea contentArea;
-	int animationDuration = 300;
+	int animationDuration;
 };
 
