@@ -74,6 +74,7 @@ private:
 	void playSound(size_t buttonId);
 	void chooseFile(size_t buttonId);
 	void openAdvanced(size_t buttonId);
+	void deleteButton(size_t buttonId);
 	void createButtons();
 	void updateButtonText(int i);
 	void openHotkeySetDialog(size_t buttonId);

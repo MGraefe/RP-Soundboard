@@ -32,6 +32,7 @@ enum button_choices_e {
 	BC_CHOOSE = 0,
 	BC_ADVANCED,
 	BC_SET_HOTKEY,
+	BC_DELETE,
 };
 
 
@@ -63,6 +64,10 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	actSetHotkey = new QAction("Set hotkey", this);
 	actSetHotkey->setData((int)BC_SET_HOTKEY);
 	m_buttonContextMenu.addAction(actSetHotkey);
+
+	QAction *actDeleteButton = new QAction("Make button great again (delete)", this);
+	actDeleteButton->setData((int)BC_DELETE);
+	m_buttonContextMenu.addAction(actDeleteButton);
 
 	createButtons();
 
@@ -271,6 +276,9 @@ void ConfigQt::showButtonContextMenu( const QPoint &point )
 			case BC_SET_HOTKEY:
 				openHotkeySetDialog(buttonId);
 				break;
+			case BC_DELETE:
+				deleteButton(buttonId);
+				break;
 			default: break;
 			}
 		}
@@ -325,6 +333,17 @@ void ConfigQt::openAdvanced( size_t buttonId )
 	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId + 1)));
 	if(dlg.exec() == QDialog::Accepted)
 		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::deleteButton(size_t buttonId)
+{
+	const SoundInfo *info = m_model->getSoundInfo(buttonId);
+	if (info)
+		m_model->setSoundInfo(buttonId, SoundInfo());
 }
 
 
