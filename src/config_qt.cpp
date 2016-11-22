@@ -320,7 +320,7 @@ void ConfigQt::chooseFile( size_t buttonId )
 	if (fn.isNull())
 		return;
 	const SoundInfo *info = m_model->getSoundInfo(buttonId);
-	if (info->cropEnabled && info->filename != fn)
+	if (info && info->cropEnabled && info->filename != fn)
 	{
 		QMessageBox mb(QMessageBox::Question, "Keep crop settings?",
 			"You selected a new file for a button that has 'crop sound' enabled.", QMessageBox::NoButton, this);
