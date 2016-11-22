@@ -2,11 +2,11 @@
 
 <versionDescription>
   <product descVersion="1" name="rp_soundboard">
-    <latestVersion>1452</latestVersion>
-	<latestVersionString>1.2.5.1452</latestVersionString>
+    <latestVersion>1453</latestVersion>
+	<latestVersionString>1.2.5.1453</latestVersionString>
     <latestDownload>
-      <url>http://www.mediafire.com/file/pm2i752an8mcvn6/rp_soundboard_1452.ts3_plugin</url>
+      <url>http://www.mediafire.com/file/ocbi7jozudib5fc/rp_soundboard_1453.ts3_plugin</url>
     </latestDownload>
-    <featuresUrl>http://mgraefe.de/rpsb/version/features_1452.txt</featuresUrl>
+    <featuresUrl>http://mgraefe.de/rpsb/version/features_1453.txt</featuresUrl>
   </product>
 </versionDescription>
