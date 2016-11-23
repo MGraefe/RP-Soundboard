@@ -18,6 +18,8 @@
 #include <QtWidgets/QMenu>
 #include <QtCore/QPointer>
 #include <QTimer>
+#include <QList>
+#include <QUrl>
 
 
 #include "ui_config_qt.h"
@@ -25,6 +27,7 @@
 
 class SpeechBubble;
 class ExpandableSection;
+class SoundButton;
 
 namespace Ui {
 	class ConfigQt;
@@ -67,6 +70,7 @@ private slots:
 	void onStopPlayingSound();
 	void onPlayingIconTimer();
 	void onUpdateShowHotkeysOnButtons(bool val);
+	void onButtonFileDropped(const QList<QUrl> &urls);
 
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
@@ -75,6 +79,9 @@ private:
 	void setPlayingLabelIcon(int index);
 	void playSound(size_t buttonId);
 	void chooseFile(size_t buttonId);
+
+	void setButtonFile(size_t buttonId, const QString &fn, bool askForDisablingCrop = true);
+
 	void openAdvanced(size_t buttonId);
 	void deleteButton(size_t buttonId);
 	void createButtons();
@@ -87,7 +94,7 @@ private:
 	struct button_element_t
 	{
 		QBoxLayout *layout;
-		QPushButton *play;
+		SoundButton *play;
 	};
 
 
