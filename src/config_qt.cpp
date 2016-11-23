@@ -566,6 +566,18 @@ void ConfigQt::onUpdateShowHotkeysOnButtons(bool val)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void ConfigQt::showEvent(QShowEvent *evt)
+{
+	QWidget::showEvent(evt);
+
+	for(size_t i = 0; i < m_buttons.size(); i++)
+		updateButtonText(i);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
 {
 	switch(what)

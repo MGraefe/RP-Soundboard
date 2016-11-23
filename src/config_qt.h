@@ -48,6 +48,7 @@ public:
 
 protected:
 	virtual void closeEvent(QCloseEvent * evt) override;
+	virtual void showEvent(QShowEvent *evt) override;
 
 private slots:
 	void onClickedPlay();
