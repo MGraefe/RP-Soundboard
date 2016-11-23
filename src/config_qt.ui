@@ -274,9 +274,9 @@
          </layout>
         </item>
         <item>
-         <widget class="QCheckBox" name="cb_advanced_config">
+         <widget class="QCheckBox" name="cb_show_hotkeys_on_buttons">
           <property name="text">
-           <string>Enable advanced config</string>
+           <string>Show hotkeys on buttons</string>
           </property>
          </widget>
         </item>

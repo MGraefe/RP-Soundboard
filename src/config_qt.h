@@ -65,6 +65,7 @@ private slots:
 	void onStartPlayingSound(bool preview, QString filename);
 	void onStopPlayingSound();
 	void onPlayingIconTimer();
+	void onUpdateShowHotkeysOnButtons(bool val);
 
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
