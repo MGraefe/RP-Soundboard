@@ -105,7 +105,7 @@ void ts3plugin_setFunctionPointers(const struct TS3Functions funcs) {
  * If the function returns 1 on failure, the plugin will be unloaded again.
  */
 int ts3plugin_init() {
-	sb_init();
+	//sb_init();
 
     return 0;  /* 0 = success, 1 = failure, -2 = failure but client will not show a "failed to load" warning */
 	/* -2 is a very special case and should only be used if a plugin displays a dialog (e.g. overlay) asking the user to disable
@@ -146,6 +146,8 @@ void ts3plugin_registerPluginID(const char* id)
 	pluginID = (char*)malloc(sz * sizeof(char));
 	_strcpy(pluginID, sz, id);  /* The id buffer will invalidate after exiting this function */
 	printf("PLUGIN: registerPluginID: %s\n", pluginID);
+
+	sb_init();
 }
 
 /* Plugin command keyword. Return NULL or "" if not used. */
