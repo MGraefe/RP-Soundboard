@@ -23,6 +23,7 @@
 #include "plugin.h"
 #include "ExpandableSection.h"
 #include "samples.h"
+#include "SoundButton.h"
 
 #ifdef _WIN32
 #include "Windows.h"
@@ -209,7 +210,8 @@ void ConfigQt::createButtons()
 			elem.layout->setSpacing(0);
 			ui->gridLayout->addLayout(elem.layout, i, j);
 
-			elem.play = new QPushButton(this);
+			elem.play = new SoundButton(this);
+			elem.play->setProperty("buttonId", (int)m_buttons.size());
 			elem.play->setText("(no file)");
 			elem.play->setEnabled(true);
 			elem.play->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
@@ -218,6 +220,7 @@ void ConfigQt::createButtons()
 			elem.play->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(elem.play, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 				SLOT(showButtonContextMenu(const QPoint&)));
+			connect(elem.play, SIGNAL(fileDropped(QList<QUrl>)), this, SLOT(onButtonFileDropped(QList<QUrl>)));
 
 			elem.play->updateGeometry();
 			m_buttons.push_back(elem);
@@ -326,23 +329,8 @@ void ConfigQt::chooseFile( size_t buttonId )
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
 	if (fn.isNull())
 		return;
-	const SoundInfo *info = m_model->getSoundInfo(buttonId);
-	if (info && info->cropEnabled && info->filename != fn)
-	{
-		QMessageBox mb(QMessageBox::Question, "Keep crop settings?",
-			"You selected a new file for a button that has 'crop sound' enabled.", QMessageBox::NoButton, this);
-		QPushButton *btnDisable = mb.addButton("Disable cropping (recommended)", QMessageBox::YesRole);
-		QPushButton *btnKeep = mb.addButton("Keep old crop settings", QMessageBox::NoRole);
-		mb.setDefaultButton(btnDisable);
-		mb.exec();
-		if (mb.clickedButton() != btnKeep)
-		{
-			SoundInfo newInfo(*info);
-			newInfo.cropEnabled = false;
-			m_model->setSoundInfo(buttonId, newInfo);
-		}
-	}
-	m_model->setFileName(buttonId, fn);
+	setButtonFile(buttonId, fn);
+
 }
 
 
@@ -572,6 +560,68 @@ void ConfigQt::showEvent(QShowEvent *evt)
 
 	for(size_t i = 0; i < m_buttons.size(); i++)
 		updateButtonText(i);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onButtonFileDropped(const QList<QUrl> &urls)
+{
+	int buttonId = sender()->property("buttonId").toInt();
+	int buttonNr = 0;
+
+	for(int i = 0; i < urls.size(); i++)
+	{
+		if (buttonNr == 1)
+		{
+			QMessageBox msgbox(QMessageBox::Icon::Question, "Fill buttons?",
+				"You dropped multiple files. Consecutively apply them to the buttons following the one you dropped your files on?",
+				QMessageBox::Yes | QMessageBox::No, this);
+			if (msgbox.exec() == QMessageBox::No)
+				break;
+		}
+
+		if (urls[i].isLocalFile())
+		{
+			QFileInfo info(urls[i].toLocalFile());
+			if (info.isFile())
+			{
+				setButtonFile(buttonId + buttonNr, urls[i].toLocalFile(), buttonNr == 0);
+				++buttonNr;
+			}
+			else if (buttonNr == 0)
+			{
+				QMessageBox msgBox(QMessageBox::Icon::Critical, "Unsupported drop type", "Some things could not be dropped here :(", QMessageBox::Ok, this);
+				msgBox.exec();
+			}
+		}
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::setButtonFile(size_t buttonId, const QString &fn, bool askForDisablingCrop)
+{
+	const SoundInfo *info = m_model->getSoundInfo(buttonId);
+	if (askForDisablingCrop && info && info->cropEnabled && info->filename != fn)
+	{
+		QMessageBox mb(QMessageBox::Question, "Keep crop settings?",
+			"You selected a new file for a button that has 'crop sound' enabled.", QMessageBox::NoButton, this);
+		QPushButton *btnDisable = mb.addButton("Disable cropping (recommended)", QMessageBox::YesRole);
+		QPushButton *btnKeep = mb.addButton("Keep old crop settings", QMessageBox::NoRole);
+		mb.setDefaultButton(btnDisable);
+		mb.exec();
+		if (mb.clickedButton() != btnKeep)
+		{
+			SoundInfo newInfo(*info);
+			newInfo.cropEnabled = false;
+			m_model->setSoundInfo(buttonId, newInfo);
+		}
+	}
+	m_model->setFileName(buttonId, fn);
 }
 
 
