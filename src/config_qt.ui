@@ -199,9 +199,9 @@
          <enum>QLayout::SetDefaultConstraint</enum>
         </property>
         <item>
-         <widget class="QCheckBox" name="cb_playback_locally">
+         <widget class="QCheckBox" name="cb_mute_locally">
           <property name="text">
-           <string>Play back locally</string>
+           <string>Mute on my client</string>
           </property>
          </widget>
         </item>
