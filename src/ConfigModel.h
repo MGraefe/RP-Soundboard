@@ -32,6 +32,7 @@ public:
 		NOTIFY_SET_BUBBLE_BUTTONS_BUILD,
 		NOTIFY_SET_BUBBLE_STOP_BUILD,
 		NOTIFY_SET_BUBBLE_COLS_BUILD,
+		NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS,
 	};
 
 	class Observer
@@ -85,6 +86,9 @@ public:
 	inline int getBubbleColsBuild() const { return m_bubbleColsBuild; }
 	void setBubbleColsBuild(int build);
 
+	inline bool getShowHotkeysOnButtons() const { return m_showHotkeysOnButtons; }
+	void setShowHotkeysOnButtons(bool show);
+
 	void addObserver(Observer *obs);
 	void remObserver(Observer *obs);
 
@@ -106,6 +110,8 @@ private:
 	int m_bubbleButtonsBuild;
 	int m_bubbleStopBuild;
 	int m_bubbleColsBuild;
+
+	bool m_showHotkeysOnButtons;
 };
 
 #endif // rpsbsrc__ConfigModel_H__

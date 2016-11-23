@@ -34,6 +34,8 @@ ConfigModel::ConfigModel()
 	m_bubbleButtonsBuild = 0;
 	m_bubbleStopBuild = 0;
 	m_bubbleColsBuild = 0;
+
+	m_showHotkeysOnButtons = false;
 }
 
 
@@ -68,6 +70,7 @@ void ConfigModel::readConfig()
 	m_bubbleButtonsBuild = settings.value("bubble_buttons_build", 0).toInt();
 	m_bubbleStopBuild = settings.value("bubble_stop_build", 0).toInt();
 	m_bubbleColsBuild = settings.value("bubble_cols_build", 0).toInt();
+	m_showHotkeysOnButtons = settings.value("show_hotkeys_on_buttons", false).toBool();
 
 	notifyAllEvents();
 
@@ -100,6 +103,7 @@ void ConfigModel::writeConfig()
 	settings.setValue("bubble_buttons_build", m_bubbleButtonsBuild);
 	settings.setValue("bubble_stop_build", m_bubbleStopBuild);
 	settings.setValue("bubble_cols_build", m_bubbleColsBuild);
+	settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
 }
 
 
@@ -362,5 +366,17 @@ void ConfigModel::notifyAllEvents()
 	notify(NOTIFY_SET_BUBBLE_BUTTONS_BUILD, m_bubbleButtonsBuild);
 	notify(NOTIFY_SET_BUBBLE_STOP_BUILD, m_bubbleStopBuild);
 	notify(NOTIFY_SET_BUBBLE_COLS_BUILD, m_bubbleColsBuild);
+	notify(NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS, m_showHotkeysOnButtons);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setShowHotkeysOnButtons(bool show)
+{
+	m_showHotkeysOnButtons = show;
+	writeConfig();
+	notify(NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS, show ? 1 : 0);
 }
 

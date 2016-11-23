@@ -199,16 +199,16 @@
          <enum>QLayout::SetDefaultConstraint</enum>
         </property>
         <item>
-         <widget class="QCheckBox" name="cb_mute_locally">
+         <widget class="QCheckBox" name="cb_playback_locally">
           <property name="text">
-           <string>Mute on my client</string>
+           <string>Play back locally</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QCheckBox" name="cb_mute_myself">
           <property name="text">
-           <string>Mute my microphone while playing</string>
+           <string>Mute myself during playback</string>
           </property>
          </widget>
         </item>
@@ -272,6 +272,13 @@
            </widget>
           </item>
          </layout>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cb_show_hotkeys_on_buttons">
+          <property name="text">
+           <string>Show hotkeys on buttons</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

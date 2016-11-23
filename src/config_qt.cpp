@@ -81,6 +81,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
+	connect(ui->cb_show_hotkeys_on_buttons, SIGNAL(clicked(bool)), this, SLOT(onUpdateShowHotkeysOnButtons(bool)));
 
 	ui->playingIconLabel->hide();
 	ui->playingLabel->setText("");
@@ -240,7 +241,14 @@ void ConfigQt::updateButtonText(int i)
 		return;
 
 	QString fn = m_model->getFileName(i);
-	m_buttons[i].play->setText(fn.isEmpty() ? "(no file)" : QFileInfo(fn).baseName());
+	QString text = fn.isEmpty() ? "(no file)" : QFileInfo(fn).baseName();
+	if (m_model->getShowHotkeysOnButtons())
+	{
+		QString shortcut = getShortcutString(i);
+		if (shortcut.length() > 0)
+			text = text + "\n" + shortcut;
+	}
+	m_buttons[i].play->setText(text);
 }
 
 
@@ -539,6 +547,19 @@ void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 	QString sKeyword = keyword;
 	QString sKey = key;
 	emit hotkeyRecordedEvent(sKey, sKeyword);
+
+	if (m_model->getShowHotkeysOnButtons())
+		for(size_t i = 0; i < m_buttons.size(); i++)
+			updateButtonText(i);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdateShowHotkeysOnButtons(bool val)
+{
+	m_model->setShowHotkeysOnButtons(val);
 }
 
 
@@ -580,6 +601,13 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 			if(s.width() != w || s.height() != h)
 				p.resize(w, h);
 		}
+		break;
+	case ConfigModel::NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS:
+		if (p.ui->cb_show_hotkeys_on_buttons->isChecked() != model.getShowHotkeysOnButtons())
+			p.ui->cb_show_hotkeys_on_buttons->setChecked(model.getShowHotkeysOnButtons());
+		for(size_t i = 0; i < p.m_buttons.size(); i++)
+			p.updateButtonText(i);
+		break;
 	default:
 		break;
 	}
