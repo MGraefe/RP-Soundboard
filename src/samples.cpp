@@ -54,7 +54,7 @@ Sampler::Sampler() :
 	m_sampleProducerThread(),
 	m_inputFile(NULL),
 	m_volumeDivider(1),
-	m_state(SILENT),
+	m_state(eSILENT),
 	m_localPlayback(true),
 	m_globalDbSetting(-1.0),
 	m_soundDbSetting(0.0)
@@ -285,9 +285,9 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
 	
 	SampleBuffer::Lock sbl(m_sbCapture.getMutex());
-	if(m_state == PLAYING && m_inputFile && m_inputFile->done() && m_sbCapture.avail() == 0)
+	if(m_state == ePLAYING && m_inputFile && m_inputFile->done() && m_sbCapture.avail() == 0)
 	{
-		m_state = SILENT;
+		m_state = eSILENT;
 		if(finished)
 			*finished = true;
 		emit onStopPlaying();
@@ -312,9 +312,9 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	if(written > 0)
 		*channelFillMask |= (bitMaskLeft | bitMaskRight);
 
-	if(m_state == PLAYING_PREVIEW && m_inputFile && m_inputFile->done() && m_sbPlayback.avail() == 0)
+	if(m_state == ePLAYING_PREVIEW && m_inputFile && m_inputFile->done() && m_sbPlayback.avail() == 0)
 	{
-		m_state = SILENT;
+		m_state = eSILENT;
 		emit onStopPlaying();
 	}
 
@@ -344,7 +344,7 @@ void Sampler::stopPlayback()
 {
 	if(m_inputFile)
 	{
-		m_state = SILENT;
+		m_state = eSILENT;
 		m_sampleProducerThread.setSource(NULL);
 		m_inputFile->close();
 		delete m_inputFile;
@@ -433,13 +433,13 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 
 	if(preview)
 	{
-		m_state = PLAYING_PREVIEW;
+		m_state = ePLAYING_PREVIEW;
 		m_sampleProducerThread.setBufferEnabled(&m_sbCapture, false);
 		m_sampleProducerThread.setBufferEnabled(&m_sbPlayback, true);
 	}
 	else
 	{
-		m_state = PLAYING;
+		m_state = ePLAYING;
 		m_sampleProducerThread.setBufferEnabled(&m_sbCapture, true);
 	}
 
