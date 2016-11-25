@@ -59,7 +59,7 @@ Sampler::Sampler() :
 	m_globalDbSetting(-1.0),
 	m_soundDbSetting(0.0)
 {
-
+	assert(m_state.is_lock_free());
 }
 
 
@@ -148,6 +148,9 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	std::chrono::time_point<HighResClock> start, end;
 	start = HighResClock::now();
 #endif
+
+	if (m_state == ePAUSED)
+		return 0;
 
 	SampleBuffer::Lock sbl(sb.getMutex());
 
@@ -448,5 +451,33 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	emit onStartPlaying(preview, sound.filename);
 
 	return true;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::pausePlayback()
+{
+	std::lock_guard<std::mutex> Lock(m_mutex);
+	if (m_state == ePLAYING)
+	{
+		m_state = ePAUSED;
+		emit onPausePlaying();
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::unpausePlayback()
+{
+	std::lock_guard<std::mutex> Lock(m_mutex);
+	if (m_state == ePAUSED)
+	{
+		m_state = ePLAYING;
+		emit onUnpausePlaying();
+	}
 }
 

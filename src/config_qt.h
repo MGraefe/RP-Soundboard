@@ -68,9 +68,12 @@ private slots:
 	void showStopButtonContextMenu(const QPoint &point);
 	void onStartPlayingSound(bool preview, QString filename);
 	void onStopPlayingSound();
+	void onPausePlayingSound();
+	void onUnpausePlayingSound();
 	void onPlayingIconTimer();
 	void onUpdateShowHotkeysOnButtons(bool val);
 	void onButtonFileDropped(const QList<QUrl> &urls);
+	void onButtonPausePressed();
 
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
@@ -118,6 +121,8 @@ private:
 	ExpandableSection *settingsSection;
 	QTimer *playingIconTimer;
 	int playingIconIndex;
+	QIcon m_pauseIcon;
+	QIcon m_playIcon;
 };
 
 #endif // rpsbsrc__config_qt_H__

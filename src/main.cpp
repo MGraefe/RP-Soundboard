@@ -51,6 +51,7 @@ ModelObserver_Prog *modelObserver = NULL;
 UpdateChecker *updateChecker = NULL;
 std::map<uint64, int> connectionStatusMap;
 volatile bool playing = false;
+volatile bool paused = false;
 //std::recursive_mutex playingMutex;
 //typedef std::lock_guard<std::recursive_mutex> PlayingMutexLock;
 
@@ -184,6 +185,7 @@ int sb_playFile(const SoundInfo &sound)
 	if(sampler->playFile(sound))
 	{
 		playing = true;
+		paused = false;
 		setContinuousTransmission(activeServerId);
 	}
 
@@ -309,9 +311,48 @@ CAPI void sb_stopPlayback()
 	{
 		sampler->stopPlayback();
 		playing = false;
+		paused = false;
 		setTalkState(activeServerId, previousTalkState);
 	}
 }
+
+
+CAPI void sb_pauseSound()
+{
+	if (playing && !paused)
+	{
+		paused = true;
+		sampler->pausePlayback();
+		setTalkState(activeServerId, previousTalkState);
+	}
+}
+
+
+CAPI void sb_unpauseSound()
+{
+	if(playing && paused)
+	{
+		paused = false;
+		talk_state_e s = getTalkState(activeServerId);
+		if(s != TS_INVALID)
+			previousTalkState = s;
+		setContinuousTransmission(activeServerId);
+		sampler->unpausePlayback();
+	}
+}
+
+
+CAPI void sb_pauseButtonPressed()
+{
+	if (playing)
+	{
+		if (paused)
+			sb_unpauseSound();
+		else
+			sb_pauseSound();
+	}
+}
+
 
 
 CAPI void sb_playButton(int btn)
@@ -356,3 +397,4 @@ CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key)
 	if (configDialog)
 		configDialog->onHotkeyRecordedEvent(keyword, key);
 }
+

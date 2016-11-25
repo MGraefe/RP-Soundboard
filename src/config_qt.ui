@@ -66,15 +66,54 @@
        <number>3</number>
       </property>
       <item>
-       <widget class="QPushButton" name="b_stop">
-        <property name="text">
-         <string>Stop all</string>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <property name="spacing">
+         <number>1</number>
         </property>
-        <property name="icon">
-         <iconset resource="qtres.qrc">
-          <normaloff>:/icon/img/stoparrow_32.png</normaloff>:/icon/img/stoparrow_32.png</iconset>
-        </property>
-       </widget>
+        <item>
+         <widget class="QPushButton" name="b_stop">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>25</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="qtres.qrc">
+            <normaloff>:/icon/img/stoparrow_32.png</normaloff>:/icon/img/stoparrow_32.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="b_pause">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>25</width>
+            <height>25</height>
+           </size>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="qtres.qrc">
+            <normaloff>:/icon/img/pausebutton_32.png</normaloff>:/icon/img/pausebutton_32.png</iconset>
+          </property>
+          <property name="checkable">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
       <item>
        <widget class="QLabel" name="playingIconLabel">
