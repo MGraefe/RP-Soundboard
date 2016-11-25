@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icon">
+    <file>../img/pausebutton_32.png</file>
     <file>../img/speaker_icon_0_64.png</file>
     <file>../img/speaker_icon_1_64.png</file>
     <file>../img/speaker_icon_2_64.png</file>

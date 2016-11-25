@@ -45,7 +45,9 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	ui(new Ui::ConfigQt),
 	m_model(model),
 	m_modelObserver(*this),
-	m_buttonBubble(nullptr)
+	m_buttonBubble(nullptr),
+	m_pauseIcon(":/icon/img/pausebutton_32.png"),
+	m_playIcon(":/icon/img/playarrow_32.png")
 {
 	ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
@@ -77,6 +79,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));
 	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 		SLOT(showStopButtonContextMenu(const QPoint&)));
+	connect(ui->b_pause, SIGNAL(clicked()), this, SLOT(onButtonPausePressed()));
 	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
 	connect(ui->cb_mute_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteLocally(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
@@ -87,11 +90,14 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	ui->playingIconLabel->hide();
 	ui->playingLabel->setText("");
 	playingIconTimer = new QTimer(this);
+	playingIconTimer->setInterval(150);
 	connect(playingIconTimer, SIGNAL(timeout()), this, SLOT(onPlayingIconTimer()));
 
 	Sampler *sampler = sb_getSampler();
 	connect(sampler, SIGNAL(onStartPlaying(bool, QString)), this, SLOT(onStartPlayingSound(bool, QString)), Qt::QueuedConnection);
 	connect(sampler, SIGNAL(onStopPlaying()), this, SLOT(onStopPlayingSound()), Qt::QueuedConnection);
+	connect(sampler, SIGNAL(onPausePlaying()), this, SLOT(onPausePlayingSound())); // No queued connection since signal is emitted from GUI Thread
+	connect(sampler, SIGNAL(onUnpausePlaying()), this, SLOT(onUnpausePlayingSound())); // No queued connection since signal is emitted from GUI Thread
 
 	createBubbles();
 
@@ -456,7 +462,10 @@ void ConfigQt::onStartPlayingSound(bool preview, QString filename)
 	setPlayingLabelIcon(0);
 	ui->playingIconLabel->show();
 	playingIconIndex = 1;
-	playingIconTimer->start(150);
+	playingIconTimer->start();
+	ui->b_stop->setEnabled(true);
+	ui->b_pause->setEnabled(true);
+	ui->b_pause->setIcon(m_pauseIcon);
 }
 
 
@@ -468,6 +477,30 @@ void ConfigQt::onStopPlayingSound()
 	playingIconTimer->stop();
 	ui->playingLabel->setText("");
 	ui->playingIconLabel->hide();
+	// You cannot set hotkeys for disabled buttons because their context menu doesn't open
+	//ui->b_stop->setEnabled(false);
+	//ui->b_pause->setEnabled(false);
+	ui->b_pause->setIcon(m_pauseIcon);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onPausePlayingSound()
+{
+	playingIconTimer->stop();
+	ui->b_pause->setIcon(m_playIcon);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUnpausePlayingSound()
+{
+	playingIconTimer->start();
+	ui->b_pause->setIcon(m_pauseIcon);
 }
 
 
@@ -622,6 +655,15 @@ void ConfigQt::setButtonFile(size_t buttonId, const QString &fn, bool askForDisa
 		}
 	}
 	m_model->setFileName(buttonId, fn);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onButtonPausePressed()
+{
+	sb_pauseButtonPressed();
 }
 
 

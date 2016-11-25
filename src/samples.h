@@ -16,6 +16,7 @@
 #include "SampleProducerThread.h"
 
 #include <mutex>
+#include <atomic>
 
 class InputFile;
 class SoundInfo;
@@ -30,6 +31,7 @@ public:
 	{
 		eSILENT = 0,
 		ePLAYING,
+		ePAUSED,
 		ePLAYING_PREVIEW,
 	};
 
@@ -46,11 +48,15 @@ public:
 	void setVolume(int vol);
 	void setLocalPlayback(bool enabled);
 	void setMuteMyself(bool enabled);
+	void pausePlayback();
+	void unpausePlayback();
 	inline state_e getState() const { return m_state; }
 
 signals:
 	void onStartPlaying(bool preview, QString filename);
 	void onStopPlaying();
+	void onPausePlaying();
+	void onUnpausePlaying();
 
 private:
 	bool playSoundInternal(const SoundInfo &sound, bool preview);
@@ -71,7 +77,7 @@ private:
 	double m_globalDbSetting;
 	double m_soundDbSetting;
 	std::mutex m_mutex;
-	state_e m_state;
+	std::atomic<state_e> m_state;
 	bool m_localPlayback;
 	bool m_muteMyself;
 };
