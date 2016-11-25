@@ -98,7 +98,7 @@ void SoundSettingsQt::fillFromGui(SoundInfo &sound)
 void SoundSettingsQt::done( int r )
 {
 	Sampler *sampler = sb_getSampler();
-	if(sampler->getState() == Sampler::PLAYING_PREVIEW)
+	if(sampler->getState() == Sampler::ePLAYING_PREVIEW)
 		sampler->stopPlayback();
 	fillFromGui(m_soundInfo);
 	QDialog::done(r);
@@ -138,7 +138,7 @@ void SoundSettingsQt::onBrowsePressed()
 void SoundSettingsQt::onPreviewPressed()
 {
 	Sampler *sampler = sb_getSampler();
-	if(sampler->getState() != Sampler::PLAYING_PREVIEW)
+	if(sampler->getState() != Sampler::ePLAYING_PREVIEW)
 	{
 		SoundInfo sound;
 		fillFromGui(sound);
@@ -162,7 +162,7 @@ void SoundSettingsQt::onPreviewPressed()
 void SoundSettingsQt::onTimer()
 {
 	Sampler *sampler = sb_getSampler();
-	if(sampler->getState() != Sampler::PLAYING_PREVIEW)
+	if(sampler->getState() != Sampler::ePLAYING_PREVIEW)
 	{
 		ui->previewSoundButton->setIcon(m_iconPlay);
 		m_timer->stop();

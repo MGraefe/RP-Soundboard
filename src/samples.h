@@ -28,9 +28,9 @@ class Sampler : public QObject
 public:
 	enum state_e
 	{
-		SILENT = 0,
-		PLAYING,
-		PLAYING_PREVIEW,
+		eSILENT = 0,
+		ePLAYING,
+		ePLAYING_PREVIEW,
 	};
 
 public:
