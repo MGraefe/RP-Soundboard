@@ -38,8 +38,8 @@
      <property name="bottomMargin">
       <number>3</number>
      </property>
-     <property name="verticalSpacing">
-      <number>6</number>
+     <property name="spacing">
+      <number>3</number>
      </property>
     </layout>
    </item>
