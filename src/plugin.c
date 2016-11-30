@@ -285,7 +285,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 	 * The description is shown in the clients hotkey dialog. */
 	int i;
 	int numKeys = 200;
-	int numExtra = 1;
+	int numExtra = 2;
 	char kw[PLUGIN_HOTKEY_BUFSZ];
 	char desc[PLUGIN_HOTKEY_BUFSZ];
 
@@ -298,6 +298,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 	}
 
 	CREATE_HOTKEY("stop_all", "Stop all sounds");
+	CREATE_HOTKEY("pause_all", "Pause/unpause sound");
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -380,6 +381,10 @@ void ts3plugin_onHotkeyEvent(const char* keyword)
 	else if(strcmp(keyword, "stop_all") == 0)
 	{
 		sb_stopPlayback();
+	}
+	else if (strcmp(keyword, "pause_all") == 0)
+	{
+		sb_pauseButtonPressed();
 	}
 }
 

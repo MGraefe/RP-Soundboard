@@ -75,11 +75,14 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	createButtons();
 
 	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui->b_pause->setContextMenuPolicy(Qt::CustomContextMenu);
 	
 	connect(ui->b_stop, SIGNAL(clicked()), this, SLOT(onClickedStop()));
 	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 		SLOT(showStopButtonContextMenu(const QPoint&)));
 	connect(ui->b_pause, SIGNAL(clicked()), this, SLOT(onButtonPausePressed()));
+	connect(ui->b_pause, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+		SLOT(showPauseButtonContextMenu(const QPoint&)));
 	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
 	connect(ui->cb_mute_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteLocally(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
@@ -436,19 +439,33 @@ void ConfigQt::onColsBubbleFinished()
 //---------------------------------------------------------------
 void ConfigQt::showStopButtonContextMenu(const QPoint &point)
 {
-	QString shortcutName = getShortcutString("stop_all");
+	showSetHotkeyMenu("stop_all", ui->b_stop->mapToGlobal(point));
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::showPauseButtonContextMenu(const QPoint &point)
+{
+	showSetHotkeyMenu("pause_all", ui->b_pause->mapToGlobal(point));
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::showSetHotkeyMenu(const char *hotkeyName, const QPoint &point)
+{
+	QString hotkeyString = getShortcutString(hotkeyName);
 	QString hotkeyText = "Set hotkey (Current: " +
-		(shortcutName.isEmpty() ? QString("None") : shortcutName) + ")";
+		(hotkeyString.isEmpty() ? QString("None") : hotkeyString) + ")";
 
 	QMenu menu;
 	menu.addAction(hotkeyText);
-
-	QPoint globalPos = ui->b_stop->mapToGlobal(point);
-	QAction *action = menu.exec(globalPos);
+	QAction *action = menu.exec(point);
 	if (action)
-	{
-		ts3Functions.requestHotkeyInputDialog(getPluginID(), "stop_all", 0, this);
-	}
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), hotkeyName, 0, this);
 }
 
 
