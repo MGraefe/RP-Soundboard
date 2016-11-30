@@ -75,6 +75,7 @@ private slots:
 	void onUpdateShowHotkeysOnButtons(bool val);
 	void onButtonFileDropped(const QList<QUrl> &urls);
 	void onButtonPausePressed();
+	void onButtonDroppedOnButton(SoundButton *button);
 
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
