@@ -12,6 +12,7 @@
 #include <QtCore/QFileInfo>
 #include <QtGui/QResizeEvent>
 #include <QtWidgets/QMessageBox>
+#include <QPropertyAnimation>
 
 #include "config_qt.h"
 #include "ConfigModel.h"
@@ -230,6 +231,7 @@ void ConfigQt::createButtons()
 			connect(elem.play, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 				SLOT(showButtonContextMenu(const QPoint&)));
 			connect(elem.play, SIGNAL(fileDropped(QList<QUrl>)), this, SLOT(onButtonFileDropped(QList<QUrl>)));
+			connect(elem.play, SIGNAL(buttonDropped(SoundButton*)), this, SLOT(onButtonDroppedOnButton(SoundButton*)));
 
 			elem.play->updateGeometry();
 			m_buttons.push_back(elem);
@@ -681,6 +683,44 @@ void ConfigQt::setButtonFile(size_t buttonId, const QString &fn, bool askForDisa
 void ConfigQt::onButtonPausePressed()
 {
 	sb_pauseButtonPressed();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onButtonDroppedOnButton(SoundButton *button)
+{
+	SoundButton *btn0 = button;
+	SoundButton *btn1 = qobject_cast<SoundButton*>(sender());
+	int bid0 = btn0->property("buttonId").toInt();
+	int bid1 = btn1->property("buttonId").toInt();
+	const SoundInfo *info0 = m_model->getSoundInfo(bid0);
+	const SoundInfo *info1 = m_model->getSoundInfo(bid1);
+	if (!info0 || !info1)
+		return;
+
+	// Switch sound info
+	SoundInfo infoTemp(*info1);
+	m_model->setSoundInfo(bid1, *info0);
+	m_model->setSoundInfo(bid0, infoTemp);
+
+	// Switch button position and then animate the buttons to slide into place
+	const int animDuration = 300;
+	QPropertyAnimation *anim0 = new QPropertyAnimation(btn0, "pos");
+	anim0->setStartValue(btn1->pos());
+	anim0->setEndValue(btn0->pos());
+	anim0->setDuration(animDuration);
+
+	QPropertyAnimation *anim1 = new QPropertyAnimation(btn1, "pos");
+	anim1->setStartValue(btn0->pos());
+	anim1->setEndValue(btn1->pos());
+	anim1->setDuration(animDuration);
+
+	anim0->start();
+	anim1->start();
+	btn0->raise();
+	btn1->raise();
 }
 
 

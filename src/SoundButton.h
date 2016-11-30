@@ -19,9 +19,18 @@ public:
 	virtual void dragMoveEvent(QDragMoveEvent *evt) override;
 	virtual void dragLeaveEvent(QDragLeaveEvent *evt) override;
 	virtual void dropEvent(QDropEvent *evt) override;
+	virtual void mousePressEvent(QMouseEvent *evt) override;
+	virtual void mouseReleaseEvent(QMouseEvent *evt) override;
+	virtual void mouseMoveEvent(QMouseEvent *evt) override;
 
 signals:
 	void fileDropped(const QList<QUrl>&);
+	void buttonDropped(SoundButton *button);
+
+private:
+	bool pressing;
+	bool dragging;
+	QPoint dragStart;
 	
 };
 
