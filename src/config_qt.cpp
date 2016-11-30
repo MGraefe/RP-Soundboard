@@ -76,7 +76,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
 	
-	connect(ui->b_stop, SIGNAL(released()), this, SLOT(onClickedStop()));
+	connect(ui->b_stop, SIGNAL(clicked()), this, SLOT(onClickedStop()));
 	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 		SLOT(showStopButtonContextMenu(const QPoint&)));
 	connect(ui->b_pause, SIGNAL(clicked()), this, SLOT(onButtonPausePressed()));
@@ -222,7 +222,7 @@ void ConfigQt::createButtons()
 			elem.play->setEnabled(true);
 			elem.play->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 			elem.layout->addWidget(elem.play);
-			connect(elem.play, SIGNAL(released()), this, SLOT(onClickedPlay()));
+			connect(elem.play, SIGNAL(clicked()), this, SLOT(onClickedPlay()));
 			elem.play->setContextMenuPolicy(Qt::CustomContextMenu);
 			connect(elem.play, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 				SLOT(showButtonContextMenu(const QPoint&)));
