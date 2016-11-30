@@ -66,6 +66,7 @@ private slots:
 	void onButtonBubbleFinished();
 	void onColsBubbleFinished();
 	void showStopButtonContextMenu(const QPoint &point);
+	void showPauseButtonContextMenu(const QPoint &point);
 	void onStartPlayingSound(bool preview, QString filename);
 	void onStopPlayingSound();
 	void onPausePlayingSound();
@@ -79,6 +80,7 @@ signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
 
 private:
+	void showSetHotkeyMenu(const char *hotkeyName, const QPoint &point);
 	void setPlayingLabelIcon(int index);
 	void playSound(size_t buttonId);
 	void chooseFile(size_t buttonId);
