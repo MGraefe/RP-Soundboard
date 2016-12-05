@@ -31,7 +31,6 @@
 #include "ConfigModel.h"
 #include "UpdateChecker.h"
 #include "SoundInfo.h"
-#include "HighResClock.h"
 
 
 class ModelObserver_Prog : public ConfigModel::Observer
@@ -106,7 +105,6 @@ talk_state_e getTalkState(uint64 scHandlerID)
 		return vad ? TS_VOICE_ACTIVATION : TS_CONT_TRANS;
 }
 
-HighResClock::time_point timeProgStart = HighResClock::now();
 
 bool setTalkState(uint64 scHandlerID, talk_state_e state)
 {
