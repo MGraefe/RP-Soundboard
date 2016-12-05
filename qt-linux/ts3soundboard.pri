@@ -7,25 +7,28 @@
 #message("You are running qmake on a generated .pro file. This may not work!")
 
 
-HEADERS += ../src/buildinfo.h \
+HEADERS += ../src/ExpandableSection.h \
+    ../src/buildinfo.h \
+    ../src/CmdQueue.h \
     ../src/common.h \
     ../src/ConfigModel.h \
-    ../src/device.h \
+    ../src/main.h \
     ../src/HighResClock.h \
     ../src/inputfile.h \
     ../src/plugin.h \
     ../src/SampleBuffer.h \
     ../src/SampleProducer.h \
     ../src/SampleProducerThread.h \
-    ../src/samples.h \
     ../src/SampleSource.h \
     ../src/SampleVisualizerThread.h \
     ../src/SoundInfo.h \
     ../src/ts3log.h \
     ../src/version/version.h \
-    ../vs2012/resource.h \
+    ../vs2015/resource.h \
     ../src/about_qt.h \
+    ../src/samples.h \
     ../src/soundsettings_qt.h \
+    ../src/SoundButton.h \
     ../src/soundview_qt.h \
     ../src/SpeechBubble.h \
     ../src/UpdateChecker.h \
@@ -33,9 +36,11 @@ HEADERS += ../src/buildinfo.h \
     ../src/config_qt.h
 SOURCES += ../src/about_qt.cpp \
     ../src/buildinfo.c \
+    ../src/CmdQueue.cpp \
     ../src/ConfigModel.cpp \
     ../src/config_qt.cpp \
-    ../src/device.cpp \
+    ../src/ExpandableSection.cpp \
+    ../src/main.cpp \
     ../src/HighResClock.cpp \
     ../src/inputfileffmpeg.cpp \
     ../src/plugin.c \
@@ -43,6 +48,7 @@ SOURCES += ../src/about_qt.cpp \
     ../src/SampleProducerThread.cpp \
     ../src/samples.cpp \
     ../src/SampleVisualizerThread.cpp \
+    ../src/SoundButton.cpp \
     ../src/SoundInfo.cpp \
     ../src/soundsettings_qt.cpp \
     ../src/soundview_qt.cpp \
