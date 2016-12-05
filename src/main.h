@@ -20,6 +20,14 @@ int sb_playFile(const SoundInfo &sound);
 
 class Sampler;
 Sampler *sb_getSampler();
+
+#include <QObject>
+class ResetTalkStateRecv : public QObject
+{
+    Q_OBJECT
+public slots:
+    void resetTalkState();
+};
 #endif
 
 CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,

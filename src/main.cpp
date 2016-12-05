@@ -31,6 +31,7 @@
 #include "ConfigModel.h"
 #include "UpdateChecker.h"
 #include "SoundInfo.h"
+#include "HighResClock.h"
 
 
 class ModelObserver_Prog : public ConfigModel::Observer
@@ -49,15 +50,13 @@ AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
 UpdateChecker *updateChecker = NULL;
+ResetTalkStateRecv *resetTalkStateRecv = NULL;
 std::map<uint64, int> connectionStatusMap;
-std::mutex playingMutex;
 typedef std::lock_guard<std::mutex> Lock;
 volatile bool playing = false;
 
 void stopPlaybackInternal();
 volatile bool paused = false;
-//std::recursive_mutex playingMutex;
-//typedef std::lock_guard<std::recursive_mutex> PlayingMutexLock;
 
 
 void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
@@ -109,6 +108,7 @@ talk_state_e getTalkState(uint64 scHandlerID)
 		return vad ? TS_VOICE_ACTIVATION : TS_CONT_TRANS;
 }
 
+HighResClock::time_point timeProgStart = HighResClock::now();
 
 bool setTalkState(uint64 scHandlerID, talk_state_e state)
 {
@@ -164,25 +164,26 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 	if (serverConnectionHandlerID != activeServerId)
 		return; //Ignore other servers
 
-	bool finished = false;
-	int written = sampler->fetchInputSamples(samples, sampleCount, channels, &finished);
-	playingMutex.lock();
-	if(playing && finished)
+	int written = sampler->fetchInputSamples(samples, sampleCount, channels, NULL);
+	if(written > 0)
+		*edited |= 0x1;
+}
+
+
+void sb_resetTalkState()
+{
+	if (playing)
 	{
 		playing = false;
 		talk_state_e ts = previousTalkState;
 		previousTalkState = TS_INVALID;
 		setTalkState(playingServerId, ts);
 	}
-	playingMutex.unlock();
-	if(written > 0)
-		*edited |= 0x1;
 }
 
 
 int sb_playFile(const SoundInfo &sound)
 {
-	std::unique_lock<std::mutex> lock(playingMutex);
 	playingServerId = activeServerId;
 
 	if(!playing)
@@ -208,7 +209,6 @@ int sb_playFile(const SoundInfo &sound)
 	if(sampler->playFile(sound))
 	{
 		playing = true;
-		lock.unlock();
 		paused = false;
 		setContinuousTransmission(activeServerId);
 	}
@@ -229,6 +229,12 @@ void sb_enableInterface(bool enabled)
 }
 
 
+void ResetTalkStateRecv::resetTalkState()
+{
+	sb_resetTalkState();
+}
+
+
 CAPI void sb_init()
 {
 #ifdef _DEBUG
@@ -240,7 +246,10 @@ CAPI void sb_init()
 	configModel = new ConfigModel();
 	configModel->readConfig();
 
+	resetTalkStateRecv = new ResetTalkStateRecv();
+
 	sampler = new Sampler();
+	Sampler::connect(sampler, SIGNAL(onStopPlaying()), resetTalkStateRecv, SLOT(resetTalkState()), Qt::QueuedConnection);
 	sampler->init();
 
 	configDialog = new ConfigQt(configModel);
@@ -273,6 +282,9 @@ CAPI void sb_kill()
 	delete sampler;
 	sampler = NULL;
 
+	delete resetTalkStateRecv;
+	resetTalkStateRecv = NULL;
+
 	configDialog->close();
 	delete configDialog;
 	configDialog = NULL;
@@ -295,7 +307,6 @@ CAPI void sb_kill()
 
 CAPI void sb_onServerChange(uint64 serverID)
 {
-	Lock lock(playingMutex);
 	talk_state_e talkState = getTalkState(activeServerId);
 	if (connectionStatusMap.find(serverID) == connectionStatusMap.end())
 		connectionStatusMap[serverID] = STATUS_DISCONNECTED;
@@ -329,22 +340,11 @@ CAPI void sb_openDialog()
 		"RP Soundboard is disabled until you are connected properly.");
 }
 
-void stopPlaybackInternal()
-{
-	if (playing)
-	{
-		sampler->stopPlayback();
-		playing = false;
-		paused = false;
-		setTalkState(activeServerId, previousTalkState);
-	}
-}
-
 
 CAPI void sb_stopPlayback()
 {
-	Lock lock(playingMutex);
-	stopPlaybackInternal();
+	if (playing)
+		sampler->stopPlayback();
 }
 
 
