@@ -13,6 +13,10 @@
 #define BUILD_NAME "Win 64-bit"
 #elif defined(_WIN32)
 #define BUILD_NAME "Win 32-bit"
+#elif defined(LINUX) && defined(__x86_64__)
+#define BUILD_NAME "Linux 64-bit"
+#elif defined(LINUX) && defined(__i386__)
+#define BUILD_NAME "Linux 32-bit"
 #else
 #define BUILD_NAME "Unknown Build"
 #endif
