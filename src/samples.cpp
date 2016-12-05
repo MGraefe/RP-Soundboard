@@ -148,6 +148,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	std::chrono::time_point<HighResClock> start, end;
 	start = HighResClock::now();
 #endif
+    //printf("fetchSamples: samples = %p, count = %i, channels = %i, ciLeft = %i, ciRight = %i\n", samples, count, channels, ciLeft, ciRight);
 
 	if (m_state == ePAUSED)
 		return 0;
@@ -163,7 +164,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 			memset(samples, 0, count * sizeof(short));
 		else
 			for(int i = 0; i < count; i++)
-				samples[i*channels+ciLeft] = 0;
+                samples[i*channels+ciLeft] = 0;
 	}
 
 	if(overRight && channels > 1)
@@ -196,7 +197,8 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	{
 		__m128i ones = _mm_set1_epi16(1);
 		__m128i volumeDivider = _mm_set1_epi32(m_volumeDivider);
-		for(int i = 0; i < write; i += 8)
+        int i;
+        for(i = 0; i < (write - 7); i += 8)
 		{
 			__m128i a, b;
 			a = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2));
@@ -223,6 +225,9 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 			b = _mm_adds_epi16(a, b); // b = sat(a + b)
 			_mm_storeu_si128(reinterpret_cast<__m128i*>(out + i), b);
 		}
+        // Remaining samples (remainder of div by 8)
+        for (; i < write; i++)
+            out[i] += scale(in[i*2] / 2 + in[i*2+1] / 2);
 	}
 	else
 	{
@@ -231,7 +236,8 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 		char outbufBuf[8*sizeof(short)+16];
 		short *outbuf = (short*)(outbufBuf + (16 - (size_t)outbufBuf % 16));
 		assert(reinterpret_cast<size_t>(outbuf) % 16 == 0);
-		for(int i = 0; i < write; i += 4)
+        int i;
+        for(i = 0; i < (write - 3); i += 4)
 		{
 			__m128i v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2));
 			//widen to 32 bits
@@ -252,6 +258,12 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 				out[id + ciRight] += outbuf[k*2+1];
 			}
 		}
+        // Remaining samples (remainder of div by 4)
+        for (; i < write; i++)
+        {
+            out[i * channels + ciLeft] += scale(in[i*2]);
+            out[i * channels + ciRight] += scale(in[i*2+1]);
+        }
 	}
 #endif
 
@@ -287,13 +299,16 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 
 	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
 	
-	SampleBuffer::Lock sbl(m_sbCapture.getMutex());
-	if(m_state == ePLAYING && m_inputFile && m_inputFile->done() && m_sbCapture.avail() == 0)
+    if(m_state == ePLAYING && m_inputFile && m_inputFile->done())
 	{
-		m_state = eSILENT;
-		if(finished)
-			*finished = true;
-		emit onStopPlaying();
+        SampleBuffer::Lock sbl(m_sbCapture.getMutex());
+        if (m_sbCapture.avail() == 0)
+        {
+            m_state = eSILENT;
+            if(finished)
+                *finished = true;
+            emit onStopPlaying();
+        }
 	}
 
 	return written;
@@ -315,10 +330,14 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	if(written > 0)
 		*channelFillMask |= (bitMaskLeft | bitMaskRight);
 
-	if(m_state == ePLAYING_PREVIEW && m_inputFile && m_inputFile->done() && m_sbPlayback.avail() == 0)
+    if(m_state == ePLAYING_PREVIEW && m_inputFile && m_inputFile->done())
 	{
-		m_state = eSILENT;
-		emit onStopPlaying();
+        SampleBuffer::Lock sbl(m_sbPlayback.getMutex());
+        if (m_sbPlayback.avail() == 0)
+        {
+            m_state = eSILENT;
+            emit onStopPlaying();
+        }
 	}
 
 	return written;
