@@ -50,12 +50,10 @@ AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 ModelObserver_Prog *modelObserver = NULL;
 UpdateChecker *updateChecker = NULL;
-ResetTalkStateRecv *resetTalkStateRecv = NULL;
 std::map<uint64, int> connectionStatusMap;
 typedef std::lock_guard<std::mutex> Lock;
 volatile bool playing = false;
 
-void stopPlaybackInternal();
 volatile bool paused = false;
 
 
@@ -170,7 +168,7 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 }
 
 
-void sb_resetTalkState()
+CAPI void sb_resetTalkState()
 {
 	if (playing)
 	{
@@ -228,13 +226,6 @@ void sb_enableInterface(bool enabled)
 	configDialog->setEnabled(enabled);
 }
 
-
-void ResetTalkStateRecv::resetTalkState()
-{
-	sb_resetTalkState();
-}
-
-
 CAPI void sb_init()
 {
 #ifdef _DEBUG
@@ -246,10 +237,7 @@ CAPI void sb_init()
 	configModel = new ConfigModel();
 	configModel->readConfig();
 
-	resetTalkStateRecv = new ResetTalkStateRecv();
-
 	sampler = new Sampler();
-	Sampler::connect(sampler, SIGNAL(onStopPlaying()), resetTalkStateRecv, SLOT(resetTalkState()), Qt::QueuedConnection);
 	sampler->init();
 
 	configDialog = new ConfigQt(configModel);
@@ -281,9 +269,6 @@ CAPI void sb_kill()
 	sampler->shutdown();
 	delete sampler;
 	sampler = NULL;
-
-	delete resetTalkStateRecv;
-	resetTalkStateRecv = NULL;
 
 	configDialog->close();
 	delete configDialog;
@@ -318,7 +303,7 @@ CAPI void sb_onServerChange(uint64 serverID)
 		if (connected && talkState != TS_INVALID)
 			setTalkState(serverID, talkState);
 		else
-			stopPlaybackInternal();
+			sb_stopPlayback();
 	}
 
 	activeServerId = serverID;
