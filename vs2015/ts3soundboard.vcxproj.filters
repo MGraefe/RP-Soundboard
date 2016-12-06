@@ -164,6 +164,15 @@
     <ClCompile Include="GeneratedFiles\Release\moc_SoundButton.cpp">
       <Filter>Generierte Dateien\Release</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\TalkStateManager.cpp">
+      <Filter>Source Dateien</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TalkStateManager.cpp">
+      <Filter>Generierte Dateien\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_TalkStateManager.cpp">
+      <Filter>Generierte Dateien\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\common.h">
@@ -275,6 +284,9 @@
     </CustomBuild>
     <CustomBuild Include="..\src\SoundButton.h">
       <Filter>Header Dateien</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\src\TalkStateManager.h">
+      <Filter>Source Dateien</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

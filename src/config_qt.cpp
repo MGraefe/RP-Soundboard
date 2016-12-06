@@ -493,9 +493,6 @@ void ConfigQt::onStartPlayingSound(bool preview, QString filename)
 //---------------------------------------------------------------
 void ConfigQt::onStopPlayingSound()
 {
-	// Doing this here is a bit...out of place
-	sb_resetTalkState();
-
 	playingIconTimer->stop();
 	ui->playingLabel->setText("");
 	ui->playingIconLabel->hide();
