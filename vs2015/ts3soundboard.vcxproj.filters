@@ -286,7 +286,7 @@
       <Filter>Header Dateien</Filter>
     </CustomBuild>
     <CustomBuild Include="..\src\TalkStateManager.h">
-      <Filter>Source Dateien</Filter>
+      <Filter>Header Dateien</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
