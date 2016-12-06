@@ -32,10 +32,13 @@ TalkStateManager::~TalkStateManager()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void TalkStateManager::onStartPlaying()
+void TalkStateManager::onStartPlaying(bool preview, QString filename)
 {
-	playingServerId = activeServerId;
-	setPlayTransMode();
+	if (!preview)
+	{
+		playingServerId = activeServerId;
+		setPlayTransMode();
+	}
 }
 
 

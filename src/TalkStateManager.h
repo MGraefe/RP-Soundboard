@@ -21,7 +21,7 @@ public:
 	~TalkStateManager();
 
 public slots:
-	void onStartPlaying();
+	void onStartPlaying(bool preview, QString filename);
 	void onStopPlaying();
 	void onPauseSound();
 	void onUnpauseSound();
