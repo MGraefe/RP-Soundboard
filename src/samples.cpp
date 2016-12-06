@@ -364,22 +364,8 @@ bool Sampler::playPreview(const SoundInfo &sound)
 //---------------------------------------------------------------
 void Sampler::stopPlayback()
 {
-	if(m_inputFile)
-	{
-		m_state = eSILENT;
-		m_sampleProducerThread.setSource(NULL);
-		m_inputFile->close();
-		delete m_inputFile;
-		m_inputFile = NULL;
-
-		//Clear buffers
-		SampleBuffer::Lock sblc(m_sbCapture.getMutex());
-		SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
-		m_sbCapture.consume(NULL, m_sbCapture.avail());
-		m_sbPlayback.consume(NULL, m_sbPlayback.avail());
-
-		emit onStopPlaying();
-	}
+	std::lock_guard<std::mutex> Lock(m_mutex);
+	stopSoundInternal();
 }
 
 #define VOLUMESCALER_EXPONENT 1.0
@@ -428,11 +414,35 @@ void Sampler::setVolumeDb( double decibel )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void Sampler::stopSoundInternal()
+{
+	if (m_inputFile)
+	{
+		m_state = eSILENT;
+		m_sampleProducerThread.setSource(NULL);
+		m_inputFile->close();
+		delete m_inputFile;
+		m_inputFile = NULL;
+
+		//Clear buffers
+		SampleBuffer::Lock sblc(m_sbCapture.getMutex());
+		SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
+		m_sbCapture.consume(NULL, m_sbCapture.avail());
+		m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+
+		emit onStopPlaying();
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
-	stopPlayback();
+	stopSoundInternal();
 
 	m_inputFile = CreateInputFileFFmpeg();
 

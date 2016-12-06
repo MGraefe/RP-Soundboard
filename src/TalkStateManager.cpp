@@ -48,6 +48,8 @@ void TalkStateManager::onStartPlaying(bool preview, QString filename)
 //---------------------------------------------------------------
 void TalkStateManager::onStopPlaying()
 {
+	if (previousTalkState == TS_INVALID)
+		return;
 	talk_state_e ts = previousTalkState;
 	previousTalkState = TS_INVALID;
 	setTalkState(activeServerId, ts);
@@ -60,6 +62,8 @@ void TalkStateManager::onStopPlaying()
 //---------------------------------------------------------------
 void TalkStateManager::onPauseSound()
 {
+	if (previousTalkState == TS_INVALID)
+		return;
 	talk_state_e ts = previousTalkState;
 	previousTalkState = TS_INVALID;
 	setTalkState(activeServerId, ts);
@@ -143,6 +147,8 @@ bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state)
 {
 	if (scHandlerID == 0)
 		return false;
+
+	logInfo("Settings talk state of %ull to %i, previous: %i", (unsigned long long)scHandlerID, (int)state, (int)previousTalkState);
 
 	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
 	bool in = state == TS_CONT_TRANS || state == TS_VOICE_ACTIVATION;
