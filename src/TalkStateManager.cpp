@@ -18,7 +18,6 @@ TalkStateManager::TalkStateManager() :
 }
 
 
-
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
@@ -26,7 +25,6 @@ TalkStateManager::~TalkStateManager()
 {
 	
 }
-
 
 
 //---------------------------------------------------------------
@@ -42,19 +40,13 @@ void TalkStateManager::onStartPlaying(bool preview, QString filename)
 }
 
 
-
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
 void TalkStateManager::onStopPlaying()
 {
-	if (previousTalkState == TS_INVALID)
-		return;
-	talk_state_e ts = previousTalkState;
-	previousTalkState = TS_INVALID;
-	setTalkState(activeServerId, ts);
+	setTalkTransMode();
 }
-
 
 
 //---------------------------------------------------------------
@@ -62,13 +54,8 @@ void TalkStateManager::onStopPlaying()
 //---------------------------------------------------------------
 void TalkStateManager::onPauseSound()
 {
-	if (previousTalkState == TS_INVALID)
-		return;
-	talk_state_e ts = previousTalkState;
-	previousTalkState = TS_INVALID;
-	setTalkState(activeServerId, ts);
+	setTalkTransMode();
 }
-
 
 
 //---------------------------------------------------------------
@@ -77,6 +64,19 @@ void TalkStateManager::onPauseSound()
 void TalkStateManager::onUnpauseSound()
 {
 	setPlayTransMode();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void TalkStateManager::setTalkTransMode()
+{
+	if (previousTalkState == TS_INVALID)
+		return;
+	talk_state_e ts = previousTalkState;
+	previousTalkState = TS_INVALID;
+	setTalkState(activeServerId, ts);
 }
 
 

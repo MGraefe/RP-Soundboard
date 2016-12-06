@@ -35,6 +35,7 @@ public:
 	bool setContinuousTransmission(uint64 scHandlerID);
 
 private:
+	void setTalkTransMode();
 	void setPlayTransMode();
 	talk_state_e previousTalkState;
 	talk_state_e defaultTalkState;
