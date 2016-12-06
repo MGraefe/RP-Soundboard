@@ -697,13 +697,18 @@ void ConfigQt::onButtonDroppedOnButton(SoundButton *button)
 	int bid1 = btn1->property("buttonId").toInt();
 	const SoundInfo *info0 = m_model->getSoundInfo(bid0);
 	const SoundInfo *info1 = m_model->getSoundInfo(bid1);
-	if (!info0 || !info1)
-		return;
 
-	// Switch sound info
-	SoundInfo infoTemp(*info1);
-	m_model->setSoundInfo(bid1, *info0);
-	m_model->setSoundInfo(bid0, infoTemp);
+	// Copy sound info
+	SoundInfo infoCopy0;
+	SoundInfo infoCopy1;
+	if (info0)
+		infoCopy0 = *info0;
+	if (info1)
+		infoCopy1 = *info1;
+
+	// And switch em
+	m_model->setSoundInfo(bid0, infoCopy1);
+	m_model->setSoundInfo(bid1, infoCopy0);
 
 	// Switch button position and then animate the buttons to slide into place
 	const int animDuration = 300;
