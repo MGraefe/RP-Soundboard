@@ -2,6 +2,26 @@
 #include "common.h"
 #include "TalkStateManager.h"
 #include "ts3log.h"
+#include "main.h"
+#include <QMetaEnum>
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+#define RETURN_ENUM_CASE(val) case val: return #val
+const char * TalkStateManager::toString(talk_state_e ts)
+{
+	switch (ts)
+	{
+		RETURN_ENUM_CASE(TS_INVALID);
+		RETURN_ENUM_CASE(TS_PTT_WITHOUT_VA);
+		RETURN_ENUM_CASE(TS_PTT_WITH_VA);
+		RETURN_ENUM_CASE(TS_VOICE_ACTIVATION);
+		RETURN_ENUM_CASE(TS_CONT_TRANS);
+	default:
+		throw std::logic_error("Fucked up toString method");
+	}
+}
 
 
 //---------------------------------------------------------------
@@ -110,10 +130,21 @@ void TalkStateManager::setPlayTransMode()
 //---------------------------------------------------------------
 void TalkStateManager::setActiveServerId(uint64 id)
 {
+	logDebug("TSMGR: Setting active server id: %i -> %i", (int)activeServerId, (int)id);
 	if (id == activeServerId)
 		return;
+	talk_state_e oldCurrentTS = currentTalkState;
+	if (activeServerId != 0 && previousTalkState != TS_INVALID)
+		setTalkState(activeServerId, previousTalkState);
 	activeServerId = id;
-	setTalkState(id, currentTalkState);
+	if (oldCurrentTS == TS_CONT_TRANS)
+	{
+		previousTalkState = id != 0 ? getTalkState(id) : TS_INVALID;
+		if (previousTalkState != TS_INVALID)
+			setContinuousTransmission(id);
+		else
+			sb_stopPlayback();
+	}
 }
 
 
@@ -145,10 +176,11 @@ TalkStateManager::talk_state_e TalkStateManager::getTalkState(uint64 scHandlerID
 //---------------------------------------------------------------s
 bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state)
 {
-	if (scHandlerID == 0)
+	logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
+		(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
+	
+	if (scHandlerID == 0 || state == TS_INVALID)
 		return false;
-
-	logInfo("Settings talk state of %ull to %i, previous: %i", (unsigned long long)scHandlerID, (int)state, (int)previousTalkState);
 
 	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
 	bool in = state == TS_CONT_TRANS || state == TS_VOICE_ACTIVATION;

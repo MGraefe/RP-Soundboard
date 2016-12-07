@@ -14,7 +14,8 @@ public:
 		TS_PTT_WITH_VA,
 		TS_VOICE_ACTIVATION,
 		TS_CONT_TRANS,
-	};
+	};	
+	static const char *toString(talk_state_e ts);
 
 public:
 	TalkStateManager();

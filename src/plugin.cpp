@@ -15,10 +15,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <map>
 
 #include "plugin.h"
 #include "main.h"
 #include "buildinfo.h"
+#include "ts3log.h"
 
 /*static*/ struct TS3Functions ts3Functions;
 
@@ -165,7 +167,8 @@ const char* ts3plugin_commandKeyword()
 /* Client changed current server connection handler */
 void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) 
 {
-	sb_onServerChange(serverConnectionHandlerID);
+	logDebug("CurrentServerConnectionChanged: %i", (int)serverConnectionHandlerID);
+	//sb_onServerChange(serverConnectionHandlerID);
 }
 
 
@@ -314,15 +317,44 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 
 /* Clientlib */
 
+std::map<uint64, int> clientInputHardwareStateMap;
+void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char * invokerName, const char * invokerUniqueIdentifier)
+{
+	//logDebug("onUpdateClientEvent: serverId = %i, clientId = %i, invokerID = %i, invokerName = \"%s\", invokerUID = \"%s\"",
+	//	(int)serverConnectionHandlerID, (int)clientID, (int)invokerID, invokerName ? invokerName : "NULL", invokerUniqueIdentifier ? invokerUniqueIdentifier : "NULL");
+	anyID myId = 0;
+	if (checkError(ts3Functions.getClientID(serverConnectionHandlerID, &myId), "getClientID error"))
+		return;
+	if (myId != clientID)
+		return;
+	int inputState = 0;
+	if (checkError(ts3Functions.getClientSelfVariableAsInt(serverConnectionHandlerID, (size_t)CLIENT_INPUT_HARDWARE, &inputState), "getClientSelfVariableAsInt error"))
+		return;
+
+	if (inputState)
+	{
+		int oldInputState = clientInputHardwareStateMap[serverConnectionHandlerID]; // Gets initialized to 0 when nonexistant
+		if (!oldInputState)
+		{
+			logDebug("Input state of server %i enabled", (int)serverConnectionHandlerID);
+			sb_onServerChange(serverConnectionHandlerID);
+		}
+	}
+	clientInputHardwareStateMap[serverConnectionHandlerID] = inputState;
+}
+
 
 void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber)
 {
+	if (newStatus == STATUS_DISCONNECTED)
+		clientInputHardwareStateMap.erase(serverConnectionHandlerID);
+
     sb_onConnectStatusChange(serverConnectionHandlerID, newStatus, errorNumber);
 
-    if(newStatus == STATUS_CONNECTION_ESTABLISHED) /* connection established and we have client and channels available */
-	{
-		sb_onServerChange(serverConnectionHandlerID);
-    }
+    //if(newStatus == STATUS_CONNECTION_ESTABLISHED) /* connection established and we have client and channels available */
+	//{
+	//	sb_onServerChange(serverConnectionHandlerID);
+    //}
 }
 
 void ts3plugin_onEditMixedPlaybackVoiceDataEvent(uint64 serverConnectionHandlerID, short* samples, int sampleCount,

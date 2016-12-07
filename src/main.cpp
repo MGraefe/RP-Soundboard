@@ -97,6 +97,8 @@ CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 
 int sb_playFile(const SoundInfo &sound)
 {
+	if (activeServerId == 0)
+		return 2;
 	return sampler->playFile(sound) ? 0 : 1;
 }
 
@@ -188,7 +190,7 @@ CAPI void sb_onServerChange(uint64 serverID)
 		connectionStatusMap[serverID] = STATUS_DISCONNECTED;
 	bool connected = connectionStatusMap[serverID] == STATUS_CONNECTION_ESTABLISHED;
 
-	tsMgr->setActiveServerId(activeServerId);
+	tsMgr->setActiveServerId(serverID);
 	activeServerId = serverID;
 	logInfo("Server Id: %ull", (unsigned long long)serverID);
 	sb_enableInterface(connected);
