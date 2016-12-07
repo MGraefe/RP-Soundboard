@@ -18,6 +18,7 @@ AboutQt::AboutQt(QWidget *parent) :
 	ui(new Ui::AboutQt)
 {
 	ui->setupUi(this);
-	ui->l_version->setText(buildinfo_getPluginVersion());
+	ui->l_version->setText(QString(buildinfo_getPluginVersion()) + 
+		"\nBuild on " + buildinfo_getBuildDate() + " " + buildinfo_getBuildTime());
 	setFixedSize(size());
 }

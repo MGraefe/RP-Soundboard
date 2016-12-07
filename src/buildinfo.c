@@ -91,3 +91,15 @@ int buildinfo_getBuildNumber()
 {
 	return TS3SB_VERSION_BUILD;
 }
+
+
+const char *buildinfo_getBuildDate()
+{
+	return __DATE__;
+}
+
+
+const char *buildinfo_getBuildTime()
+{
+	return __TIME__;
+}

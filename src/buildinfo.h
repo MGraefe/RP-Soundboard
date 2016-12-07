@@ -22,6 +22,8 @@ const char *buildinfo_getPluginDescription();
 const char *buildinfo_getBuildName();
 const char *buildinfo_getPluginVersionShort();
 const char *buildinfo_getBuildTarget();
+const char *buildinfo_getBuildDate();
+const char *buildinfo_getBuildTime();
 
 
 //index: 0 = major, 1 = minor, 2 = revision, 3 = build
