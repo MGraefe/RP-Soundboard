@@ -35,9 +35,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\plugin.c">
-      <Filter>Source Dateien</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\config_qt.cpp">
       <Filter>Source Dateien</Filter>
     </ClCompile>
@@ -172,6 +169,9 @@
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_TalkStateManager.cpp">
       <Filter>Generierte Dateien\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\plugin.cpp">
+      <Filter>Source Dateien</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

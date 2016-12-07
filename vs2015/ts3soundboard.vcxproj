@@ -28,7 +28,7 @@
     <ClCompile Include="..\src\main.cpp" />
     <ClCompile Include="..\src\HighResClock.cpp" />
     <ClCompile Include="..\src\inputfileffmpeg.cpp" />
-    <ClCompile Include="..\src\plugin.c" />
+    <ClCompile Include="..\src\plugin.cpp" />
     <ClCompile Include="..\src\SampleBuffer.cpp" />
     <ClCompile Include="..\src\SampleProducerThread.cpp" />
     <ClCompile Include="..\src\samples.cpp" />
