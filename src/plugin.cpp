@@ -22,6 +22,7 @@
 
 /*static*/ struct TS3Functions ts3Functions;
 
+
 #ifdef _WIN32
 #define _strcpy(dest, destSize, src) strcpy_s(dest, destSize, src)
 #define snprintf sprintf_s
@@ -55,7 +56,8 @@ static int wcharToUtf8(const wchar_t* str, char** result) {
  */
 
 
-
+extern "C"
+{
 
 /* Unique name identifying this plugin */
 const char* ts3plugin_name() {
@@ -313,7 +315,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 /* Clientlib */
 
 
-void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) 
+void ts3plugin_onConnectStatusChangeEvent(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber)
 {
     sb_onConnectStatusChange(serverConnectionHandlerID, newStatus, errorNumber);
 
@@ -401,4 +403,4 @@ const char * getPluginID()
 }
 
 
-
+} // extern "C"
