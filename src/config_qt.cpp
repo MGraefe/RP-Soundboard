@@ -254,8 +254,18 @@ void ConfigQt::updateButtonText(int i)
 	if(i >= m_buttons.size())
 		return;
 
-	QString fn = m_model->getFileName(i);
-	QString text = fn.isEmpty() ? "(no file)" : QFileInfo(fn).baseName();
+	QString text;
+	const SoundInfo *info = m_model->getSoundInfo(i);
+	if (info && !info->filename.isEmpty())
+	{
+		if (!info->customText.isEmpty())
+			text = info->customText;
+		else
+			text = QFileInfo(info->filename).baseName();
+	}
+	else
+		text = "(no file)";
+
 	if (m_model->getShowHotkeysOnButtons())
 	{
 		QString shortcut = getShortcutString(i);

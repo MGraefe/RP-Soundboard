@@ -10,6 +10,7 @@
 #include "SoundInfo.h"
 
 #define NAME_PATH "path"
+#define NAME_CUSTOM_TEXT "customText"
 #define NAME_VOLUME "volume"
 #define NAME_CROP_ENABLED "cropEnabled"
 #define NAME_CROP_START_VALUE "cropStartValue"
@@ -19,6 +20,7 @@
 #define NAME_CROP_STOP_UNIT "cropStopUnit"
 
 #define DEFAULT_PATH ""
+#define DEFAULT_CUSTOM_TEXT ""
 #define DEFAULT_VOLUME 0
 #define DEFAULT_CROP_ENABLED false
 #define DEFAULT_CROP_START_VALUE 1
@@ -33,6 +35,7 @@
 //---------------------------------------------------------------
 SoundInfo::SoundInfo() :
 	filename(DEFAULT_PATH),
+	customText(DEFAULT_CUSTOM_TEXT),
 	volume(DEFAULT_VOLUME),
 	cropEnabled(DEFAULT_CROP_ENABLED),
 	cropStartValue(DEFAULT_CROP_START_VALUE),
@@ -51,6 +54,7 @@ SoundInfo::SoundInfo() :
 void SoundInfo::readFromConfig( const QSettings &settings )
 {
 	filename = settings.value(NAME_PATH, DEFAULT_PATH).toString();
+	customText = settings.value(NAME_CUSTOM_TEXT, DEFAULT_CUSTOM_TEXT).toString();
 	volume = settings.value(NAME_VOLUME, DEFAULT_VOLUME).toInt();
 	cropEnabled = settings.value(NAME_CROP_ENABLED, DEFAULT_CROP_ENABLED).toBool();
 	cropStartValue = settings.value(NAME_CROP_START_VALUE, DEFAULT_CROP_START_VALUE).toInt();
@@ -67,6 +71,7 @@ void SoundInfo::readFromConfig( const QSettings &settings )
 void SoundInfo::saveToConfig( QSettings &settings ) const
 {
 	settings.setValue(NAME_PATH, filename);
+	settings.setValue(NAME_CUSTOM_TEXT, customText);
 	settings.setValue(NAME_VOLUME, volume);
 	settings.setValue(NAME_CROP_ENABLED, cropEnabled);
 	settings.setValue(NAME_CROP_START_VALUE, cropStartValue);

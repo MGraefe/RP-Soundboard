@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>321</height>
+    <width>394</width>
+    <height>349</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -85,6 +85,27 @@
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_6">
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="text">
+           <string>Custom button text:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="customTextEdit">
+          <property name="maxLength">
+           <number>120</number>
+          </property>
+          <property name="placeholderText">
+           <string>asd</string>
           </property>
          </widget>
         </item>

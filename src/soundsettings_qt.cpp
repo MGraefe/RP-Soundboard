@@ -16,6 +16,7 @@
 #include "soundview_qt.h"
 #include <QtWidgets/QFileDialog>
 #include <QtGui/QPainter>
+#include <QFileInfo>
 #include "config_qt.h"
 
 
@@ -62,6 +63,8 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QW
 void SoundSettingsQt::initGui(const SoundInfo &sound)
 {
 	ui->filenameEdit->setText(sound.filename);
+	ui->customTextEdit->setPlaceholderText(QFileInfo(sound.filename).baseName());
+	ui->customTextEdit->setText(sound.customText);
 	ui->soundVolumeSlider->setValue(sound.volume);
 	ui->groupCrop->setChecked(sound.cropEnabled);
 	ui->startSoundValueSpin->setValue(sound.cropStartValue);
@@ -82,6 +85,7 @@ void SoundSettingsQt::initGui(const SoundInfo &sound)
 void SoundSettingsQt::fillFromGui(SoundInfo &sound)
 {
 	sound.filename = ui->filenameEdit->text();
+	sound.customText = ui->customTextEdit->text();
 	sound.volume = ui->soundVolumeSlider->value();
 	sound.cropEnabled = ui->groupCrop->isChecked();
 	sound.cropStartValue = ui->startSoundValueSpin->value();
@@ -124,6 +128,7 @@ void SoundSettingsQt::onBrowsePressed()
 	if(!fn.isNull())
 	{
 		ui->filenameEdit->setText(fn);
+		ui->customTextEdit->setPlaceholderText(QFileInfo(fn).baseName());
 
 		SoundInfo info;
 		fillFromGui(info);

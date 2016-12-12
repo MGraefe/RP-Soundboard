@@ -25,6 +25,7 @@ public:
 
 public:
 	QString filename;
+	QString customText;
 	int volume;
 	bool cropEnabled;
 	int cropStartValue;
