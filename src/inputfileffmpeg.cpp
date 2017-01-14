@@ -15,6 +15,7 @@
 #endif
 
 #include <vector>
+#include <algorithm>
 
 #include "ts3log.h"
 #include "inputfile.h"
@@ -104,7 +105,7 @@ private:
 	int _close();
 	void reset();
 	int getAudioStreamNum() const;
-	int handleDecoded(AVFrame *frame, SampleProducer *sb);
+	int64_t handleDecoded(AVFrame *frame, SampleProducer *sb);
 	int64_t getTargetSamples(int64_t sourceSamples, int64_t sourceSampleRate, int64_t targetSampleRate);
 
 	typedef std::lock_guard<std::mutex> Lock;
@@ -126,6 +127,8 @@ private:
 	int64_t m_convertedSamples;
 	int64_t m_decodedSamplesTargetSR;
 	int64_t m_maxConvertedSamples;
+	int64_t m_nextSeekTimestamp;
+	int64_t m_skipSamples;
 };
 
 //---------------------------------------------------------------
@@ -174,6 +177,8 @@ void InputFileFFmpeg::reset()
 	m_convertedSamples = 0;
 	m_decodedSamplesTargetSR = 0;
 	m_maxConvertedSamples = 0;
+	m_nextSeekTimestamp = 0;
+	m_skipSamples = 0;
 }
 
 
@@ -284,9 +289,12 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 //---------------------------------------------------------------
 int InputFileFFmpeg::seek( double seconds )
 {
-	if(LogFFmpegError(avformat_seek_file(m_fmtCtx, -1, INT64_MIN, (int64_t)(seconds * AV_TIME_BASE), INT64_MAX, 0), "Seeking failed") < 0)
+	AVRational time_base = m_fmtCtx->streams[m_streamIndex]->time_base;
+	int64_t ts = (int64_t)(seconds / time_base.num * time_base.den);
+	if(LogFFmpegError(avformat_seek_file(m_fmtCtx, m_streamIndex, INT64_MIN, ts, ts, 0), "Seeking failed") < 0)
 		return -1;
 	avcodec_flush_buffers(m_codecCtx);
+	m_nextSeekTimestamp = ts;
 	return 0;
 }
 
@@ -304,21 +312,40 @@ int InputFileFFmpeg::close()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
+int64_t InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 {
-	int res = swr_convert(m_swrCtx, &m_outBuf, OUTPUT_BUFFER_COUNT,
+	if (m_nextSeekTimestamp > 0) // Need to skip some samples?
+	{
+		int64_t curTs = av_frame_get_best_effort_timestamp(frame);
+		int64_t tsToSkip = m_nextSeekTimestamp - curTs;
+		if (tsToSkip > 0)
+		{
+			double timeBase = av_q2d(m_fmtCtx->streams[m_streamIndex]->time_base);
+			double secondsToSkip = tsToSkip * timeBase;
+			m_skipSamples = (int)(secondsToSkip * m_outputSamplerate);
+			logInfo("Current timestep is %f but desired is %f, skipping %lli samples",
+				curTs * timeBase, m_nextSeekTimestamp * timeBase, m_skipSamples);
+		}
+		m_nextSeekTimestamp = 0;
+	}
+
+	int64_t res = swr_convert(m_swrCtx, &m_outBuf, OUTPUT_BUFFER_COUNT,
 		frame ? (const uint8_t **)frame->extended_data : NULL,
 		frame ? frame->nb_samples : 0);
 	if(res <= 0)
 		return res;
-	if(m_maxConvertedSamples > 0 && (int64_t)res > (m_maxConvertedSamples - m_convertedSamples))
+	int64_t outSamples = std::max(int64_t(0), res - m_skipSamples);
+	int64_t skippedSamples = res - outSamples;
+	if(m_maxConvertedSamples > 0 && outSamples > (m_maxConvertedSamples - m_convertedSamples))
 	{
-		res = m_maxConvertedSamples - m_convertedSamples;
+		outSamples = m_maxConvertedSamples - m_convertedSamples;
 		m_done = true;
 	}
-	if(res > 0)
-		sb->produce((short*)m_outBuf, res);
-	return res;
+	if(outSamples > 0)
+		sb->produce(((short*)m_outBuf) + (skippedSamples * m_outputChannels), outSamples);
+
+	m_skipSamples -= skippedSamples;
+	return outSamples;
 }
 
 
