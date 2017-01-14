@@ -12,6 +12,7 @@
 #define rpsbsrc__SpeechBubble_H__
 
 #include <QtWidgets/QDialog>
+#include <QColor>
 
 class QLayout;
 class QLabel;
@@ -25,6 +26,9 @@ public:
 	explicit SpeechBubble(QWidget *parent = 0);
 	void setText(const QString &text);
 	void attachTo(QWidget *widget);
+	void setBackgroundColor(const QColor &color);
+	void setClosable(bool closable);
+	void setBubbleStyle(bool bubbleStyle);
 
 protected:
 	void paintEvent(QPaintEvent *evt) override;
@@ -45,6 +49,9 @@ private:
 	int m_tipWidth;
 	int m_tipDistLeft;
 	bool m_mouseOverCloseButton;
+	bool m_closable;
+	bool m_bubbleStyle;
+	QColor m_backgroundColor;
 };
 
 #endif // rpsbsrc__SpeechBubble_H__

@@ -32,6 +32,7 @@
 #include "UpdateChecker.h"
 #include "SoundInfo.h"
 #include "TalkStateManager.h"
+#include "SpeechBubble.h"
 
 
 class ModelObserver_Prog : public ConfigModel::Observer
@@ -45,6 +46,7 @@ static uint64 activeServerId = 1;
 static uint64 playingServerId = 1;
 
 ConfigModel *configModel = NULL;
+SpeechBubble *notConnectedBubble = NULL;
 ConfigQt *configDialog = NULL;
 AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
@@ -111,6 +113,28 @@ Sampler *sb_getSampler()
 
 void sb_enableInterface(bool enabled) 
 {
+	if (!enabled)
+	{
+		if (!notConnectedBubble)
+		{
+			notConnectedBubble = new SpeechBubble(configDialog);
+			notConnectedBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+			notConnectedBubble->setFixedSize(350, 80);
+			notConnectedBubble->setBackgroundColor(QColor(255, 255, 255));
+			notConnectedBubble->setBubbleStyle(false);
+			notConnectedBubble->setClosable(false);
+			notConnectedBubble->setText("You are not connected to a server.\n"
+				"RP Soundboard is disabled until you are connected properly.");
+			notConnectedBubble->attachTo(configDialog);
+			notConnectedBubble->show();
+		}
+	}
+	else if (notConnectedBubble)
+	{
+		delete notConnectedBubble;
+		notConnectedBubble = NULL;
+	}
+
 	configDialog->setEnabled(enabled);
 }
 
@@ -205,10 +229,11 @@ CAPI void sb_openDialog()
 	configDialog->raise();
 	configDialog->activateWindow();
 
-	if (connectionStatusMap[activeServerId] != STATUS_CONNECTION_ESTABLISHED)
-		QMessageBox::information(configDialog, "No server connection",
-		"You are not connected to a server.\n"
-		"RP Soundboard is disabled until you are connected properly.");
+	sb_enableInterface(connectionStatusMap[activeServerId]);
+	//if (connectionStatusMap[activeServerId] != STATUS_CONNECTION_ESTABLISHED)
+	//	QMessageBox::information(configDialog, "No server connection",
+	//	"You are not connected to a server.\n"
+	//	"RP Soundboard is disabled until you are connected properly.");
 }
 
 
