@@ -230,10 +230,6 @@ CAPI void sb_openDialog()
 	configDialog->activateWindow();
 
 	sb_enableInterface(connectionStatusMap[activeServerId]);
-	//if (connectionStatusMap[activeServerId] != STATUS_CONNECTION_ESTABLISHED)
-	//	QMessageBox::information(configDialog, "No server connection",
-	//	"You are not connected to a server.\n"
-	//	"RP Soundboard is disabled until you are connected properly.");
 }
 
 
