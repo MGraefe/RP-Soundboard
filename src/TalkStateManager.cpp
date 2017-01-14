@@ -224,3 +224,15 @@ bool TalkStateManager::setContinuousTransmission(uint64 scHandlerID)
 {
 	return setTalkState(scHandlerID, TS_CONT_TRANS);
 }
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void TalkStateManager::onClientStopsTalking()
+{
+	// If we are in PTT mode and the client lets go of the PTT key while playing a sound, ptt state gets reset to not-talking.
+	// This function checks for that case and sets it again to TS_CONTR_TRANS
+	if (currentTalkState == TS_CONT_TRANS && (previousTalkState == TS_PTT_WITHOUT_VA || previousTalkState == TS_PTT_WITH_VA))
+		setPlayTransMode();
+}

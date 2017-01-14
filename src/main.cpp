@@ -283,3 +283,9 @@ CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key)
 		configDialog->onHotkeyRecordedEvent(keyword, key);
 }
 
+
+CAPI void sb_onStopTalking()
+{
+	tsMgr->onClientStopsTalking();
+}
+

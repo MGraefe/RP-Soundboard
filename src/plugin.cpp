@@ -316,12 +316,12 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
  */
 
 /* Clientlib */
-
+ 
 std::map<uint64, int> clientInputHardwareStateMap;
 void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char * invokerName, const char * invokerUniqueIdentifier)
 {
-	//logDebug("onUpdateClientEvent: serverId = %i, clientId = %i, invokerID = %i, invokerName = \"%s\", invokerUID = \"%s\"",
-	//	(int)serverConnectionHandlerID, (int)clientID, (int)invokerID, invokerName ? invokerName : "NULL", invokerUniqueIdentifier ? invokerUniqueIdentifier : "NULL");
+	logDebug("onUpdateClientEvent: serverId = %i, clientId = %i, invokerID = %i, invokerName = \"%s\", invokerUID = \"%s\"",
+		(int)serverConnectionHandlerID, (int)clientID, (int)invokerID, invokerName ? invokerName : "NULL", invokerUniqueIdentifier ? invokerUniqueIdentifier : "NULL");
 	anyID myId = 0;
 	if (checkError(ts3Functions.getClientID(serverConnectionHandlerID, &myId), "getClientID error"))
 		return;
@@ -341,6 +341,18 @@ void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clien
 		}
 	}
 	clientInputHardwareStateMap[serverConnectionHandlerID] = inputState;
+
+	//static int oldInputDeactivated = -1;
+	//int inputDeactivated = 0;
+	//if (!checkError(ts3Functions.getClientSelfVariableAsInt(serverConnectionHandlerID,
+	//	(size_t)CLIENT_FLAG_TALKING, &inputDeactivated), "getClientSelfVariableAsInt error"))
+	//{
+	//	if (inputDeactivated != oldInputDeactivated)
+	//	{
+	//		logDebug("CLIENT_FLAG_TALKING changed from %i to %i", oldInputDeactivated, inputDeactivated);
+	//		oldInputDeactivated = inputDeactivated;
+	//	}
+	//}
 }
 
 
@@ -426,6 +438,17 @@ void ts3plugin_onHotkeyEvent(const char* keyword)
 void ts3plugin_onHotkeyRecordedEvent(const char* keyword, const char* key)
 {
 	sb_onHotkeyRecordedEvent(keyword, key);
+}
+
+
+void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnectionHandlerID, int status, int isReceivedWhisper, anyID clientID)
+{
+	//logDebug("onTalkStatusChangeEvent status=%i, isReceivedWhisper=%i, clientID=%i", status, isReceivedWhisper, (int)clientID);
+	anyID myId = 0;
+	if (checkError(ts3Functions.getClientID(serverConnectionHandlerID, &myId), "getClientID error"))
+		return;
+	if (clientID == myId && status == 0 && isReceivedWhisper == 0)
+		sb_onStopTalking();
 }
 
 

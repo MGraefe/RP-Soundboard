@@ -34,6 +34,7 @@ public:
 	bool setPushToTalk(uint64 scHandlerID, bool voiceActivation);
 	bool setVoiceActivation(uint64 scHandlerID);
 	bool setContinuousTransmission(uint64 scHandlerID);
+	void onClientStopsTalking();
 
 private:
 	void setTalkTransMode();
