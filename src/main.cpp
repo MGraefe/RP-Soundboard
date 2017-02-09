@@ -19,6 +19,7 @@
 #include <cstdarg>
 #include <map>
 
+#include <QObject>
 #include <QtWidgets/qmessagebox.h>
 #include <QtCore/QString>
 
@@ -33,7 +34,6 @@
 #include "SoundInfo.h"
 #include "TalkStateManager.h"
 #include "SpeechBubble.h"
-
 
 class ModelObserver_Prog : public ConfigModel::Observer
 {
@@ -145,15 +145,16 @@ CAPI void sb_init()
 #endif
 
 	InitFFmpegLibrary();
-	
+
 	configModel = new ConfigModel();
 	configModel->readConfig();
 
+    /* This if first QObject instantiated, it will load the resources */
 	sampler = new Sampler();
 	sampler->init();
 
 	tsMgr = new TalkStateManager();
-	QObject::connect(sampler, &Sampler::onStartPlaying,   tsMgr, &TalkStateManager::onStartPlaying, Qt::QueuedConnection);
+    QObject::connect(sampler, &Sampler::onStartPlaying,   tsMgr, &TalkStateManager::onStartPlaying, Qt::QueuedConnection);
 	QObject::connect(sampler, &Sampler::onStopPlaying,    tsMgr, &TalkStateManager::onStopPlaying, Qt::QueuedConnection);
 	QObject::connect(sampler, &Sampler::onPausePlaying,   tsMgr, &TalkStateManager::onPauseSound, Qt::QueuedConnection);
 	QObject::connect(sampler, &Sampler::onUnpausePlaying, tsMgr, &TalkStateManager::onUnpauseSound, Qt::QueuedConnection);
@@ -262,11 +263,19 @@ CAPI void sb_pauseButtonPressed()
 
 CAPI void sb_playButton(int btn)
 {
-	const SoundInfo *sound = configModel->getSoundInfo(btn);
-	if(sound)
-		sb_playFile(*sound);
+    if ((NULL != configDialog) && (configDialog->EnableHotkeys()))
+    {
+        const SoundInfo *sound = configModel->getSoundInfo(btn);
+        if (sound)
+            sb_playFile(*sound);
+    }
 }
 
+CAPI void sb_setConfig(int cfg)
+{
+    if (configDialog)
+        configDialog->setConfiguration(cfg);
+}
 
 CAPI void sb_openAbout()
 {

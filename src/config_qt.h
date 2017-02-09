@@ -46,8 +46,12 @@ public:
 
 	static QString getShortcutString(const char *internalName);
 	static QString getShortcutString(size_t buttonId);
+    static QString getConfigShortcutString(int cfg);
 	static void openHotkeySetDialog(size_t buttonId, QWidget *parent);
 	void onHotkeyRecordedEvent(const char *keyword, const char *key);
+
+    void setConfiguration(int cfg);
+    bool EnableHotkeys();
 
 protected:
 	virtual void closeEvent(QCloseEvent * evt) override;
@@ -76,6 +80,16 @@ private slots:
 	void onButtonFileDropped(const QList<QUrl> &urls);
 	void onButtonPausePressed();
 	void onButtonDroppedOnButton(SoundButton *button);
+
+    void onSetConfig1();
+    void onSetConfig2();
+    void onSetConfig3();
+    void onSetConfig4();
+
+    void onHotKey1();
+    void onHotKey2();
+    void onHotKey3();
+    void onHotKey4();
 
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
@@ -121,8 +135,9 @@ private:
 	QMenu m_buttonContextMenu;
 	QPointer<SpeechBubble> m_buttonBubble;
 	QAction *actSetHotkey;
-	ExpandableSection *settingsSection;
-	QTimer *playingIconTimer;
+    ExpandableSection *settingsSection;
+    ExpandableSection *fileSection;
+    QTimer *playingIconTimer;
 	int playingIconIndex;
 	QIcon m_pauseIcon;
 	QIcon m_playIcon;

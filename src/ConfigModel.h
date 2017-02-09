@@ -92,14 +92,23 @@ public:
 	void addObserver(Observer *obs);
 	void remObserver(Observer *obs);
 
+    void setConfiguration(int config);
+
 private:
 	void notify(notifications_e what, int data);
-	void fillInitialSounds();
+	void fillInitialSounds(std::vector<SoundInfo> *sounds);
+    void readConfiguration(QSettings & settings, const QString &name, std::vector<SoundInfo> *sounds);
+    void writeConfiguration(QSettings & settings, const QString &name, std::vector<SoundInfo> *sounds);
 
 	std::vector<Observer*> m_obs;
-	std::vector<SoundInfo> m_sounds;
+	std::vector<SoundInfo> * m_sounds;
 
-	int m_rows;
+    std::vector<SoundInfo> m_sounds1;
+    std::vector<SoundInfo> m_sounds2;
+    std::vector<SoundInfo> m_sounds3;
+    std::vector<SoundInfo> m_sounds4;
+
+    int m_rows;
 	int m_cols;
 	int m_volume;
 	bool m_playbackLocal;

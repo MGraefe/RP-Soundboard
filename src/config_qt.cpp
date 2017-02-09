@@ -46,18 +46,26 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	ui(new Ui::ConfigQt),
 	m_model(model),
 	m_modelObserver(*this),
-	m_buttonBubble(nullptr),
-	m_pauseIcon(":/icon/img/pausebutton_32.png"),
-	m_playIcon(":/icon/img/playarrow_32.png")
+	m_buttonBubble(nullptr)
 {
-	ui->setupUi(this);
+    /* Ensure resources are loaded */
+    Q_INIT_RESOURCE(qtres);
+
+    m_pauseIcon = QIcon(":/icon/img/pausebutton_32.png");
+    m_playIcon = QIcon(":/icon/img/playarrow_32.png");
+
+    ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
 
-	settingsSection = new ExpandableSection("Settings", 200, this);
-	settingsSection->setContentLayout(*ui->settingsWidget->layout());
-	layout()->addWidget(settingsSection);
+    settingsSection = new ExpandableSection("Settings", 200, this);
+    settingsSection->setContentLayout(*ui->settingsWidget->layout());
+    layout()->addWidget(settingsSection);
 
-	QAction *actChooseFile = new QAction("Choose File", this);
+    fileSection = new ExpandableSection("Configurations", 200, this);
+    fileSection->setContentLayout(*ui->fileWidget->layout());
+    layout()->addWidget(fileSection);
+
+    QAction *actChooseFile = new QAction("Choose File", this);
 	actChooseFile->setData((int)BC_CHOOSE);
 	m_buttonContextMenu.addAction(actChooseFile);
 
@@ -91,6 +99,17 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
 	connect(ui->cb_show_hotkeys_on_buttons, SIGNAL(clicked(bool)), this, SLOT(onUpdateShowHotkeysOnButtons(bool)));
 
+    /* Configuration UI */
+    connect(ui->radioConfig1, SIGNAL(released()), this, SLOT(onSetConfig1()));
+    connect(ui->radioConfig2, SIGNAL(released()), this, SLOT(onSetConfig2()));
+    connect(ui->radioConfig3, SIGNAL(released()), this, SLOT(onSetConfig3()));
+    connect(ui->radioConfig4, SIGNAL(released()), this, SLOT(onSetConfig4()));
+
+    connect(ui->pushFile1, SIGNAL(released()), this, SLOT(onHotKey1()));
+    connect(ui->pushFile2, SIGNAL(released()), this, SLOT(onHotKey2()));
+    connect(ui->pushFile3, SIGNAL(released()), this, SLOT(onHotKey3()));
+    connect(ui->pushFile4, SIGNAL(released()), this, SLOT(onHotKey4()));
+
 	ui->playingIconLabel->hide();
 	ui->playingLabel->setText("");
 	playingIconTimer = new QTimer(this);
@@ -106,8 +125,80 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	createBubbles();
 
 	m_model->addObserver(&m_modelObserver);
+
+    /* Force configuration 1 */
+    onSetConfig1();
 }
 
+void ConfigQt::setConfiguration(int cfg)
+{
+    switch(cfg)
+    {
+    case 1:
+        ui->radioConfig1->setChecked(true);
+        onSetConfig1();
+        break;
+
+    case 2:
+        ui->radioConfig2->setChecked(true);
+        onSetConfig2();
+        break;
+
+    case 3:
+        ui->radioConfig3->setChecked(true);
+        onSetConfig3();
+        break;
+
+    case 4:
+        ui->radioConfig4->setChecked(true);
+        onSetConfig4();
+        break;
+    }
+}
+
+void ConfigQt::onSetConfig1()
+{
+    m_model->setConfiguration(1);
+    ui->labelStatus->setText(QString("Configuration 1"));
+}
+
+void ConfigQt::onSetConfig2()
+{
+    m_model->setConfiguration(2);
+    ui->labelStatus->setText(QString("Configuration 2"));
+}
+
+void ConfigQt::onSetConfig3()
+{
+    m_model->setConfiguration(3);
+    ui->labelStatus->setText(QString("Configuration 3"));
+}
+
+void ConfigQt::onSetConfig4()
+{
+    m_model->setConfiguration(4);
+    ui->labelStatus->setText(QString("Configuration 4"));
+}
+
+void ConfigQt::onHotKey1()
+{
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_1", 0, this);
+}
+
+void ConfigQt::onHotKey2()
+{
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_2", 0, this);
+}
+
+void ConfigQt::onHotKey3()
+{
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_3", 0, this);
+}
+
+void ConfigQt::onHotKey4()
+{
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_4", 0, this);
+}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -245,6 +336,16 @@ void ConfigQt::createButtons()
 		m_buttonBubble->attachTo(m_buttons[0].play);
 }
 
+bool ConfigQt::EnableHotkeys()
+{
+    if (ui->checkDisable->isChecked())
+    {
+        return false;
+    }
+
+    /* Allow hotkey sound playback */
+    return true;
+}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -569,6 +670,7 @@ void ConfigQt::openHotkeySetDialog( size_t buttonId, QWidget *parent )
 QString ConfigQt::getShortcutString(const char *internalName)
 {
 	char *hotkeyName = new char[128];
+    hotkeyName[0] = 0;
 	unsigned int res = ts3Functions.getHotkeyFromKeyword(
 		getPluginID(), &internalName, &hotkeyName, 1, 128);
 	QString name = res == 0 ? QString(hotkeyName) : QString();
@@ -588,19 +690,51 @@ QString ConfigQt::getShortcutString(size_t buttonId)
 	return getShortcutString(intName);
 }
 
+QString ConfigQt::getConfigShortcutString(int cfg)
+{
+    char intName[16];
+    sprintf(intName, "config_%i", cfg);
+    QString shortcut = getShortcutString(intName);
+    if (!shortcut.isEmpty())
+        return shortcut;
+
+    return QString("no hotkey");
+}
+
 
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
 void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 {
-	QString sKeyword = keyword;
-	QString sKey = key;
-	emit hotkeyRecordedEvent(sKey, sKeyword);
+    QString sKey = key;
 
-	if (m_model->getShowHotkeysOnButtons())
-		for(size_t i = 0; i < m_buttons.size(); i++)
-			updateButtonText(i);
+    if (0 == strcmp(keyword, "config_1"))
+    {
+        ui->pushFile1->setText(sKey);
+    }
+    else if (0 == strcmp(keyword, "config_2"))
+    {
+        ui->pushFile2->setText(sKey);
+    }
+    else if (0 == strcmp(keyword, "config_3"))
+    {
+        ui->pushFile3->setText(sKey);
+    }
+    else if (0 == strcmp(keyword, "config_4"))
+    {
+        ui->pushFile4->setText(sKey);
+    }
+    else
+    {
+        QString sKeyword = keyword;
+
+        emit hotkeyRecordedEvent(sKey, sKeyword);
+
+        if (m_model->getShowHotkeysOnButtons())
+            for (size_t i = 0; i < m_buttons.size(); i++)
+                updateButtonText(i);
+    }
 }
 
 
@@ -622,6 +756,12 @@ void ConfigQt::showEvent(QShowEvent *evt)
 
 	for(size_t i = 0; i < m_buttons.size(); i++)
 		updateButtonText(i);
+
+    /* Set configuration hotkeys */
+    ui->pushFile1->setText(getConfigShortcutString(1));
+    ui->pushFile2->setText(getConfigShortcutString(2));
+    ui->pushFile3->setText(getConfigShortcutString(3));
+    ui->pushFile4->setText(getConfigShortcutString(4));
 }
 
 
@@ -744,6 +884,8 @@ void ConfigQt::onButtonDroppedOnButton(SoundButton *button)
 //---------------------------------------------------------------
 void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
 {
+    //p.ui->labelStatus->setText(QString("Notify Code: %1").arg((int)what));
+
 	switch(what)
 	{
 	case ConfigModel::NOTIFY_SET_ROWS:

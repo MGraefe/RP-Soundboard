@@ -424,6 +424,10 @@ void ts3plugin_onHotkeyEvent(const char* keyword)
 	{
 		sb_playButton(btn - 1);
 	}
+    else if (sscanf(keyword, "config_%i", &btn) > 0)
+    {
+        sb_setConfig(btn);
+    }
 	else if(strcmp(keyword, "stop_all") == 0)
 	{
 		sb_stopPlayback();

@@ -59,7 +59,10 @@ Sampler::Sampler() :
 	m_globalDbSetting(-1.0),
 	m_soundDbSetting(0.0)
 {
-	assert(m_state.is_lock_free());
+    /* Ensure resources are loaded */
+    Q_INIT_RESOURCE(qtres);
+
+    assert(m_state.is_lock_free());
 }
 
 

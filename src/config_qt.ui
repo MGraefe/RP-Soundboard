@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>602</width>
-    <height>411</height>
+    <height>327</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -65,6 +65,17 @@
       <property name="bottomMargin">
        <number>3</number>
       </property>
+      <item>
+       <widget class="QCheckBox" name="checkDisable">
+        <property name="text">
+         <string>Disable
+Hotkeys</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <property name="spacing">
@@ -150,6 +161,13 @@
         </property>
         <property name="text">
          <string>playing label</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="labelStatus">
+        <property name="text">
+         <string>TextLabel</string>
         </property>
        </widget>
       </item>
@@ -316,6 +334,107 @@
          <widget class="QCheckBox" name="cb_show_hotkeys_on_buttons">
           <property name="text">
            <string>Show hotkeys on buttons</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="fileWidget" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QHBoxLayout" name="fileLayout">
+      <property name="leftMargin">
+       <number>10</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="label_4">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Sound Configurations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This section allows four different sound board configurations. Use the &amp;quot;Activate&amp;quot; button to make a configuration active. When active, the sound board buttons will match that configuration. Changing sounds for a button will change the active configuration.&lt;/p&gt;&lt;p&gt;The Hot Key buttons can be used to bind a hot-key to a configuration.  The hot key will make the corresponding configuration active..&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QRadioButton" name="radioConfig1">
+          <property name="text">
+           <string>Config 1</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioConfig2">
+          <property name="text">
+           <string>Config 2</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioConfig3">
+          <property name="text">
+           <string>Config 3</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioConfig4">
+          <property name="text">
+           <string>Config 4</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="pushFile1">
+          <property name="text">
+           <string>no hotkey</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushFile2">
+          <property name="text">
+           <string>no hotkey</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushFile3">
+          <property name="text">
+           <string>no hotkey</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushFile4">
+          <property name="text">
+           <string>no hotkey</string>
           </property>
          </widget>
         </item>

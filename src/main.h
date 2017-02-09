@@ -35,6 +35,7 @@ CAPI void sb_onServerChange(uint64 serverID);
 CAPI void sb_saveConfig();
 CAPI void sb_openDialog();
 CAPI void sb_playButton(int btn);
+CAPI void sb_setConfig(int cfg);
 CAPI void sb_openAbout();
 CAPI void sb_pauseSound();
 CAPI void sb_unpauseSound();
