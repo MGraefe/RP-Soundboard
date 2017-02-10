@@ -45,9 +45,15 @@ ConfigModel::ConfigModel()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::readConfig()
+void ConfigModel::readConfig(const char * file)
 {
-	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
+    QString path;
+    if (NULL == file)
+        path = GetFullConfigPath();
+    else
+        path = QString(file);
+
+    QSettings settings(path, QSettings::IniFormat);
 
     readConfiguration(settings, "files", &m_sounds1);
     readConfiguration(settings, "files2", &m_sounds2);
@@ -68,6 +74,38 @@ void ConfigModel::readConfig()
 	notifyAllEvents();
 
 }
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::writeConfig(const char * file)
+{
+    QString path;
+    if (NULL == file)
+        path = GetFullConfigPath();
+    else
+        path = QString(file);
+
+    QSettings settings(path, QSettings::IniFormat);
+
+    writeConfiguration(settings, "files", &m_sounds1);
+    writeConfiguration(settings, "files2", &m_sounds2);
+    writeConfiguration(settings, "files3", &m_sounds3);
+    writeConfiguration(settings, "files4", &m_sounds4);
+    settings.setValue("config_build", buildinfo_getBuildNumber());
+    settings.setValue("num_rows", m_rows);
+    settings.setValue("num_cols", m_cols);
+    settings.setValue("volume", m_volume);
+    settings.setValue("playback_local", m_playbackLocal);
+    settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
+    settings.setValue("window_width", m_windowWidth);
+    settings.setValue("window_height", m_windowHeight);
+    settings.setValue("bubble_buttons_build", m_bubbleButtonsBuild);
+    settings.setValue("bubble_stop_build", m_bubbleStopBuild);
+    settings.setValue("bubble_cols_build", m_bubbleColsBuild);
+    settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
+}
+
 
 void ConfigModel::readConfiguration(QSettings & settings, const QString &name, std::vector<SoundInfo> *sounds)
 {
@@ -121,32 +159,6 @@ void ConfigModel::setConfiguration(int config)
     /* Tell observers that our data changed */
     notifyAllEvents();
 }
-
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-void ConfigModel::writeConfig()
-{
-	QSettings settings(GetFullConfigPath(), QSettings::IniFormat);
-
-    writeConfiguration(settings, "files", &m_sounds1);
-    writeConfiguration(settings, "files2", &m_sounds2);
-    writeConfiguration(settings, "files3", &m_sounds3);
-    writeConfiguration(settings, "files4", &m_sounds4);
-    settings.setValue("config_build", buildinfo_getBuildNumber());
-	settings.setValue("num_rows", m_rows);
-	settings.setValue("num_cols", m_cols);
-	settings.setValue("volume", m_volume);
-	settings.setValue("playback_local", m_playbackLocal);
-	settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
-	settings.setValue("window_width", m_windowWidth);
-	settings.setValue("window_height", m_windowHeight);
-	settings.setValue("bubble_buttons_build", m_bubbleButtonsBuild);
-	settings.setValue("bubble_stop_build", m_bubbleStopBuild);
-	settings.setValue("bubble_cols_build", m_bubbleColsBuild);
-	settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
-}
-
 
 //---------------------------------------------------------------
 // Purpose: 

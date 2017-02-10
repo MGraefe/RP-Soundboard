@@ -110,7 +110,11 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
     connect(ui->pushFile3, SIGNAL(released()), this, SLOT(onHotKey3()));
     connect(ui->pushFile4, SIGNAL(released()), this, SLOT(onHotKey4()));
 
-	ui->playingIconLabel->hide();
+    /* Load/Save Model */
+    connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
+    connect(ui->pushSave, SIGNAL(released()), this, SLOT(onSaveModel()));
+    
+    ui->playingIconLabel->hide();
 	ui->playingLabel->setText("");
 	playingIconTimer = new QTimer(this);
 	playingIconTimer->setInterval(150);
@@ -209,6 +213,21 @@ ConfigQt::~ConfigQt()
 	delete ui;
 }
 
+void ConfigQt::onSaveModel()
+{
+    QString fn = QFileDialog::getSaveFileName(this, tr("Choose File to Save"), QString(), tr("Ini Files (*.ini)"));
+    if (fn.isNull())
+        return;
+    m_model->writeConfig(fn.toLatin1().constData());
+}
+
+void ConfigQt::onLoadModel()
+{
+    QString fn = QFileDialog::getOpenFileName(this, tr("Choose File to Load"), QString(), tr("Ini Files (*.ini)"));
+    if (fn.isNull())
+        return;
+    m_model->readConfig(fn.toLatin1().constData());
+}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -596,6 +615,7 @@ void ConfigQt::onStartPlayingSound(bool preview, QString filename)
 	ui->b_stop->setEnabled(true);
 	ui->b_pause->setEnabled(true);
 	ui->b_pause->setIcon(m_pauseIcon);
+    ui->b_pause->setText(tr("Pause"));
 }
 
 
@@ -611,6 +631,7 @@ void ConfigQt::onStopPlayingSound()
 	//ui->b_stop->setEnabled(false);
 	//ui->b_pause->setEnabled(false);
 	ui->b_pause->setIcon(m_pauseIcon);
+    ui->b_pause->setText(tr("Pause"));
 }
 
 
@@ -621,6 +642,7 @@ void ConfigQt::onPausePlayingSound()
 {
 	playingIconTimer->stop();
 	ui->b_pause->setIcon(m_playIcon);
+    ui->b_pause->setText(tr("Play"));
 }
 
 
@@ -631,6 +653,7 @@ void ConfigQt::onUnpausePlayingSound()
 {
 	playingIconTimer->start();
 	ui->b_pause->setIcon(m_pauseIcon);
+    ui->b_pause->setText(tr("Pause"));
 }
 
 

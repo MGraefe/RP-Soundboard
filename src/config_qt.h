@@ -91,6 +91,9 @@ private slots:
     void onHotKey3();
     void onHotKey4();
 
+    void onSaveModel();
+    void onLoadModel();
+
 signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
 

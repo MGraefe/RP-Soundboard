@@ -44,11 +44,10 @@ public:
 public:
 	ConfigModel();
 
-	void readConfig();
+	void readConfig(const char * file = NULL);
+    void writeConfig(const char * file = NULL);
 
 	void notifyAllEvents();
-
-	void writeConfig();
 	
 	static QString GetConfigPath();
 	static QString GetFullConfigPath();
