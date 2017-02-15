@@ -83,6 +83,21 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 	createButtons();
 
+	for (int i = 0; i < NUM_CONFIGS; i++)
+	{
+		m_configRadioButtons[i] = new QRadioButton(this);
+		m_configRadioButtons[i]->setText(QString("Config %1").arg(i + 1));
+		m_configRadioButtons[i]->setProperty("configId", i);
+		ui->configRadioLayout->addWidget(m_configRadioButtons[i]);
+		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onSetConfig));
+
+		m_configHotkeyButtons[i] = new QPushButton(this);
+		m_configHotkeyButtons[i]->setText(getConfigShortcutString(i));
+		m_configHotkeyButtons[i]->setProperty("configId", i);
+		ui->configHotkeyLayout->addWidget(m_configHotkeyButtons[i]);
+		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onConfigHotkey));
+	}
+
 	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui->b_pause->setContextMenuPolicy(Qt::CustomContextMenu);
 	
@@ -98,17 +113,6 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
 	connect(ui->cb_show_hotkeys_on_buttons, SIGNAL(clicked(bool)), this, SLOT(onUpdateShowHotkeysOnButtons(bool)));
-
-    /* Configuration UI */
-    connect(ui->radioConfig1, SIGNAL(released()), this, SLOT(onSetConfig1()));
-    connect(ui->radioConfig2, SIGNAL(released()), this, SLOT(onSetConfig2()));
-    connect(ui->radioConfig3, SIGNAL(released()), this, SLOT(onSetConfig3()));
-    connect(ui->radioConfig4, SIGNAL(released()), this, SLOT(onSetConfig4()));
-
-    connect(ui->pushFile1, SIGNAL(released()), this, SLOT(onHotKey1()));
-    connect(ui->pushFile2, SIGNAL(released()), this, SLOT(onHotKey2()));
-    connect(ui->pushFile3, SIGNAL(released()), this, SLOT(onHotKey3()));
-    connect(ui->pushFile4, SIGNAL(released()), this, SLOT(onHotKey4()));
 
     /* Load/Save Model */
     connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
@@ -130,87 +134,34 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 	m_model->addObserver(&m_modelObserver);
 
-    /* Force configuration 1 */
-    onSetConfig1();
+    /* Force configuration 0 */
+    setConfiguration(0);
 }
 
 void ConfigQt::setConfiguration(int cfg)
 {
-    switch(cfg)
-    {
-    case 0:
-        ui->radioConfig1->setChecked(true);
-        onSetConfig0();
-        break;
-
-    case 1:
-        ui->radioConfig2->setChecked(true);
-        onSetConfig1();
-        break;
-
-    case 2:
-        ui->radioConfig3->setChecked(true);
-        onSetConfig2();
-        break;
-
-    case 3:
-        ui->radioConfig4->setChecked(true);
-        onSetConfig3();
-        break;
-    }
+	qobject_cast<QRadioButton*>(ui->configRadioLayout->children()[cfg])->setChecked(true);
+	m_model->setConfiguration(cfg);
+	ui->labelStatus->setText(QString("Configuration %1").arg(cfg + 1));
 }
 
-void ConfigQt::onSetConfig0()
+void ConfigQt::onSetConfig()
 {
-    m_model->setConfiguration(0);
-    ui->labelStatus->setText(QString("Configuration 1"));
+	QRadioButton *button = qobject_cast<QRadioButton*>(sender());
+	int configId = button->property("configId").toInt();
+	setConfiguration(configId);
 }
 
-void ConfigQt::onSetConfig1()
+void ConfigQt::onConfigHotkey()
 {
-    m_model->setConfiguration(1);
-    ui->labelStatus->setText(QString("Configuration 2"));
-}
+	QRadioButton *button = qobject_cast<QRadioButton*>(sender());
+	int configId = button->property("configId").toInt();
 
-void ConfigQt::onSetConfig2()
-{
-    m_model->setConfiguration(2);
-    ui->labelStatus->setText(QString("Configuration 3"));
-}
-
-void ConfigQt::onSetConfig3()
-{
-    m_model->setConfiguration(3);
-    ui->labelStatus->setText(QString("Configuration 4"));
-}
-
-void ConfigQt::onConfigHotKey0()
-{
 	char buf[16];
-	sb_getInternalConfigHotkeyName(0, buf);
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
+	sb_getInternalConfigHotkeyName(configId, buf);
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, configId, this);
 }
 
-void ConfigQt::onConfigHotKey1()
-{
-	char buf[16];
-	sb_getInternalConfigHotkeyName(1, buf);
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
-}
-
-void ConfigQt::onConfigHotKey2()
-{
-	char buf[16];
-	sb_getInternalConfigHotkeyName(2, buf);
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
-}
-
-void ConfigQt::onConfigHotKey3()
-{
-	char buf[16];
-	sb_getInternalConfigHotkeyName(3, buf);
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
-}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -736,22 +687,11 @@ void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 {
     QString sKey = key;
 
-    if (0 == strcmp(keyword, "config_1"))
-    {
-        ui->pushFile1->setText(sKey);
-    }
-    else if (0 == strcmp(keyword, "config_2"))
-    {
-        ui->pushFile2->setText(sKey);
-    }
-    else if (0 == strcmp(keyword, "config_3"))
-    {
-        ui->pushFile3->setText(sKey);
-    }
-    else if (0 == strcmp(keyword, "config_4"))
-    {
-        ui->pushFile4->setText(sKey);
-    }
+	int configId = -1;
+	if (sscanf(keyword, "config_%1", &configId) == 1)
+	{
+		qobject_cast<QPushButton*>(ui->configHotkeyLayout->children()[configId])->setText(sKey);
+	}
     else
     {
         QString sKeyword = keyword;
@@ -783,12 +723,6 @@ void ConfigQt::showEvent(QShowEvent *evt)
 
 	for(size_t i = 0; i < m_buttons.size(); i++)
 		updateButtonText(i);
-
-    /* Set configuration hotkeys */
-    ui->pushFile1->setText(getConfigShortcutString(1));
-    ui->pushFile2->setText(getConfigShortcutString(2));
-    ui->pushFile3->setText(getConfigShortcutString(3));
-    ui->pushFile4->setText(getConfigShortcutString(4));
 }
 
 

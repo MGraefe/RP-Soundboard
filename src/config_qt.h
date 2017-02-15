@@ -20,6 +20,7 @@
 #include <QTimer>
 #include <QList>
 #include <QUrl>
+#include <QRadioButton>
 
 
 #include "ui_config_qt.h"
@@ -81,15 +82,9 @@ private slots:
 	void onButtonPausePressed();
 	void onButtonDroppedOnButton(SoundButton *button);
 
-    void onSetConfig0();
-    void onSetConfig1();
-    void onSetConfig2();
-    void onSetConfig3();
+    void onSetConfig();
+    void onConfigHotkey();
 
-    void onConfigHotKey0();
-    void onConfigHotKey1();
-    void onConfigHotKey2();
-    void onConfigHotKey3();
 
     void onSaveModel();
     void onLoadModel();
@@ -144,6 +139,8 @@ private:
 	int playingIconIndex;
 	QIcon m_pauseIcon;
 	QIcon m_playIcon;
+	std::array<QRadioButton*, NUM_CONFIGS> m_configRadioButtons;
+	std::array<QPushButton*, NUM_CONFIGS> m_configHotkeyButtons;
 };
 
 #endif // rpsbsrc__config_qt_H__

@@ -405,73 +405,13 @@ Hotkeys</string>
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QRadioButton" name="radioConfig1">
-          <property name="text">
-           <string>Config 1</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioConfig2">
-          <property name="text">
-           <string>Config 2</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioConfig3">
-          <property name="text">
-           <string>Config 3</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QRadioButton" name="radioConfig4">
-          <property name="text">
-           <string>Config 4</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <layout class="QVBoxLayout" name="configRadioLayout"/>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
+       <layout class="QVBoxLayout" name="configHotkeyLayout">
         <property name="leftMargin">
          <number>0</number>
         </property>
-        <item>
-         <widget class="QPushButton" name="pushFile1">
-          <property name="text">
-           <string>no hotkey</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushFile2">
-          <property name="text">
-           <string>no hotkey</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushFile3">
-          <property name="text">
-           <string>no hotkey</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushFile4">
-          <property name="text">
-           <string>no hotkey</string>
-          </property>
-         </widget>
-        </item>
        </layout>
       </item>
      </layout>
