@@ -37,8 +37,7 @@ ConfigModel::ConfigModel()
 
 	m_showHotkeysOnButtons = false;
 
-    /* Default to configuration 1 */
-    m_sounds = &m_sounds1;
+    m_activeConfig = 0;
 }
 
 
@@ -55,10 +54,9 @@ void ConfigModel::readConfig(const QString &file)
 
     QSettings settings(path, QSettings::IniFormat);
 
-    readConfiguration(settings, "files", &m_sounds1);
-    readConfiguration(settings, "files2", &m_sounds2);
-    readConfiguration(settings, "files3", &m_sounds3);
-    readConfiguration(settings, "files4", &m_sounds4);
+	for (int i = 0; i < NUM_CONFIGS; i++)
+		m_sounds[i] = readConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i+1));
+
     m_rows = settings.value("num_rows", 2).toInt();
 	m_cols = settings.value("num_cols", 5).toInt();
 	m_volume = settings.value("volume", 50).toInt();
@@ -72,7 +70,6 @@ void ConfigModel::readConfig(const QString &file)
 	m_showHotkeysOnButtons = settings.value("show_hotkeys_on_buttons", false).toBool();
 
 	notifyAllEvents();
-
 }
 
 //---------------------------------------------------------------
@@ -88,10 +85,6 @@ void ConfigModel::writeConfig(const QString &file)
 
     QSettings settings(path, QSettings::IniFormat);
 
-    writeConfiguration(settings, "files", &m_sounds1);
-    writeConfiguration(settings, "files2", &m_sounds2);
-    writeConfiguration(settings, "files3", &m_sounds3);
-    writeConfiguration(settings, "files4", &m_sounds4);
     settings.setValue("config_build", buildinfo_getBuildNumber());
     settings.setValue("num_rows", m_rows);
     settings.setValue("num_cols", m_cols);
@@ -104,57 +97,47 @@ void ConfigModel::writeConfig(const QString &file)
     settings.setValue("bubble_stop_build", m_bubbleStopBuild);
     settings.setValue("bubble_cols_build", m_bubbleColsBuild);
     settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
+
+	for (int i = 0; i < NUM_CONFIGS; i++)
+		writeConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i + 1), m_sounds[i]);
 }
 
 
-void ConfigModel::readConfiguration(QSettings & settings, const QString &name, std::vector<SoundInfo> *sounds)
+std::vector<SoundInfo> ConfigModel::readConfiguration(QSettings &settings, const QString &name)
 {
+	std::vector<SoundInfo> sounds;
     int size = settings.beginReadArray(name);
     if (size == 0)
-        fillInitialSounds(sounds);
+        sounds = getInitialSounds();
     else
     {
-        sounds->resize(size);
+        sounds.resize(size);
         for (int i = 0; i < size; i++)
         {
             settings.setArrayIndex(i);
-            (*sounds)[i].readFromConfig(settings);
+            sounds[i].readFromConfig(settings);
         }
     }
     settings.endArray();
+	return sounds;
 }
 
-void ConfigModel::writeConfiguration(QSettings & settings, const QString &name, std::vector<SoundInfo> *sounds)
+
+void ConfigModel::writeConfiguration(QSettings & settings, const QString &name, const std::vector<SoundInfo> &sounds)
 {
     settings.beginWriteArray(name);
-    for (int i = 0; i < sounds->size(); i++)
+    for (int i = 0; i < sounds.size(); i++)
     {
         settings.setArrayIndex(i);
-        (*sounds)[i].saveToConfig(settings);
+        sounds[i].saveToConfig(settings);
     }
     settings.endArray();
 }
 
+
 void ConfigModel::setConfiguration(int config)
 {
-    switch (config)
-    {
-    case 1:
-        m_sounds = &m_sounds1;
-        break;
-
-    case 2:
-        m_sounds = &m_sounds2;
-        break;
-
-    case 3:
-        m_sounds = &m_sounds3;
-        break;
-
-    case 4:
-        m_sounds = &m_sounds4;
-        break;
-    }
+	m_activeConfig = config;
 
     /* Tell observers that our data changed */
     notifyAllEvents();
@@ -165,8 +148,8 @@ void ConfigModel::setConfiguration(int config)
 //---------------------------------------------------------------
 QString ConfigModel::getFileName( int itemId ) const
 {
-	if(itemId >= 0 && itemId < m_sounds->size())
-		return (*m_sounds)[itemId].filename;
+	if(itemId >= 0 && itemId < sounds().size())
+		return sounds()[itemId].filename;
 	return QString();
 }
 
@@ -178,9 +161,9 @@ void ConfigModel::setFileName( int itemId, const QString &fn )
 {
 	if(itemId >= 0)
 	{
-		if(itemId < 1000 && itemId >= m_sounds->size())
-			m_sounds->resize(itemId + 1);
-		(*m_sounds)[itemId].filename = fn;
+		if(itemId < 1000 && itemId >= sounds().size())
+			sounds().resize(itemId + 1);
+		sounds()[itemId].filename = fn;
 		writeConfig();
 		notify(NOTIFY_SET_SOUND, itemId);
 	}
@@ -192,8 +175,8 @@ void ConfigModel::setFileName( int itemId, const QString &fn )
 //---------------------------------------------------------------
 const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
 {
-	if(itemId >= 0 && itemId < m_sounds->size())
-		return &(*m_sounds)[itemId];
+	if(itemId >= 0 && itemId < sounds().size())
+		return &sounds()[itemId];
 	return NULL;
 }
 
@@ -203,9 +186,9 @@ const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
 //---------------------------------------------------------------
 void ConfigModel::setSoundInfo( int itemId, const SoundInfo &info )
 {
-	if(itemId < 1000 && itemId >= m_sounds->size())
-		m_sounds->resize(itemId + 1);
-	(*m_sounds)[itemId] = info;
+	if(itemId < 1000 && itemId >= sounds().size())
+		sounds().resize(itemId + 1);
+	sounds()[itemId] = info;
 	writeConfig();
 	notify(NOTIFY_SET_SOUND, itemId);
 }
@@ -398,12 +381,8 @@ void ConfigModel::setBubbleColsBuild(int build)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::fillInitialSounds(std::vector<SoundInfo> *sounds)
+std::vector<SoundInfo> ConfigModel::getInitialSounds()
 {
-    /* Temporarily assign sounds to the active sound reference */
-    std::vector<SoundInfo> *temp_sounds = m_sounds;
-    m_sounds = sounds;
-
 	char* pluginPath = (char*)malloc(PATH_BUFSIZE);
 	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, getPluginID());
 	QString fullPath = QString::fromUtf8(pluginPath);
@@ -421,11 +400,14 @@ void ConfigModel::fillInitialSounds(std::vector<SoundInfo> *sounds)
 		NULL,
 	};
 
-	for(int i = 0; files[i] != NULL; i++)
-		setFileName(i, fullPath + files[i]);
-
-    /* Restore active sound reference */
-    m_sounds = temp_sounds;
+	std::vector<SoundInfo> sounds;
+	for (int i = 0; files[i] != NULL; i++)
+	{
+		SoundInfo info;
+		info.filename = fullPath + files[i];
+		sounds.push_back(info);
+	}
+	return sounds;
 }
 
 
@@ -435,7 +417,7 @@ void ConfigModel::fillInitialSounds(std::vector<SoundInfo> *sounds)
 void ConfigModel::notifyAllEvents()
 {
 	//Notify all changes
-	for(int i = 0; i < m_sounds->size(); i++)
+	for(int i = 0; i < sounds().size(); i++)
 		notify(NOTIFY_SET_SOUND, i);
 	notify(NOTIFY_SET_COLS, m_cols);
 	notify(NOTIFY_SET_ROWS, m_rows);

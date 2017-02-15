@@ -49,5 +49,6 @@ CAPI struct TS3Functions ts3Functions;
 #define CHANNELINFO_BUFSIZE 512
 #define RETURNCODE_BUFSIZE 128
 
+#define NUM_CONFIGS 4
 
 #endif // rpsbsrc__common_H__

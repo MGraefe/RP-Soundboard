@@ -12,10 +12,12 @@
 #define rpsbsrc__ConfigModel_H__
 
 #include <vector>
+#include <array>
 #include "SoundInfo.h"
 #include <QtCore/QString>
 #include <memory>
 #include <set>
+#include "common.h"
 
 class ConfigModel
 {
@@ -93,19 +95,18 @@ public:
 
     void setConfiguration(int config);
 
+	const std::vector<SoundInfo> &sounds() const { return m_sounds[m_activeConfig]; }
+
 private:
+	std::vector<SoundInfo> &sounds() { return m_sounds[m_activeConfig]; }
 	void notify(notifications_e what, int data);
-	void fillInitialSounds(std::vector<SoundInfo> *sounds);
-    void readConfiguration(QSettings & settings, const QString &name, std::vector<SoundInfo> *sounds);
-    void writeConfiguration(QSettings & settings, const QString &name, std::vector<SoundInfo> *sounds);
+	std::vector<SoundInfo> getInitialSounds();
+	std::vector<SoundInfo> readConfiguration(QSettings & settings, const QString &name);
+    void writeConfiguration(QSettings & settings, const QString &name, const std::vector<SoundInfo> &sounds);
 
 	std::vector<Observer*> m_obs;
-	std::vector<SoundInfo> * m_sounds;
-
-    std::vector<SoundInfo> m_sounds1;
-    std::vector<SoundInfo> m_sounds2;
-    std::vector<SoundInfo> m_sounds3;
-    std::vector<SoundInfo> m_sounds4;
+	std::array<std::vector<SoundInfo>, NUM_CONFIGS> m_sounds;
+	int m_activeConfig;
 
     int m_rows;
 	int m_cols;

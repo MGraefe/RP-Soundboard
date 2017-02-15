@@ -42,6 +42,7 @@ CAPI void sb_unpauseSound();
 CAPI void sb_pauseButtonPressed();
 CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
 CAPI void sb_getInternalHotkeyName(int buttonId, char *buf); // buf should be at sized 16
+CAPI void sb_getInternalConfigHotkeyName(int configId, char *buf);
 CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key);
 CAPI void sb_onStopTalking();
 

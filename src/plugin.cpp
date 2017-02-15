@@ -290,6 +290,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 	 * The description is shown in the clients hotkey dialog. */
 	int i;
 	int numKeys = 200;
+	int numConfigs = 4;
 	int numExtra = 6;
 	char kw[PLUGIN_HOTKEY_BUFSZ];
 	char desc[PLUGIN_HOTKEY_BUFSZ];
@@ -302,10 +303,13 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 		CREATE_HOTKEY(kw, desc);
 	}
 
-    CREATE_HOTKEY("config_1", "Sound Configuration 1");
-    CREATE_HOTKEY("config_2", "Sound Configuration 2");
-    CREATE_HOTKEY("config_3", "Sound Configuration 3");
-    CREATE_HOTKEY("config_4", "Sound Configuration 4");
+	for (i = 0; i < NUM_CONFIGS; i++)
+	{
+		sb_getInternalConfigHotkeyName(i, kw);
+		sprintf(desc, "Activate sound config %i", i+1);
+		CREATE_HOTKEY(kw, desc);
+	}
+
     CREATE_HOTKEY("stop_all", "Stop all sounds");
 	CREATE_HOTKEY("pause_all", "Pause/unpause sound");
 	END_CREATE_HOTKEYS;
