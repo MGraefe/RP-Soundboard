@@ -218,7 +218,7 @@ void ConfigQt::onSaveModel()
     QString fn = QFileDialog::getSaveFileName(this, tr("Choose File to Save"), QString(), tr("Ini Files (*.ini)"));
     if (fn.isNull())
         return;
-    m_model->writeConfig(fn.toLatin1().constData());
+    m_model->writeConfig(fn);
 }
 
 void ConfigQt::onLoadModel()
@@ -226,7 +226,7 @@ void ConfigQt::onLoadModel()
     QString fn = QFileDialog::getOpenFileName(this, tr("Choose File to Load"), QString(), tr("Ini Files (*.ini)"));
     if (fn.isNull())
         return;
-    m_model->readConfig(fn.toLatin1().constData());
+    m_model->readConfig(fn);
 }
 
 //---------------------------------------------------------------

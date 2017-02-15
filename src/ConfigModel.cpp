@@ -45,13 +45,13 @@ ConfigModel::ConfigModel()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::readConfig(const char * file)
+void ConfigModel::readConfig(const QString &file)
 {
     QString path;
-    if (NULL == file)
+    if (file.isEmpty())
         path = GetFullConfigPath();
     else
-        path = QString(file);
+        path = file;
 
     QSettings settings(path, QSettings::IniFormat);
 
@@ -78,13 +78,13 @@ void ConfigModel::readConfig(const char * file)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::writeConfig(const char * file)
+void ConfigModel::writeConfig(const QString &file)
 {
     QString path;
-    if (NULL == file)
+    if (file.isEmpty())
         path = GetFullConfigPath();
     else
-        path = QString(file);
+        path = file;
 
     QSettings settings(path, QSettings::IniFormat);
 

@@ -44,8 +44,8 @@ public:
 public:
 	ConfigModel();
 
-	void readConfig(const char * file = NULL);
-    void writeConfig(const char * file = NULL);
+	void readConfig(const QString &file = QString());
+    void writeConfig(const QString &file = QString());
 
 	void notifyAllEvents();
 	
