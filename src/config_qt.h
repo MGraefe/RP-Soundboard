@@ -81,15 +81,15 @@ private slots:
 	void onButtonPausePressed();
 	void onButtonDroppedOnButton(SoundButton *button);
 
+    void onSetConfig0();
     void onSetConfig1();
     void onSetConfig2();
     void onSetConfig3();
-    void onSetConfig4();
 
-    void onHotKey1();
-    void onHotKey2();
-    void onHotKey3();
-    void onHotKey4();
+    void onConfigHotKey0();
+    void onConfigHotKey1();
+    void onConfigHotKey2();
+    void onConfigHotKey3();
 
     void onSaveModel();
     void onLoadModel();

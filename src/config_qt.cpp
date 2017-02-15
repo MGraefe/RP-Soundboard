@@ -138,70 +138,78 @@ void ConfigQt::setConfiguration(int cfg)
 {
     switch(cfg)
     {
-    case 1:
+    case 0:
         ui->radioConfig1->setChecked(true);
+        onSetConfig0();
+        break;
+
+    case 1:
+        ui->radioConfig2->setChecked(true);
         onSetConfig1();
         break;
 
     case 2:
-        ui->radioConfig2->setChecked(true);
+        ui->radioConfig3->setChecked(true);
         onSetConfig2();
         break;
 
     case 3:
-        ui->radioConfig3->setChecked(true);
+        ui->radioConfig4->setChecked(true);
         onSetConfig3();
         break;
-
-    case 4:
-        ui->radioConfig4->setChecked(true);
-        onSetConfig4();
-        break;
     }
+}
+
+void ConfigQt::onSetConfig0()
+{
+    m_model->setConfiguration(0);
+    ui->labelStatus->setText(QString("Configuration 1"));
 }
 
 void ConfigQt::onSetConfig1()
 {
     m_model->setConfiguration(1);
-    ui->labelStatus->setText(QString("Configuration 1"));
+    ui->labelStatus->setText(QString("Configuration 2"));
 }
 
 void ConfigQt::onSetConfig2()
 {
     m_model->setConfiguration(2);
-    ui->labelStatus->setText(QString("Configuration 2"));
+    ui->labelStatus->setText(QString("Configuration 3"));
 }
 
 void ConfigQt::onSetConfig3()
 {
     m_model->setConfiguration(3);
-    ui->labelStatus->setText(QString("Configuration 3"));
-}
-
-void ConfigQt::onSetConfig4()
-{
-    m_model->setConfiguration(4);
     ui->labelStatus->setText(QString("Configuration 4"));
 }
 
-void ConfigQt::onHotKey1()
+void ConfigQt::onConfigHotKey0()
 {
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_1", 0, this);
+	char buf[16];
+	sb_getInternalConfigHotkeyName(0, buf);
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
 }
 
-void ConfigQt::onHotKey2()
+void ConfigQt::onConfigHotKey1()
 {
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_2", 0, this);
+	char buf[16];
+	sb_getInternalConfigHotkeyName(1, buf);
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
 }
 
-void ConfigQt::onHotKey3()
+void ConfigQt::onConfigHotKey2()
 {
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_3", 0, this);
+	char buf[16];
+	sb_getInternalConfigHotkeyName(2, buf);
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
 }
 
-void ConfigQt::onHotKey4()
+void ConfigQt::onConfigHotKey3()
 {
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), "config_4", 0, this);
+	char buf[16];
+	sb_getInternalConfigHotkeyName(3, buf);
+    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, 0, this);
 }
 
 //---------------------------------------------------------------
@@ -711,9 +719,9 @@ QString ConfigQt::getShortcutString(size_t buttonId)
 
 QString ConfigQt::getConfigShortcutString(int cfg)
 {
-    char intName[16];
-    sprintf(intName, "config_%i", cfg);
-    QString shortcut = getShortcutString(intName);
+	char buf[16];
+	sb_getInternalConfigHotkeyName(cfg, buf);
+    QString shortcut = getShortcutString(buf);
     if (!shortcut.isEmpty())
         return shortcut;
 
