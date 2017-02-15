@@ -89,13 +89,13 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 		m_configRadioButtons[i]->setText(QString("Config %1").arg(i + 1));
 		m_configRadioButtons[i]->setProperty("configId", i);
 		ui->configRadioLayout->addWidget(m_configRadioButtons[i]);
-		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onSetConfig));
+		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onSetConfig()));
 
 		m_configHotkeyButtons[i] = new QPushButton(this);
 		m_configHotkeyButtons[i]->setText(getConfigShortcutString(i));
 		m_configHotkeyButtons[i]->setProperty("configId", i);
 		ui->configHotkeyLayout->addWidget(m_configHotkeyButtons[i]);
-		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onConfigHotkey));
+		connect(m_configHotkeyButtons[i], SIGNAL(clicked()), this, SLOT(onConfigHotkey()));
 	}
 
 	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -140,7 +140,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 void ConfigQt::setConfiguration(int cfg)
 {
-	qobject_cast<QRadioButton*>(ui->configRadioLayout->children()[cfg])->setChecked(true);
+	qobject_cast<QRadioButton*>(ui->configRadioLayout->itemAt(cfg)->widget())->setChecked(true);
 	m_model->setConfiguration(cfg);
 	ui->labelStatus->setText(QString("Configuration %1").arg(cfg + 1));
 }
@@ -690,7 +690,7 @@ void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 	int configId = -1;
 	if (sscanf(keyword, "config_%1", &configId) == 1)
 	{
-		qobject_cast<QPushButton*>(ui->configHotkeyLayout->children()[configId])->setText(sKey);
+		qobject_cast<QPushButton*>(ui->configHotkeyLayout->itemAt(configId)->widget())->setText(sKey);
 	}
     else
     {
