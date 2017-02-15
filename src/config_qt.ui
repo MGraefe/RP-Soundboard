@@ -23,7 +23,7 @@
    <string>RP Soundboard</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="qtres.qrc">
     <normaloff>:/icon/img/rpmb_icon_64.png</normaloff>:/icon/img/rpmb_icon_64.png</iconset>
   </property>
   <property name="locale">
@@ -93,7 +93,11 @@ Hotkeys</string>
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Stop</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="qtres.qrc">
+            <normaloff>:/icon/img/stoparrow_32.png</normaloff>:/icon/img/stoparrow_32.png</iconset>
           </property>
          </widget>
         </item>
@@ -109,7 +113,11 @@ Hotkeys</string>
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Play</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="qtres.qrc">
+            <normaloff>:/icon/img/playarrow_32.png</normaloff>:/icon/img/playarrow_32.png</iconset>
           </property>
           <property name="checkable">
            <bool>false</bool>
@@ -136,7 +144,7 @@ Hotkeys</string>
          <string/>
         </property>
         <property name="pixmap">
-         <pixmap>:/icon/img/speaker_icon_3_64.png</pixmap>
+         <pixmap resource="qtres.qrc">:/icon/img/speaker_icon_3_64.png</pixmap>
         </property>
         <property name="scaledContents">
          <bool>true</bool>

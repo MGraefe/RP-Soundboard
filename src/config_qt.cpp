@@ -615,7 +615,6 @@ void ConfigQt::onStartPlayingSound(bool preview, QString filename)
 	ui->b_stop->setEnabled(true);
 	ui->b_pause->setEnabled(true);
 	ui->b_pause->setIcon(m_pauseIcon);
-    ui->b_pause->setText(tr("Pause"));
 }
 
 
@@ -631,7 +630,6 @@ void ConfigQt::onStopPlayingSound()
 	//ui->b_stop->setEnabled(false);
 	//ui->b_pause->setEnabled(false);
 	ui->b_pause->setIcon(m_pauseIcon);
-    ui->b_pause->setText(tr("Pause"));
 }
 
 
@@ -642,7 +640,6 @@ void ConfigQt::onPausePlayingSound()
 {
 	playingIconTimer->stop();
 	ui->b_pause->setIcon(m_playIcon);
-    ui->b_pause->setText(tr("Play"));
 }
 
 
@@ -653,7 +650,6 @@ void ConfigQt::onUnpausePlayingSound()
 {
 	playingIconTimer->start();
 	ui->b_pause->setIcon(m_pauseIcon);
-    ui->b_pause->setText(tr("Pause"));
 }
 
 

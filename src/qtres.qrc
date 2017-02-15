@@ -1,13 +1,13 @@
 <RCC>
   <qresource prefix="icon">
-    <file alias="pause">../img/pausebutton_32.png</file>
-    <file alias="speaker_0">../img/speaker_icon_0_64.png</file>
-    <file alias="speaker_1">../img/speaker_icon_1_64.png</file>
-    <file alias="speaker_2">../img/speaker_icon_2_64.png</file>
-    <file alias="speaker_3">../img/speaker_icon_3_64.png</file>
-    <file alias="stop">../img/stoparrow_32.png</file>
-    <file alias="play">../img/playarrow_32.png</file>
-    <file alias="icon_16">../img/rpmb_icon_16.png</file>
-    <file alias="icon_64">../img/rpmb_icon_64.png</file>
+    <file>../img/pausebutton_32.png</file>
+    <file>../img/speaker_icon_0_64.png</file>
+    <file>../img/speaker_icon_1_64.png</file>
+    <file>../img/speaker_icon_2_64.png</file>
+    <file>../img/speaker_icon_3_64.png</file>
+    <file>../img/stoparrow_32.png</file>
+    <file>../img/playarrow_32.png</file>
+    <file>../img/rpmb_icon_16.png</file>
+    <file>../img/rpmb_icon_64.png</file>
   </qresource>
 </RCC>
