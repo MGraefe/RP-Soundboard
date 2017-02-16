@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>277</height>
+    <height>330</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -65,17 +65,6 @@
       <property name="bottomMargin">
        <number>3</number>
       </property>
-      <item>
-       <widget class="QCheckBox" name="checkDisable">
-        <property name="text">
-         <string>Disable
-Hotkeys</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <property name="spacing">
@@ -359,6 +348,16 @@ Hotkeys</string>
          <widget class="QCheckBox" name="cb_show_hotkeys_on_buttons">
           <property name="text">
            <string>Show hotkeys on buttons</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="cb_disable_hotkeys">
+          <property name="text">
+           <string>Disable hotkeys</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

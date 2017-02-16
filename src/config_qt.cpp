@@ -320,15 +320,9 @@ void ConfigQt::createButtons()
 		m_buttonBubble->attachTo(m_buttons[0].play);
 }
 
-bool ConfigQt::EnableHotkeys()
+bool ConfigQt::hotkeysEnabled()
 {
-    if (ui->checkDisable->isChecked())
-    {
-        return false;
-    }
-
-    /* Allow hotkey sound playback */
-    return true;
+	return !ui->cb_disable_hotkeys->isChecked();
 }
 
 //---------------------------------------------------------------

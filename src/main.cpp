@@ -263,7 +263,7 @@ CAPI void sb_pauseButtonPressed()
 
 CAPI void sb_playButton(int btn)
 {
-    if ((NULL != configDialog) && (configDialog->EnableHotkeys()))
+    if ((NULL != configDialog) && (configDialog->hotkeysEnabled()))
     {
         const SoundInfo *sound = configModel->getSoundInfo(btn);
         if (sound)

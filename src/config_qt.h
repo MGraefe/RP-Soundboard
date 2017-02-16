@@ -52,7 +52,7 @@ public:
 	void onHotkeyRecordedEvent(const char *keyword, const char *key);
 
     void setConfiguration(int cfg);
-    bool EnableHotkeys();
+    bool hotkeysEnabled();
 
 protected:
 	virtual void closeEvent(QCloseEvent * evt) override;
