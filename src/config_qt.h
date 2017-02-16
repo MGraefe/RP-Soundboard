@@ -104,6 +104,7 @@ private:
 	void openAdvanced(size_t buttonId);
 	void deleteButton(size_t buttonId);
 	void createButtons();
+	void createConfigButtons();
 	void updateButtonText(int i);
 	void openHotkeySetDialog(size_t buttonId);
 	// layout

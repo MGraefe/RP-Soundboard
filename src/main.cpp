@@ -309,7 +309,7 @@ CAPI void sb_getInternalHotkeyName(int buttonId, char *buf)
 
 CAPI void sb_getInternalConfigHotkeyName(int configId, char *buf)
 {
-	sprintf(buf, "config_%i", configId + 1);
+	sprintf(buf, "config_%i", configId);
 }
 
 

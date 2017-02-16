@@ -57,24 +57,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
     ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
 
-	for (int i = 0; i < NUM_CONFIGS; i++)
-	{
-		m_configRadioButtons[i] = new QRadioButton(this);
-		m_configRadioButtons[i]->setText(QString("Config %1").arg(i + 1));
-		m_configRadioButtons[i]->setProperty("configId", i);
-		m_configRadioButtons[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-		ui->configsGrid->addWidget(m_configRadioButtons[i], 0, i, Qt::AlignCenter);
-		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onSetConfig()));
-
-		m_configHotkeyButtons[i] = new QPushButton(this);
-		m_configHotkeyButtons[i]->setText(getConfigShortcutString(i));
-		m_configHotkeyButtons[i]->setProperty("configId", i);
-		m_configHotkeyButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-		ui->configsGrid->addWidget(m_configHotkeyButtons[i], 1, i, Qt::AlignCenter);
-		connect(m_configHotkeyButtons[i], SIGNAL(clicked()), this, SLOT(onConfigHotkey()));
-
-		ui->configsWidget->updateGeometry();
-	}
+	createConfigButtons();
 
     settingsSection = new ExpandableSection("Settings", 200, this);
     settingsSection->setContentLayout(*ui->settingsWidget->layout());
@@ -165,7 +148,7 @@ void ConfigQt::onSetConfig()
 
 void ConfigQt::onConfigHotkey()
 {
-	QRadioButton *button = qobject_cast<QRadioButton*>(sender());
+	QPushButton *button = qobject_cast<QPushButton*>(sender());
 	int configId = button->property("configId").toInt();
 
 	char buf[16];
@@ -325,6 +308,38 @@ void ConfigQt::createButtons()
 		m_buttonBubble->attachTo(m_buttons[0].play);
 }
 
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::createConfigButtons()
+{
+	for (int i = 0; i < NUM_CONFIGS; i++)
+	{
+		m_configRadioButtons[i] = new QRadioButton(this);
+		m_configRadioButtons[i]->setText(QString("Config %1").arg(i + 1));
+		m_configRadioButtons[i]->setProperty("configId", i);
+		m_configRadioButtons[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		ui->configsGrid->addWidget(m_configRadioButtons[i], 0, i, Qt::AlignCenter);
+		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onSetConfig()));
+
+		m_configHotkeyButtons[i] = new QPushButton(this);
+		m_configHotkeyButtons[i]->setText("Set hotkey");
+		m_configHotkeyButtons[i]->setProperty("configId", i);
+		m_configHotkeyButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+		m_configHotkeyButtons[i]->setToolTipDuration(0);
+		m_configHotkeyButtons[i]->setToolTip(getConfigShortcutString(i));
+		ui->configsGrid->addWidget(m_configHotkeyButtons[i], 1, i, Qt::AlignCenter);
+		connect(m_configHotkeyButtons[i], SIGNAL(clicked()), this, SLOT(onConfigHotkey()));
+
+		ui->configsWidget->updateGeometry();
+	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 bool ConfigQt::hotkeysEnabled()
 {
 	return m_model->getHotkeysEnabled();
@@ -693,10 +708,10 @@ void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
     QString sKey = key;
 
 	int configId = -1;
-	if (sscanf(keyword, "config_%1", &configId) == 1)
+	if (sscanf(keyword, "config_%i", &configId) == 1)
 	{
 		if (configId >= 0 && configId < NUM_CONFIGS)
-			m_configHotkeyButtons[configId]->setText(sKey);
+			m_configHotkeyButtons[configId]->setToolTip(sKey);
 		else
 			logError("Invalid hotkey keyword: %s", keyword);
 	}
