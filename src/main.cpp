@@ -161,8 +161,8 @@ CAPI void sb_init()
 	QObject::connect(sampler, &Sampler::onUnpausePlaying, tsMgr, &TalkStateManager::onUnpauseSound, Qt::QueuedConnection);
 
 	configDialog = new ConfigQt(configModel);
-	configDialog->showMinimized();
-	configDialog->hide();
+	//configDialog->showMinimized();
+	//configDialog->hide();
 
 	modelObserver = new ModelObserver_Prog();
 	configModel->addObserver(modelObserver);
