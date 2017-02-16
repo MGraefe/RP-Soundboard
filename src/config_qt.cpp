@@ -57,13 +57,32 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
     ui->setupUi(this);
 	//setAttribute(Qt::WA_DeleteOnClose);
 
+	for (int i = 0; i < NUM_CONFIGS; i++)
+	{
+		m_configRadioButtons[i] = new QRadioButton(this);
+		m_configRadioButtons[i]->setText(QString("Config %1").arg(i + 1));
+		m_configRadioButtons[i]->setProperty("configId", i);
+		m_configRadioButtons[i]->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+		ui->configsGrid->addWidget(m_configRadioButtons[i], 0, i, Qt::AlignCenter);
+		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onSetConfig()));
+
+		m_configHotkeyButtons[i] = new QPushButton(this);
+		m_configHotkeyButtons[i]->setText(getConfigShortcutString(i));
+		m_configHotkeyButtons[i]->setProperty("configId", i);
+		m_configHotkeyButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+		ui->configsGrid->addWidget(m_configHotkeyButtons[i], 1, i, Qt::AlignCenter);
+		connect(m_configHotkeyButtons[i], SIGNAL(clicked()), this, SLOT(onConfigHotkey()));
+
+		ui->configsWidget->updateGeometry();
+	}
+
     settingsSection = new ExpandableSection("Settings", 200, this);
     settingsSection->setContentLayout(*ui->settingsWidget->layout());
     layout()->addWidget(settingsSection);
 
-    fileSection = new ExpandableSection("Configurations", 200, this);
-    fileSection->setContentLayout(*ui->fileWidget->layout());
-    layout()->addWidget(fileSection);
+    configsSection = new ExpandableSection("Configurations", 200, this);
+    configsSection->setContentLayout(*ui->configsWidget->layout());
+    layout()->addWidget(configsSection);
 
     QAction *actChooseFile = new QAction("Choose File", this);
 	actChooseFile->setData((int)BC_CHOOSE);
@@ -82,21 +101,6 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	m_buttonContextMenu.addAction(actDeleteButton);
 
 	createButtons();
-
-	for (int i = 0; i < NUM_CONFIGS; i++)
-	{
-		m_configRadioButtons[i] = new QRadioButton(this);
-		m_configRadioButtons[i]->setText(QString("Config %1").arg(i + 1));
-		m_configRadioButtons[i]->setProperty("configId", i);
-		ui->configRadioLayout->addWidget(m_configRadioButtons[i]);
-		connect(m_configRadioButtons[i], SIGNAL(clicked()), this, SLOT(onSetConfig()));
-
-		m_configHotkeyButtons[i] = new QPushButton(this);
-		m_configHotkeyButtons[i]->setText(getConfigShortcutString(i));
-		m_configHotkeyButtons[i]->setProperty("configId", i);
-		ui->configHotkeyLayout->addWidget(m_configHotkeyButtons[i]);
-		connect(m_configHotkeyButtons[i], SIGNAL(clicked()), this, SLOT(onConfigHotkey()));
-	}
 
 	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui->b_pause->setContextMenuPolicy(Qt::CustomContextMenu);

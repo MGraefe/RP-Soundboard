@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>330</height>
+    <height>316</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -226,22 +226,7 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5">
-          <item>
-           <widget class="QPushButton" name="pushLoad">
-            <property name="text">
-             <string>Load</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="pushSave">
-            <property name="text">
-             <string>Save</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
+         <layout class="QHBoxLayout" name="horizontalLayout_5"/>
         </item>
        </layout>
       </item>
@@ -271,6 +256,12 @@
         </property>
         <item>
          <widget class="QCheckBox" name="cb_mute_locally">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="text">
            <string>Mute on my client</string>
           </property>
@@ -367,14 +358,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="fileWidget" native="true">
+    <widget class="QWidget" name="configsWidget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <layout class="QHBoxLayout" name="fileLayout">
+     <layout class="QHBoxLayout" name="horizontalLayout_8">
       <property name="leftMargin">
        <number>9</number>
       </property>
@@ -388,29 +379,34 @@
        <number>3</number>
       </property>
       <item>
-       <widget class="QLabel" name="label_4">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <layout class="QGridLayout" name="configsGrid"/>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::VLine</enum>
         </property>
-        <property name="text">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:12pt; font-weight:600;&quot;&gt;Sound Configurations&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This section allows four different sound board configurations. Use the &amp;quot;Activate&amp;quot; button to make a configuration active. When active, the sound board buttons will match that configuration. The sounds for the soundboard buttons are saved in the currently active configuration.&lt;/p&gt;&lt;p&gt;The hotkey buttons can be used to bind a hotkey to a configuration. The hot key will make the corresponding configuration active.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
+        <property name="frameShadow">
+         <enum>QFrame::Sunken</enum>
         </property>
        </widget>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="configRadioLayout"/>
-      </item>
-      <item>
-       <layout class="QVBoxLayout" name="configHotkeyLayout">
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QPushButton" name="pushSave">
+          <property name="text">
+           <string>Export current config</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="pushLoad">
+          <property name="text">
+           <string>Import current config</string>
+          </property>
+         </widget>
+        </item>
        </layout>
       </item>
      </layout>

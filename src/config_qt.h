@@ -135,7 +135,7 @@ private:
 	QPointer<SpeechBubble> m_buttonBubble;
 	QAction *actSetHotkey;
     ExpandableSection *settingsSection;
-    ExpandableSection *fileSection;
+    ExpandableSection *configsSection;
     QTimer *playingIconTimer;
 	int playingIconIndex;
 	QIcon m_pauseIcon;
