@@ -396,14 +396,14 @@
         <item>
          <widget class="QPushButton" name="pushSave">
           <property name="text">
-           <string>Export current config</string>
+           <string>Export current configurations</string>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="pushLoad">
           <property name="text">
-           <string>Import current config</string>
+           <string>Import current configurations</string>
           </property>
          </widget>
         </item>
