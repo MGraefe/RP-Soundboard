@@ -126,7 +126,8 @@ void sb_enableInterface(bool enabled)
 			notConnectedBubble->setText("You are not connected to a server.\n"
 				"RP Soundboard is disabled until you are connected properly.");
 			notConnectedBubble->attachTo(configDialog);
-			notConnectedBubble->show();
+			if (configDialog->isVisible())
+				notConnectedBubble->show();
 		}
 	}
 	else if (notConnectedBubble)
