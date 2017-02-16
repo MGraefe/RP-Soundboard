@@ -140,7 +140,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 void ConfigQt::setConfiguration(int cfg)
 {
-	qobject_cast<QRadioButton*>(ui->configRadioLayout->itemAt(cfg)->widget())->setChecked(true);
+	m_configRadioButtons[cfg]->setChecked(true);
 	m_model->setConfiguration(cfg);
 	ui->labelStatus->setText(QString("Configuration %1").arg(cfg + 1));
 }
@@ -690,7 +690,7 @@ void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 	int configId = -1;
 	if (sscanf(keyword, "config_%1", &configId) == 1)
 	{
-		qobject_cast<QPushButton*>(ui->configHotkeyLayout->itemAt(configId)->widget())->setText(sKey);
+		m_configHotkeyButtons[configId]->setText(sKey);
 	}
     else
     {
