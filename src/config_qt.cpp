@@ -140,6 +140,12 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 void ConfigQt::setConfiguration(int cfg)
 {
+	if (cfg < 0 || cfg >= NUM_CONFIGS)
+	{
+		logError("Invalid config id: %i", cfg);
+		return;
+	}
+
 	m_configRadioButtons[cfg]->setChecked(true);
 	m_model->setConfiguration(cfg);
 	ui->labelStatus->setText(QString("Configuration %1").arg(cfg + 1));
@@ -690,7 +696,10 @@ void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 	int configId = -1;
 	if (sscanf(keyword, "config_%1", &configId) == 1)
 	{
-		m_configHotkeyButtons[configId]->setText(sKey);
+		if (configId >= 0 && configId < NUM_CONFIGS)
+			m_configHotkeyButtons[configId]->setText(sKey);
+		else
+			logError("Invalid hotkey keyword: %s", keyword);
 	}
     else
     {
