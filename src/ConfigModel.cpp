@@ -36,6 +36,7 @@ ConfigModel::ConfigModel()
 	m_bubbleColsBuild = 0;
 
 	m_showHotkeysOnButtons = false;
+	m_hotkeysEnabled = true;
 
     m_activeConfig = 0;
 }
@@ -68,6 +69,7 @@ void ConfigModel::readConfig(const QString &file)
 	m_bubbleStopBuild = settings.value("bubble_stop_build", 0).toInt();
 	m_bubbleColsBuild = settings.value("bubble_cols_build", 0).toInt();
 	m_showHotkeysOnButtons = settings.value("show_hotkeys_on_buttons", false).toBool();
+	m_hotkeysEnabled = settings.value("hotkeys_enabled", true).toBool();
 
 	notifyAllEvents();
 }
@@ -97,6 +99,7 @@ void ConfigModel::writeConfig(const QString &file)
     settings.setValue("bubble_stop_build", m_bubbleStopBuild);
     settings.setValue("bubble_cols_build", m_bubbleColsBuild);
     settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
+	settings.setValue("hotkeys_enabled", m_hotkeysEnabled);
 
 	for (int i = 0; i < NUM_CONFIGS; i++)
 		writeConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i + 1), m_sounds[i]);
@@ -330,6 +333,17 @@ void ConfigModel::notify(notifications_e what, int data)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void ConfigModel::setHotkeysEnabled(bool enabled)
+{
+	m_hotkeysEnabled = enabled;
+	writeConfig();
+	notify(NOTIFY_SET_HOTKEYS_ENABLED, enabled ? 1 : 0);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void ConfigModel::addObserver(Observer *obs)
 {
 	m_obs.push_back(obs);
@@ -429,6 +443,7 @@ void ConfigModel::notifyAllEvents()
 	notify(NOTIFY_SET_BUBBLE_STOP_BUILD, m_bubbleStopBuild);
 	notify(NOTIFY_SET_BUBBLE_COLS_BUILD, m_bubbleColsBuild);
 	notify(NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS, m_showHotkeysOnButtons);
+	notify(NOTIFY_SET_HOTKEYS_ENABLED, m_hotkeysEnabled);
 }
 
 

@@ -113,6 +113,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
 	connect(ui->cb_show_hotkeys_on_buttons, SIGNAL(clicked(bool)), this, SLOT(onUpdateShowHotkeysOnButtons(bool)));
+	connect(ui->cb_disable_hotkeys, SIGNAL(clicked(bool)), this, SLOT(onUpdateHotkeysDisabled(bool)));
 
     /* Load/Save Model */
     connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
@@ -322,7 +323,7 @@ void ConfigQt::createButtons()
 
 bool ConfigQt::hotkeysEnabled()
 {
-	return !ui->cb_disable_hotkeys->isChecked();
+	return m_model->getHotkeysEnabled();
 }
 
 //---------------------------------------------------------------
@@ -720,6 +721,15 @@ void ConfigQt::onUpdateShowHotkeysOnButtons(bool val)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
+void ConfigQt::onUpdateHotkeysDisabled(bool val)
+{
+	m_model->setHotkeysEnabled(!val);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
 void ConfigQt::showEvent(QShowEvent *evt)
 {
 	QWidget::showEvent(evt);
@@ -889,6 +899,10 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 			p.ui->cb_show_hotkeys_on_buttons->setChecked(model.getShowHotkeysOnButtons());
 		for(size_t i = 0; i < p.m_buttons.size(); i++)
 			p.updateButtonText(i);
+		break;
+	case ConfigModel::NOTIFY_SET_HOTKEYS_ENABLED:
+		if (p.ui->cb_disable_hotkeys->isChecked() == model.getHotkeysEnabled())
+			p.ui->cb_disable_hotkeys->setChecked(!model.getHotkeysEnabled());
 		break;
 	default:
 		break;

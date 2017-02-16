@@ -78,6 +78,7 @@ private slots:
 	void onUnpausePlayingSound();
 	void onPlayingIconTimer();
 	void onUpdateShowHotkeysOnButtons(bool val);
+	void onUpdateHotkeysDisabled(bool val);
 	void onButtonFileDropped(const QList<QUrl> &urls);
 	void onButtonPausePressed();
 	void onButtonDroppedOnButton(SoundButton *button);
