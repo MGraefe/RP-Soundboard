@@ -18,6 +18,7 @@
 #include <QtGui/QPainter>
 #include <QFileInfo>
 #include "config_qt.h"
+#include <QColorDialog>
 
 
 //---------------------------------------------------------------
@@ -47,6 +48,8 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QW
 	connect(ui->filenameBrowseButton, SIGNAL(released()), this, SLOT(onBrowsePressed()));
 	connect(ui->previewSoundButton, SIGNAL(released()), this, SLOT(onPreviewPressed()));
 	connect(ui->hotkeyChangeButton, SIGNAL(clicked()), this, SLOT(onHotkeyChangePressed()));
+	connect(ui->colorCheckBox, SIGNAL(clicked()), this, SLOT(onColorEnabledPressed()));
+	connect(ui->colorButton, SIGNAL(clicked()), this, SLOT(onChooseColorPressed()));
 	connect(parent, SIGNAL(hotkeyRecordedEvent(QString,QString)), this, SLOT(updateHotkeyText()));
 	initGui(m_soundInfo);
 
@@ -72,6 +75,10 @@ void SoundSettingsQt::initGui(const SoundInfo &sound)
 	ui->stopSoundAtAfterCombo->setCurrentIndex(sound.cropStopAfterAt);
 	ui->stopSoundValueSpin->setValue(sound.cropStopValue);
 	ui->stopSoundUnitCombo->setCurrentIndex(sound.cropStopUnit);
+	ui->colorCheckBox->setChecked(sound.customColorEnabled());
+	ui->colorButton->setEnabled(sound.customColorEnabled());
+	ui->colorButton->setStyleSheet(QString("background-color: %1").arg(sound.customColor.name()));
+	this->customColor = sound.customColor;
 	
 	updateHotkeyText();
 
@@ -93,6 +100,7 @@ void SoundSettingsQt::fillFromGui(SoundInfo &sound)
 	sound.cropStopAfterAt = ui->stopSoundAtAfterCombo->currentIndex();
 	sound.cropStopValue = ui->stopSoundValueSpin->value();
 	sound.cropStopUnit = ui->stopSoundUnitCombo->currentIndex();
+	sound.customColor = this->customColor;
 }
 
 
@@ -192,6 +200,22 @@ void SoundSettingsQt::updateHotkeyText()
 	QString hotkeyText = ConfigQt::getShortcutString(m_buttonId);
 	ui->hotkeyCurrentLabel->setText(QString("Current hotkey: ") + 
 		(hotkeyText.isEmpty() ? QString("None") : hotkeyText));
+}
+
+
+void SoundSettingsQt::onColorEnabledPressed()
+{
+	customColor.setAlpha(ui->colorCheckBox->isChecked() ? 255 : 0);
+	ui->colorButton->setEnabled(ui->colorCheckBox->isChecked());
+}
+
+
+void SoundSettingsQt::onChooseColorPressed()
+{
+	int alpha = customColor.alpha();
+	customColor = QColorDialog::getColor(customColor, this, "Custom button color");
+	customColor.setAlpha(alpha);
+	ui->colorButton->setStyleSheet(QString("background-color: %1").arg(customColor.name()));
 }
 
 

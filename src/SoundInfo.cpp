@@ -11,6 +11,7 @@
 
 #define NAME_PATH "path"
 #define NAME_CUSTOM_TEXT "customText"
+#define NAME_CUSTOM_COLOR "customColor"
 #define NAME_VOLUME "volume"
 #define NAME_CROP_ENABLED "cropEnabled"
 #define NAME_CROP_START_VALUE "cropStartValue"
@@ -21,6 +22,7 @@
 
 #define DEFAULT_PATH ""
 #define DEFAULT_CUSTOM_TEXT ""
+#define DEFAULT_CUSTOM_COLOR "00FFFFFF"
 #define DEFAULT_VOLUME 0
 #define DEFAULT_CROP_ENABLED false
 #define DEFAULT_CROP_START_VALUE 1
@@ -30,12 +32,26 @@
 #define DEFAULT_CROP_STOP_UNIT 1
 
 
+QColor stringToColor(const QString &str)
+{
+	QRgb rgb = str.toUInt(nullptr, 16);
+	// don't construct directly from QRgb because alpha is ignored that way
+	return QColor(qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb));
+}
+
+QString colorToString(const QColor &col)
+{
+	return QString::number(col.rgba(), 16);
+}
+
+
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
 SoundInfo::SoundInfo() :
 	filename(DEFAULT_PATH),
 	customText(DEFAULT_CUSTOM_TEXT),
+	customColor(stringToColor(DEFAULT_CUSTOM_COLOR)),
 	volume(DEFAULT_VOLUME),
 	cropEnabled(DEFAULT_CROP_ENABLED),
 	cropStartValue(DEFAULT_CROP_START_VALUE),
@@ -55,6 +71,7 @@ void SoundInfo::readFromConfig( const QSettings &settings )
 {
 	filename = settings.value(NAME_PATH, DEFAULT_PATH).toString();
 	customText = settings.value(NAME_CUSTOM_TEXT, DEFAULT_CUSTOM_TEXT).toString();
+	customColor = stringToColor(settings.value(NAME_CUSTOM_COLOR, DEFAULT_CUSTOM_COLOR).toString());
 	volume = settings.value(NAME_VOLUME, DEFAULT_VOLUME).toInt();
 	cropEnabled = settings.value(NAME_CROP_ENABLED, DEFAULT_CROP_ENABLED).toBool();
 	cropStartValue = settings.value(NAME_CROP_START_VALUE, DEFAULT_CROP_START_VALUE).toInt();
@@ -72,6 +89,7 @@ void SoundInfo::saveToConfig( QSettings &settings ) const
 {
 	settings.setValue(NAME_PATH, filename);
 	settings.setValue(NAME_CUSTOM_TEXT, customText);
+	settings.setValue(NAME_CUSTOM_COLOR, colorToString(customColor));
 	settings.setValue(NAME_VOLUME, volume);
 	settings.setValue(NAME_CROP_ENABLED, cropEnabled);
 	settings.setValue(NAME_CROP_START_VALUE, cropStartValue);

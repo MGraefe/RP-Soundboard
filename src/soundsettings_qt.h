@@ -43,6 +43,8 @@ private slots:
 	void onTimer();
 	void onHotkeyChangePressed();
 	void updateHotkeyText();
+	void onColorEnabledPressed();
+	void onChooseColorPressed();
 
 private:
 	void initGui(const SoundInfo &sound);
@@ -56,6 +58,7 @@ private:
 	QIcon m_iconStop;
 	QTimer *m_timer;
 	SoundView *m_soundview;
+	QColor customColor;
 };
 
 

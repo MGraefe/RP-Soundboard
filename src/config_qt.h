@@ -107,6 +107,7 @@ private:
 	void createConfigButtons();
 	void updateButtonText(int i);
 	void openHotkeySetDialog(size_t buttonId);
+	void openButtonColorDialog(size_t buttonId);
 	// layout
 	//   | play
 	//   | subLayout

@@ -23,6 +23,8 @@ public:
 	virtual void mouseReleaseEvent(QMouseEvent *evt) override;
 	virtual void mouseMoveEvent(QMouseEvent *evt) override;
 
+	void setBackgroundColor(const QColor &color);
+
 signals:
 	void fileDropped(const QList<QUrl>&);
 	void buttonDropped(SoundButton *button);
@@ -31,6 +33,7 @@ private:
 	bool pressing;
 	bool dragging;
 	QPoint dragStart;
+	QColor backgroundColor;
 	
 };
 

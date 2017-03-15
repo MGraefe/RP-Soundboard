@@ -10,6 +10,7 @@
 #include <QMimeData>
 #include <QUuid>
 #include <QDrag>
+#include <QStyle>
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -70,7 +71,7 @@ void SoundButton::dragLeaveEvent(QDragLeaveEvent *evt)
 {
 	pressing = false;
 	dragging = false;
-	setStyleSheet("");
+	setBackgroundColor(backgroundColor);
 }
 
 
@@ -81,7 +82,7 @@ void SoundButton::dropEvent(QDropEvent *evt)
 {
 	pressing = false;
 	dragging = false;
-	setStyleSheet("");
+	setBackgroundColor(backgroundColor);
 	SoundButton *button = nullptr;
 	if (evt->mimeData()->hasUrls())
 	{
@@ -133,6 +134,24 @@ void SoundButton::mouseMoveEvent(QMouseEvent *evt)
 	}
 
 	QPushButton::mouseMoveEvent(evt);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundButton::setBackgroundColor(const QColor &color)
+{
+	backgroundColor = color;
+	
+	if (color.alpha() != 0)
+	{
+		float brightness = 0.2126f * color.redF() + 0.7152f * color.greenF() + 0.0722f * color.blueF();
+		QColor textColor = brightness < 0.5f ? Qt::white : Qt::black;
+		setStyleSheet(QString("color: %1; background-color: %2;").arg(textColor.name(), color.name()));
+	}
+	else
+		setStyleSheet(QString());
 }
 
 

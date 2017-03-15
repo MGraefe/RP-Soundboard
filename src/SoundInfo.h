@@ -11,6 +11,7 @@
 #define rpsbsrc__SoundInfo_H__
 
 #include <QtCore/QSettings>
+#include <QColor>
 
 class SoundInfo
 {
@@ -22,10 +23,13 @@ public:
 	double getPlayTime() const;
 
 	static double getTimeUnitFactor(int unit);
+	bool customColorEnabled() const { return customColor.alpha() != 0; }
+	void setCustomColorEnabled(bool enabled) { customColor.setAlpha(enabled ? 255 : 0); }
 
 public:
 	QString filename;
 	QString customText;
+	QColor customColor;
 	int volume;
 	bool cropEnabled;
 	int cropStartValue;

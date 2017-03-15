@@ -13,6 +13,7 @@
 #include <QtGui/QResizeEvent>
 #include <QtWidgets/QMessageBox>
 #include <QPropertyAnimation>
+#include <QColorDialog>
 
 #include "config_qt.h"
 #include "ConfigModel.h"
@@ -34,6 +35,7 @@ enum button_choices_e {
 	BC_CHOOSE = 0,
 	BC_ADVANCED,
 	BC_SET_HOTKEY,
+	BC_SET_COLOR,
 	BC_DELETE,
 };
 
@@ -78,6 +80,10 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	actSetHotkey = new QAction("Set hotkey", this);
 	actSetHotkey->setData((int)BC_SET_HOTKEY);
 	m_buttonContextMenu.addAction(actSetHotkey);
+
+	QAction *actSetColor = new QAction("Set color", this);
+	actSetColor->setData((int)BC_SET_COLOR);
+	m_buttonContextMenu.addAction(actSetColor);
 
 	QAction *actDeleteButton = new QAction("Make button great again (delete)", this);
 	actDeleteButton->setData((int)BC_DELETE);
@@ -372,6 +378,7 @@ void ConfigQt::updateButtonText(int i)
 			text = text + "\n" + shortcut;
 	}
 	m_buttons[i].play->setText(text);
+	m_buttons[i].play->setBackgroundColor(info ? info->customColor : QColor(0, 0, 0, 0));
 }
 
 
@@ -406,6 +413,9 @@ void ConfigQt::showButtonContextMenu( const QPoint &point )
 				break;
 			case BC_SET_HOTKEY:
 				openHotkeySetDialog(buttonId);
+				break;
+			case BC_SET_COLOR:
+				openButtonColorDialog(buttonId);
 				break;
 			case BC_DELETE:
 				deleteButton(buttonId);
@@ -648,6 +658,24 @@ void ConfigQt::onPlayingIconTimer()
 void ConfigQt::openHotkeySetDialog(size_t buttonId)
 {
 	openHotkeySetDialog(buttonId, this);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::openButtonColorDialog(size_t buttonId)
+{
+	QColorDialog dialog;
+	const SoundInfo *pinfo = m_model->getSoundInfo(buttonId);
+	SoundInfo info = pinfo ? *pinfo : SoundInfo();
+	dialog.setCurrentColor(info.customColor);
+	dialog.setWindowTitle("Choose button color");
+	if (dialog.exec())
+	{
+		info.customColor = dialog.currentColor();
+		m_model->setSoundInfo(buttonId, info);
+	}
 }
 
 
