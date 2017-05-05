@@ -13,6 +13,7 @@
 #include <QtWidgets/QLabel>
 #include <QtCore/QEvent>
 #include <QtGui/QMouseEvent>
+#include <QTimer>
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -164,8 +165,10 @@ bool SpeechBubble::eventFilter(QObject *object, QEvent *evt)
 				hide(); 
 				break;
 			case QEvent::Show:
-				recalcPos();
-				show(); 
+				QTimer::singleShot(0, this, [this](){
+					this->recalcPos(); 
+					this->show(); 
+				});
 				break;
 			default:
 				break;
