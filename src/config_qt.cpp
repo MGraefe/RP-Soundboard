@@ -107,6 +107,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
 	connect(ui->cb_show_hotkeys_on_buttons, SIGNAL(clicked(bool)), this, SLOT(onUpdateShowHotkeysOnButtons(bool)));
 	connect(ui->cb_disable_hotkeys, SIGNAL(clicked(bool)), this, SLOT(onUpdateHotkeysDisabled(bool)));
+	connect(ui->filterEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onFilterEditTextChanged(const QString&)));
 
     /* Load/Save Model */
     connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
@@ -293,7 +294,9 @@ void ConfigQt::createButtons()
 			elem.play->setProperty("buttonId", (int)m_buttons.size());
 			elem.play->setText("(no file)");
 			elem.play->setEnabled(true);
-			elem.play->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+			QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Expanding);
+			policy.setRetainSizeWhenHidden(true);
+			elem.play->setSizePolicy(policy);
 			elem.layout->addWidget(elem.play);
 			connect(elem.play, SIGNAL(clicked()), this, SLOT(onClickedPlay()));
 			elem.play->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -897,6 +900,24 @@ void ConfigQt::onButtonDroppedOnButton(SoundButton *button)
 	anim1->start();
 	btn0->raise();
 	btn1->raise();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onFilterEditTextChanged(const QString &text)
+{
+	QString filter = text.trimmed();
+	for (auto &button : m_buttons)
+	{
+		int buttonId = button.play->property("buttonId").toInt();
+		const SoundInfo *info = m_model->getSoundInfo(buttonId);
+		bool hasFile = info && !info->filename.isEmpty();
+		QString buttonText = button.play->text();
+		bool pass = filter.length() == 0 || (hasFile && buttonText.contains(filter, Qt::CaseInsensitive));
+		button.play->setVisible(pass);
+	}
 }
 
 

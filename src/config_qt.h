@@ -82,6 +82,7 @@ private slots:
 	void onButtonFileDropped(const QList<QUrl> &urls);
 	void onButtonPausePressed();
 	void onButtonDroppedOnButton(SoundButton *button);
+	void onFilterEditTextChanged(const QString &filter);
 
     void onSetConfig();
     void onConfigHotkey();

@@ -154,6 +154,19 @@
        </widget>
       </item>
       <item>
+       <widget class="QLineEdit" name="filterEdit">
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>16777215</height>
+         </size>
+        </property>
+        <property name="placeholderText">
+         <string>filter</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="labelStatus">
         <property name="text">
          <string>TextLabel</string>
