@@ -33,7 +33,8 @@ HEADERS += ../src/ExpandableSection.h \
     ../src/SpeechBubble.h \
     ../src/UpdateChecker.h \
     ../src/updater_qt.h \
-    ../src/config_qt.h
+    ../src/config_qt.h \
+    ../src/TalkStateManager.h
 SOURCES += ../src/about_qt.cpp \
     ../src/buildinfo.c \
     ../src/CmdQueue.cpp \
@@ -43,7 +44,7 @@ SOURCES += ../src/about_qt.cpp \
     ../src/main.cpp \
     ../src/HighResClock.cpp \
     ../src/inputfileffmpeg.cpp \
-    ../src/plugin.c \
+    ../src/plugin.cpp \
     ../src/SampleBuffer.cpp \
     ../src/SampleProducerThread.cpp \
     ../src/samples.cpp \
@@ -55,7 +56,8 @@ SOURCES += ../src/about_qt.cpp \
     ../src/SpeechBubble.cpp \
     ../src/ts3log.cpp \
     ../src/UpdateChecker.cpp \
-    ../src/updater_qt.cpp
+    ../src/updater_qt.cpp \
+    ../src/TalkStateManager.cpp
 FORMS += ../src/config_qt.ui \
     ../src/about_qt.ui \
     ../src/soundsettings_qt.ui \
