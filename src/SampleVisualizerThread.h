@@ -13,6 +13,7 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <string>
 
 #include "SampleBuffer.h"
 

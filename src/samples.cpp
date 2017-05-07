@@ -18,7 +18,7 @@
 #include <queue>
 #include <vector>
 #include <cassert>
-
+#include <math.h>
 
 #define USE_SSE2
 //#define MEASURE_PERFORMANCE
