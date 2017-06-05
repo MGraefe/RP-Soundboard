@@ -109,6 +109,8 @@ private:
 	void updateButtonText(int i);
 	void openHotkeySetDialog(size_t buttonId);
 	void openButtonColorDialog(size_t buttonId);
+	QString unescapeCustomText(const QString &text);
+
 	// layout
 	//   | play
 	//   | subLayout

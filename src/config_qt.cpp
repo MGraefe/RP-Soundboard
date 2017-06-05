@@ -367,7 +367,7 @@ void ConfigQt::updateButtonText(int i)
 	if (info && !info->filename.isEmpty())
 	{
 		if (!info->customText.isEmpty())
-			text = info->customText;
+			text = unescapeCustomText(info->customText);
 		else
 			text = QFileInfo(info->filename).baseName();
 	}
@@ -679,6 +679,16 @@ void ConfigQt::openButtonColorDialog(size_t buttonId)
 		info.customColor = dialog.currentColor();
 		m_model->setSoundInfo(buttonId, info);
 	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+QString ConfigQt::unescapeCustomText(const QString &text)
+{
+	QString cpy = text;
+	return cpy.replace("\\n", "\n");
 }
 
 
