@@ -575,7 +575,7 @@
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib;Secur32.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
@@ -598,7 +598,7 @@ xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamsp
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib;Secur32.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep>
@@ -624,7 +624,7 @@ xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(APPDATA)\TS3Client\plugins\rp
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib;Secur32.lib</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>copy "$(TargetPath)" "$(APPDATA)\TS3Client\plugins\$(TargetFileName)"
@@ -648,7 +648,7 @@ xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(APPDATA)\TS3Client\plugins\rp
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib</AdditionalDependencies>
+      <AdditionalDependencies>Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;Qt5Network.lib;avcodec.lib;avformat.lib;avutil.lib;swresample.lib;Advapi32.lib;ws2_32.lib;wsock32.lib;user32.lib;Secur32.lib</AdditionalDependencies>
     </Link>
     <CustomBuildStep>
       <Command>
