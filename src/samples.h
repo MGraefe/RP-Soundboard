@@ -14,6 +14,7 @@
 
 #include "SampleBuffer.h"
 #include "SampleProducerThread.h"
+#include "peakmeters.h"
 
 #include <mutex>
 #include <atomic>
@@ -21,6 +22,7 @@
 class InputFile;
 class SoundInfo;
 
+//#define USE_FLOAT_ARITHM
 
 class Sampler : public QObject
 {
@@ -65,8 +67,7 @@ private:
 	int fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
 	int findChannelId(unsigned int channel, const unsigned int *channelSpeakerArray, int count);
 	inline short scale(int val) const {
-		//return (short)((val << 16) / m_volumeDivider);
-		return (short)((val * m_volumeDivider) >> 12);
+		return (short)((val * m_volumeDivider) >> volumeScaleExp);
 	}
 	
 private:
@@ -74,7 +75,16 @@ private:
 	SampleBuffer m_sbPlayback;
 	SampleProducerThread m_sampleProducerThread;
 	InputFile *m_inputFile;
+#ifdef USE_FLOAT_ARITHM
+	PeakMeter m_peakMeter0;
+	PeakMeter m_peakMeter1;
+#else
+	PeakMeterInt m_peakMeter0;
+	PeakMeterInt m_peakMeter1;
+#endif
 	int m_volumeDivider;
+	float m_volumeFactor;
+	static const int volumeScaleExp = 12;
 	double m_globalDbSetting;
 	double m_soundDbSetting;
 	std::mutex m_mutex;

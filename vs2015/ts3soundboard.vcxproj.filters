@@ -238,6 +238,9 @@
     <ClInclude Include="..\src\CmdQueue.h">
       <Filter>Header Dateien</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\peakmeters.h">
+      <Filter>Header Dateien</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\src\config_qt.h">

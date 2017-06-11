@@ -20,8 +20,8 @@
 #include <cassert>
 #include <math.h>
 
-#define USE_SSE2
-//#define MEASURE_PERFORMANCE
+//#define USE_SSE2
+#define MEASURE_PERFORMANCE
 
 #ifdef USE_SSE2
 #include <emmintrin.h>
@@ -45,6 +45,8 @@ static_assert(sizeof(short) == 2, "Short is weird size");
 
 #define MAX_SAMPLEBUFFER_SIZE (48000 * 5)
 
+
+
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
@@ -53,6 +55,8 @@ Sampler::Sampler() :
 	m_sbPlayback(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sampleProducerThread(),
 	m_inputFile(NULL),
+	m_peakMeter0(0.1f, 0.001f, 10000),
+	m_peakMeter1(0.1f, 0.001f, 10000),
 	m_volumeDivider(1),
 	m_state(eSILENT),
 	m_localPlayback(true),
@@ -182,19 +186,65 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	short* const out = samples;
 
 #ifndef USE_SSE2
+#ifdef USE_FLOAT_ARITHM
+	const float threshold = std::numeric_limits<short>::max() * 0.5f;
 	if(channels == 1)
 	{
-		for(int i = 0; i < write; i++)
-			out[i] += scale(in[i*2] / 2 + in[i*2+1] / 2);
+		for (int i = 0; i < write; i++)
+		{
+			float signal = m_volumeFactor * (float(in[i * 2]) + float(in[i * 2 + 1])) * 0.5f;
+			float peak = m_peakMeter0.process(signal);
+			if (peak > threshold)
+				signal *= (threshold / peak);
+			out[i] += int(signal + 0.5f);
+		}
 	}
 	else
 	{
 		for(int i = 0; i < write; i++)
 		{
-			out[i * channels + ciLeft] += scale(in[i*2]);
-			out[i * channels + ciRight] += scale(in[i*2+1]);
+			float signal0 = m_volumeFactor * float(in[i * 2]);
+			float signal1 = m_volumeFactor * float(in[i * 2 + 1]);
+			float peak0 = m_peakMeter0.process(signal0);
+			float peak1 = m_peakMeter1.process(signal1);
+			if (peak0 > threshold)
+				signal0 *= (threshold / peak0);
+			if (peak1 > threshold)
+				signal1 *= (threshold / peak1);
+			out[i * channels + ciLeft] += int(signal0 + 0.5f);
+			out[i * channels + ciRight] += int(signal1 + 0.5f);
 		}
 	}
+#else
+	const int threshold = SHRT_MAX / 2;
+	if (channels == 1)
+	{
+		for (int i = 0; i < write; i++)
+		{
+			int signal = (m_volumeDivider * (in[i*2] / 2 + in[i*2+1] / 2)) >> volumeScaleExp;
+			int peak = m_peakMeter0.process(signal);
+			if (peak > threshold)
+				signal = PeakMeterInt::threshold(signal, peak, threshold);
+			out[i] += signal;
+		}
+	}
+	else
+	{
+		for (int i = 0; i < write; i++)
+		{
+			int signal0 = (m_volumeDivider * in[i * 2]) >> volumeScaleExp;
+			int signal1 = (m_volumeDivider * in[i * 2 + 1]) >> volumeScaleExp;
+			int peak0 = m_peakMeter0.process(signal0);
+			int peak1 = m_peakMeter1.process(signal1);
+			if (peak0 > threshold)
+				signal0 = PeakMeterInt::threshold(signal0, peak0, threshold);
+			if (peak1 > threshold)
+				signal1 = PeakMeterInt::threshold(signal1, peak1, threshold);
+			out[i * channels + ciLeft] += signal0;
+			out[i * channels + ciRight] += signal1;
+		}
+	}
+#endif
 #else
 	if(channels == 1)
 	{
@@ -278,7 +328,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	g_perfMeasurement += elapsed.count();
 	if(++g_perfMeasureCount >= 1000)
 	{
-		logInfo("Avg. time in fetchSamples: %f us", g_perfMeasurement / (double)g_perfMeasureCount * 1000000.0);
+		logInfo("Avg. time in fetchSamples: %f us, volume: %f", g_perfMeasurement / (double)g_perfMeasureCount * 1000000.0, m_volumeFactor);
 		g_perfMeasureCount = 0;
 		g_perfMeasurement = 0.0;
 	}
@@ -410,7 +460,8 @@ void Sampler::setMuteMyself(bool enabled)
 void Sampler::setVolumeDb( double decibel )
 {
 	double factor = pow(10.0, decibel/10.0);
-	m_volumeDivider = (int)(factor * 4096.0 + 0.5);
+	m_volumeFactor = (float)factor;
+	m_volumeDivider = (int)(factor * (1 << volumeScaleExp) + 0.5);
 }
 
 
