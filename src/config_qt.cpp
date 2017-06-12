@@ -93,6 +93,9 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 	ui->b_stop->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui->b_pause->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui->cb_mute_locally->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui->cb_mute_myself->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui->sl_volume->setContextMenuPolicy(Qt::CustomContextMenu);
 	
 	connect(ui->b_stop, SIGNAL(clicked()), this, SLOT(onClickedStop()));
 	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
@@ -108,6 +111,11 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->cb_show_hotkeys_on_buttons, SIGNAL(clicked(bool)), this, SLOT(onUpdateShowHotkeysOnButtons(bool)));
 	connect(ui->cb_disable_hotkeys, SIGNAL(clicked(bool)), this, SLOT(onUpdateHotkeysDisabled(bool)));
 	connect(ui->filterEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onFilterEditTextChanged(const QString&)));
+	connect(ui->cb_mute_locally, &QCheckBox::customContextMenuRequested,
+		[this](const QPoint &point) {this->showSetHotkeyMenu("mute_on_my_client", ui->cb_mute_locally->mapToGlobal(point));});
+	connect(ui->cb_mute_myself, &QCheckBox::customContextMenuRequested,
+		[this](const QPoint &point) {this->showSetHotkeyMenu("mute_myself", ui->cb_mute_myself->mapToGlobal(point));});
+	connect(ui->sl_volume, &QSlider::customContextMenuRequested, this, &ConfigQt::onVolumeSliderContextMenu);
 
     /* Load/Save Model */
     connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
@@ -928,6 +936,30 @@ void ConfigQt::onFilterEditTextChanged(const QString &text)
 		bool pass = filter.length() == 0 || (hasFile && buttonText.contains(filter, Qt::CaseInsensitive));
 		button.play->setVisible(pass);
 	}
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onVolumeSliderContextMenu(const QPoint &point)
+{
+	QString hotkeyStringIncr = getShortcutString("volume_increase");
+	QString hotkeyTextIncr = "Set 'increase 20%' hotkey (Current: " +
+		(hotkeyStringIncr.isEmpty() ? QString("None") : hotkeyStringIncr) + ")";
+
+	QString hotkeyStringDecr = getShortcutString("volume_decrease");
+	QString hotkeyTextDecr = "Set 'decrease 20%' hotkey (Current: " +
+		(hotkeyStringDecr.isEmpty() ? QString("None") : hotkeyStringDecr) + ")";
+
+	QMenu menu;
+	QAction *actIncr = menu.addAction(hotkeyTextIncr);
+	QAction *actDecr = menu.addAction(hotkeyTextDecr);
+	QAction *action = menu.exec(ui->sl_volume->mapToGlobal(point));
+	if (action == actIncr)
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), "volume_increase", 0, this);
+	else if (action == actDecr)
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), "volume_decrease", 0, this);
 }
 
 

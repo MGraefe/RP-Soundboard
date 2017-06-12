@@ -83,6 +83,7 @@ private slots:
 	void onButtonPausePressed();
 	void onButtonDroppedOnButton(SoundButton *button);
 	void onFilterEditTextChanged(const QString &filter);
+	void onVolumeSliderContextMenu(const QPoint &point);
 
     void onSetConfig();
     void onConfigHotkey();
