@@ -112,9 +112,9 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->cb_disable_hotkeys, SIGNAL(clicked(bool)), this, SLOT(onUpdateHotkeysDisabled(bool)));
 	connect(ui->filterEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onFilterEditTextChanged(const QString&)));
 	connect(ui->cb_mute_locally, &QCheckBox::customContextMenuRequested,
-		[this](const QPoint &point) {this->showSetHotkeyMenu("mute_on_my_client", ui->cb_mute_locally->mapToGlobal(point));});
+		[this](const QPoint &point) {this->showSetHotkeyMenu(HOTKEY_MUTE_ON_MY_CLIENT, ui->cb_mute_locally->mapToGlobal(point));});
 	connect(ui->cb_mute_myself, &QCheckBox::customContextMenuRequested,
-		[this](const QPoint &point) {this->showSetHotkeyMenu("mute_myself", ui->cb_mute_myself->mapToGlobal(point));});
+		[this](const QPoint &point) {this->showSetHotkeyMenu(HOTKEY_MUTE_MYSELF, ui->cb_mute_myself->mapToGlobal(point));});
 	connect(ui->sl_volume, &QSlider::customContextMenuRequested, this, &ConfigQt::onVolumeSliderContextMenu);
 
     /* Load/Save Model */
@@ -571,7 +571,7 @@ void ConfigQt::onColsBubbleFinished()
 //---------------------------------------------------------------
 void ConfigQt::showStopButtonContextMenu(const QPoint &point)
 {
-	showSetHotkeyMenu("stop_all", ui->b_stop->mapToGlobal(point));
+	showSetHotkeyMenu(HOTKEY_STOP_ALL, ui->b_stop->mapToGlobal(point));
 }
 
 
@@ -580,7 +580,7 @@ void ConfigQt::showStopButtonContextMenu(const QPoint &point)
 //---------------------------------------------------------------
 void ConfigQt::showPauseButtonContextMenu(const QPoint &point)
 {
-	showSetHotkeyMenu("pause_all", ui->b_pause->mapToGlobal(point));
+	showSetHotkeyMenu(HOTKEY_PAUSE_ALL, ui->b_pause->mapToGlobal(point));
 }
 
 
@@ -944,11 +944,11 @@ void ConfigQt::onFilterEditTextChanged(const QString &text)
 //---------------------------------------------------------------
 void ConfigQt::onVolumeSliderContextMenu(const QPoint &point)
 {
-	QString hotkeyStringIncr = getShortcutString("volume_increase");
+	QString hotkeyStringIncr = getShortcutString(HOTKEY_VOLUME_INCREASE);
 	QString hotkeyTextIncr = "Set 'increase 20%' hotkey (Current: " +
 		(hotkeyStringIncr.isEmpty() ? QString("None") : hotkeyStringIncr) + ")";
 
-	QString hotkeyStringDecr = getShortcutString("volume_decrease");
+	QString hotkeyStringDecr = getShortcutString(HOTKEY_VOLUME_DECREASE);
 	QString hotkeyTextDecr = "Set 'decrease 20%' hotkey (Current: " +
 		(hotkeyStringDecr.isEmpty() ? QString("None") : hotkeyStringDecr) + ")";
 
@@ -957,9 +957,9 @@ void ConfigQt::onVolumeSliderContextMenu(const QPoint &point)
 	QAction *actDecr = menu.addAction(hotkeyTextDecr);
 	QAction *action = menu.exec(ui->sl_volume->mapToGlobal(point));
 	if (action == actIncr)
-		ts3Functions.requestHotkeyInputDialog(getPluginID(), "volume_increase", 0, this);
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_INCREASE, 0, this);
 	else if (action == actDecr)
-		ts3Functions.requestHotkeyInputDialog(getPluginID(), "volume_decrease", 0, this);
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_DECREASE, 0, this);
 }
 
 

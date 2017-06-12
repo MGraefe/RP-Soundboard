@@ -309,12 +309,12 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 		CREATE_HOTKEY(kw, desc);
 	}
 
-    CREATE_HOTKEY("stop_all", "Stop all sounds");
-	CREATE_HOTKEY("pause_all", "Pause/unpause sound");
-	CREATE_HOTKEY("mute_myself", "Toggle 'Mute myself during playback'");
-	CREATE_HOTKEY("mute_on_my_client", "Toggle 'Mute on my client'");
-	CREATE_HOTKEY("volume_increase", "Increase volume by 20%");
-	CREATE_HOTKEY("volume_decrease", "Decrease volume by 20%");
+    CREATE_HOTKEY(HOTKEY_STOP_ALL, "Stop all sounds");
+	CREATE_HOTKEY(HOTKEY_PAUSE_ALL, "Pause/unpause sound");
+	CREATE_HOTKEY(HOTKEY_MUTE_MYSELF, "Toggle 'Mute myself during playback'");
+	CREATE_HOTKEY(HOTKEY_MUTE_ON_MY_CLIENT, "Toggle 'Mute on my client'");
+	CREATE_HOTKEY(HOTKEY_VOLUME_INCREASE, "Increase volume by 20%");
+	CREATE_HOTKEY(HOTKEY_VOLUME_DECREASE, "Decrease volume by 20%");
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */

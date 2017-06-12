@@ -337,27 +337,27 @@ CAPI void sb_onHotkeyPressed(const char * keyword)
 	{
 		sb_setConfig(btn);
 	}
-	else if (strcmp(keyword, "stop_all") == 0)
+	else if (strcmp(keyword, HOTKEY_STOP_ALL) == 0)
 	{
 		sb_stopPlayback();
 	}
-	else if (strcmp(keyword, "pause_all") == 0)
+	else if (strcmp(keyword, HOTKEY_PAUSE_ALL) == 0)
 	{
 		sb_pauseButtonPressed();
 	}
-	else if (strcmp(keyword, "mute_myself") == 0)
+	else if (strcmp(keyword, HOTKEY_MUTE_MYSELF) == 0)
 	{
 		configModel->setMuteMyselfDuringPb(!configModel->getMuteMyselfDuringPb());
 	}
-	else if (strcmp(keyword, "mute_on_my_client") == 0)
+	else if (strcmp(keyword, HOTKEY_MUTE_ON_MY_CLIENT) == 0)
 	{
 		configModel->setPlaybackLocal(!configModel->getPlaybackLocal());
 	}
-	else if (strcmp(keyword, "volume_increase") == 0)
+	else if (strcmp(keyword, HOTKEY_VOLUME_INCREASE) == 0)
 	{
 		configModel->setVolume(std::min(configModel->getVolume() + 20, 100));
 	}
-	else if (strcmp(keyword, "volume_decrease") == 0)
+	else if (strcmp(keyword, HOTKEY_VOLUME_DECREASE) == 0)
 	{
 		configModel->setVolume(std::max(configModel->getVolume() - 20, 0));
 	}

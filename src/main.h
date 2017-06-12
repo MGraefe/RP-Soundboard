@@ -47,4 +47,12 @@ CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key);
 CAPI void sb_onStopTalking();
 CAPI void sb_onHotkeyPressed(const char *keyword);
 
+
+#define HOTKEY_STOP_ALL "stop_all"
+#define HOTKEY_PAUSE_ALL "pause_all"
+#define HOTKEY_MUTE_MYSELF "mute_myself"
+#define HOTKEY_MUTE_ON_MY_CLIENT "mute_on_my_client"
+#define HOTKEY_VOLUME_INCREASE "volume_increase"
+#define HOTKEY_VOLUME_DECREASE "volume_decrease"
+
 #endif
