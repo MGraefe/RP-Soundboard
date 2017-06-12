@@ -20,7 +20,7 @@
 #include <cassert>
 #include <math.h>
 
-#define USE_SSE2
+//#define USE_SSE2
 //#define MEASURE_PERFORMANCE
 
 #ifdef USE_SSE2
@@ -44,6 +44,9 @@ static_assert(sizeof(short) == 2, "Short is weird size");
 #define ALIGNED_STACK_ARRAY(name, size, alignment) name[size] ALIGNED_(alignment) 
 
 #define MAX_SAMPLEBUFFER_SIZE (48000 * 5)
+#define AMP_THRESH (SHRT_MAX / 2)
+
+
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -53,6 +56,8 @@ Sampler::Sampler() :
 	m_sbPlayback(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sampleProducerThread(),
 	m_inputFile(NULL),
+	m_peakMeterCapture(0.01f, 0.00005f, 24000),
+	m_peakMeterPlayback(0.01f, 0.00005f, 24000),
 	m_volumeDivider(1),
 	m_state(eSILENT),
 	m_localPlayback(true),
@@ -145,13 +150,9 @@ double g_perfMeasurement = 0.0;
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight )
+int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight )
 {
-#ifdef MEASURE_PERFORMANCE
-	std::chrono::time_point<HighResClock> start, end;
-	start = HighResClock::now();
-#endif
-    //printf("fetchSamples: samples = %p, count = %i, channels = %i, ciLeft = %i, ciRight = %i\n", samples, count, channels, ciLeft, ciRight);
+	//printf("fetchSamples: samples = %p, count = %i, channels = %i, ciLeft = %i, ciRight = %i\n", samples, count, channels, ciLeft, ciRight);
 
 	if (m_state == ePAUSED)
 		return 0;
@@ -175,27 +176,38 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 			samples[i*channels+ciRight] = 0;
 
 	const int write = std::min(count, sb.avail());
-	//std::vector<short> buffer(maxSamples * 2);
-	//int write = sb.consume(buffer.data(), maxSamples, eraseConsumed);
 
 	const short* const in = sb.getBufferData();
 	short* const out = samples;
 
+#ifdef MEASURE_PERFORMANCE
+	std::chrono::time_point<HighResClock> start, end;
+	start = HighResClock::now();
+#endif
+
 #ifndef USE_SSE2
+	const float threshold = std::numeric_limits<short>::max() * 0.5f;
 	if(channels == 1)
 	{
-		for(int i = 0; i < write; i++)
-			out[i] += scale(in[i*2] / 2 + in[i*2+1] / 2);
+		for (int i = 0; i < write; i++)
+		{
+			float sample = out[i] + m_volumeFactor * (float(in[i * 2]) + float(in[i * 2 + 1])) * 0.5f;
+			pm.process(sample);
+			out[i] = pm.limit(sample, AMP_THRESH);
+		}
 	}
 	else
 	{
 		for(int i = 0; i < write; i++)
 		{
-			out[i * channels + ciLeft] += scale(in[i*2]);
-			out[i * channels + ciRight] += scale(in[i*2+1]);
+			float sample0 = out[i * channels + ciLeft] + m_volumeFactor * float(in[i * 2]);
+			float sample1 = out[i * channels + ciRight] + m_volumeFactor * float(in[i * 2 + 1]);
+			pm.process(fabs(sample0) > fabs(sample1) ? sample0 : sample1);
+			out[i * channels + ciLeft] = pm.limit(sample0, AMP_THRESH);
+			out[i * channels + ciRight] = pm.limit(sample1, AMP_THRESH);
 		}
 	}
-#else
+#else // SSE implementation is currently not feature complete (and not really beneficial performance wise either)
 	if(channels == 1)
 	{
 		__m128i ones = _mm_set1_epi16(1);
@@ -278,7 +290,8 @@ int Sampler::fetchSamples(SampleBuffer &sb, short *samples, int count, int chann
 	g_perfMeasurement += elapsed.count();
 	if(++g_perfMeasureCount >= 1000)
 	{
-		logInfo("Avg. time in fetchSamples: %f us", g_perfMeasurement / (double)g_perfMeasureCount * 1000000.0);
+		logInfo("Avg. time in fetchSamples: %f us, volume: %f, limiter: %f", g_perfMeasurement / (double)g_perfMeasureCount * 1000000.0,
+			m_volumeFactor, std::min(AMP_THRESH / m_peakMeterPlayback.getOutput(), 1.0f));
 		g_perfMeasureCount = 0;
 		g_perfMeasurement = 0.0;
 	}
@@ -300,7 +313,7 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
-	int written = fetchSamples(m_sbCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
+	int written = fetchSamples(m_sbCapture, m_peakMeterCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
 	
     if(m_state == ePLAYING && m_inputFile && m_inputFile->done())
 	{
@@ -326,7 +339,7 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	const unsigned int bitMaskRight = SPEAKER_FRONT_RIGHT | SPEAKER_HEADPHONES_RIGHT;
 	int ciLeft = findChannelId(bitMaskLeft, channelSpeakerArray, channels);
 	int ciRight = findChannelId(bitMaskRight, channelSpeakerArray, channels);
-	int written = fetchSamples(m_sbPlayback, samples, count, channels, true, ciLeft, ciRight,
+	int written = fetchSamples(m_sbPlayback, m_peakMeterPlayback, samples, count, channels, true, ciLeft, ciRight,
 		(*channelFillMask & bitMaskLeft) == 0,
 		(*channelFillMask & bitMaskRight) == 0);
 	
@@ -410,7 +423,8 @@ void Sampler::setMuteMyself(bool enabled)
 void Sampler::setVolumeDb( double decibel )
 {
 	double factor = pow(10.0, decibel/10.0);
-	m_volumeDivider = (int)(factor * 4096.0 + 0.5);
+	m_volumeFactor = (float)factor;
+	m_volumeDivider = (int)(factor * (1 << volumeScaleExp) + 0.5);
 }
 
 

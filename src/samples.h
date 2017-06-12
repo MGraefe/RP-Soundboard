@@ -14,6 +14,7 @@
 
 #include "SampleBuffer.h"
 #include "SampleProducerThread.h"
+#include "peakmeter.h"
 
 #include <mutex>
 #include <atomic>
@@ -62,11 +63,10 @@ private:
 	void stopSoundInternal();
 	bool playSoundInternal(const SoundInfo &sound, bool preview);
 	void setVolumeDb(double decibel);
-	int fetchSamples(SampleBuffer &sb, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
+	int fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
 	int findChannelId(unsigned int channel, const unsigned int *channelSpeakerArray, int count);
 	inline short scale(int val) const {
-		//return (short)((val << 16) / m_volumeDivider);
-		return (short)((val * m_volumeDivider) >> 12);
+		return (short)((val * m_volumeDivider) >> volumeScaleExp);
 	}
 	
 private:
@@ -74,7 +74,11 @@ private:
 	SampleBuffer m_sbPlayback;
 	SampleProducerThread m_sampleProducerThread;
 	InputFile *m_inputFile;
+	PeakMeter m_peakMeterCapture;
+	PeakMeter m_peakMeterPlayback;
 	int m_volumeDivider;
+	float m_volumeFactor;
+	static const int volumeScaleExp = 12;
 	double m_globalDbSetting;
 	double m_soundDbSetting;
 	std::mutex m_mutex;
