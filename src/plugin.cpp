@@ -290,8 +290,7 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 	 * The description is shown in the clients hotkey dialog. */
 	int i;
 	int numKeys = 200;
-	int numConfigs = 4;
-	int numExtra = 6;
+	int numExtra = NUM_CONFIGS + 6;
 	char kw[PLUGIN_HOTKEY_BUFSZ];
 	char desc[PLUGIN_HOTKEY_BUFSZ];
 
@@ -312,6 +311,10 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 
     CREATE_HOTKEY("stop_all", "Stop all sounds");
 	CREATE_HOTKEY("pause_all", "Pause/unpause sound");
+	CREATE_HOTKEY("mute_myself", "Toggle 'Mute myself during playback'");
+	CREATE_HOTKEY("mute_on_my_client", "Toggle 'Mute on my client'");
+	CREATE_HOTKEY("volume_increase", "Increase volume by 20%");
+	CREATE_HOTKEY("volume_decrease", "Decrease volume by 20%");
 	END_CREATE_HOTKEYS;
 
 	/* The client will call ts3plugin_freeMemory to release all allocated memory */
@@ -427,23 +430,7 @@ void ts3plugin_onMenuItemEvent(uint64 serverConnectionHandlerID, enum PluginMenu
 /* This function is called if a plugin hotkey was pressed. Omit if hotkeys are unused. */
 void ts3plugin_onHotkeyEvent(const char* keyword) 
 {
-	int btn = -1;
-	if(sscanf(keyword, "button_%i", &btn) > 0)
-	{
-		sb_playButton(btn - 1);
-	}
-    else if (sscanf(keyword, "config_%i", &btn) > 0)
-    {
-        sb_setConfig(btn);
-    }
-	else if(strcmp(keyword, "stop_all") == 0)
-	{
-		sb_stopPlayback();
-	}
-	else if (strcmp(keyword, "pause_all") == 0)
-	{
-		sb_pauseButtonPressed();
-	}
+	sb_onHotkeyPressed(keyword);
 }
 
 

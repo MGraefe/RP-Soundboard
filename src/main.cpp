@@ -326,3 +326,40 @@ CAPI void sb_onStopTalking()
 	tsMgr->onClientStopsTalking();
 }
 
+CAPI void sb_onHotkeyPressed(const char * keyword)
+{
+	int btn = -1;
+	if (sscanf(keyword, "button_%i", &btn) > 0)
+	{
+		sb_playButton(btn - 1);
+	}
+	else if (sscanf(keyword, "config_%i", &btn) > 0)
+	{
+		sb_setConfig(btn);
+	}
+	else if (strcmp(keyword, "stop_all") == 0)
+	{
+		sb_stopPlayback();
+	}
+	else if (strcmp(keyword, "pause_all") == 0)
+	{
+		sb_pauseButtonPressed();
+	}
+	else if (strcmp(keyword, "mute_myself") == 0)
+	{
+		configModel->setMuteMyselfDuringPb(!configModel->getMuteMyselfDuringPb());
+	}
+	else if (strcmp(keyword, "mute_on_my_client") == 0)
+	{
+		configModel->setPlaybackLocal(!configModel->getPlaybackLocal());
+	}
+	else if (strcmp(keyword, "volume_increase") == 0)
+	{
+		configModel->setVolume(std::min(configModel->getVolume() + 20, 100));
+	}
+	else if (strcmp(keyword, "volume_decrease") == 0)
+	{
+		configModel->setVolume(std::max(configModel->getVolume() - 20, 0));
+	}
+}
+

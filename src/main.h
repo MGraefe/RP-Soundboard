@@ -45,5 +45,6 @@ CAPI void sb_getInternalHotkeyName(int buttonId, char *buf); // buf should be at
 CAPI void sb_getInternalConfigHotkeyName(int configId, char *buf);
 CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key);
 CAPI void sb_onStopTalking();
+CAPI void sb_onHotkeyPressed(const char *keyword);
 
 #endif
