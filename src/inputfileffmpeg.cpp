@@ -399,7 +399,8 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 
 						m_convertedSamples += res;
 						written += res;
-						properFrames++;
+						if (res > 0)
+							properFrames++;
 					}
 				}
 				else
@@ -451,10 +452,6 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 	}
 
 	av_frame_free(&frame);
-
-	// something went wrong
-	if (written == 0 && properFrames == 0 && !m_done)
-		return -1;
 
 	return written;
 }

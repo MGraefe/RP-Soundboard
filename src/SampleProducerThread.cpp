@@ -168,12 +168,15 @@ bool SampleProducerThread::singleBufferFill()
 		if (buffer.enabled)
 		{
 			std::unique_lock<SampleBuffer::Mutex> sbl(buffer.buffer->getMutex());
-			while (buffer.buffer->avail() < MIN_BUFFER_SAMPLES && !m_source->done())
+			while (buffer.buffer->avail() < MIN_BUFFER_SAMPLES)
 			{
 				assert(buffer.buffer->maxSize() > MIN_BUFFER_SAMPLES && "Buffer too small");
 				sbl.unlock();
-				if (m_source->readSamples(this) < 0)
+				int samples = m_source->readSamples(this);
+				if (samples < 0) // error
 					return false;
+				if (samples == 0) // file is done
+					return true;
 				sbl.lock();
 			}
 		}
