@@ -17,6 +17,7 @@ class SampleSource
 {
 public:
 	virtual int readSamples(SampleProducer *sampleBuffer) = 0;
+	virtual bool done() const = 0;
 };
 
 #endif // rpsbsrc__SampleSource_H__

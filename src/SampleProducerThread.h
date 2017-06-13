@@ -42,7 +42,7 @@ public:
 private:
 	void run();
 	void threadFunc();
-	int singleBufferFill();
+	bool singleBufferFill();
 	void produce(const short *samples, int count) override;
 
 	typedef std::lock_guard<std::mutex> Lock;

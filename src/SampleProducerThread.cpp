@@ -83,8 +83,8 @@ void SampleProducerThread::run()
 	while(!m_stop)
 	{
 		m_mutex.lock();
-		if(m_source)
-			while(singleBufferFill() > 0) {}
+		if (m_source)
+			singleBufferFill();
 		m_mutex.unlock();
 
 		// We now have half a second of samples available and have done
@@ -161,20 +161,22 @@ void SampleProducerThread::produce( const short *samples, int count )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-int SampleProducerThread::singleBufferFill()
+bool SampleProducerThread::singleBufferFill()
 {
 	for(const buffer_t &buffer : m_buffers)
 	{
 		if (buffer.enabled)
 		{
 			std::unique_lock<SampleBuffer::Mutex> sbl(buffer.buffer->getMutex());
-			if (buffer.buffer->avail() < MIN_BUFFER_SAMPLES)
+			while (buffer.buffer->avail() < MIN_BUFFER_SAMPLES && !m_source->done())
 			{
 				assert(buffer.buffer->maxSize() > MIN_BUFFER_SAMPLES && "Buffer too small");
 				sbl.unlock();
-				return m_source->readSamples(this);
+				if (m_source->readSamples(this) < 0)
+					return false;
+				sbl.lock();
 			}
 		}
 	}
-	return 0;
+	return true;
 }

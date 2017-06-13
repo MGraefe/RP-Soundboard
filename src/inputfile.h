@@ -49,7 +49,6 @@ public:
 	virtual ~InputFile() {};
 	virtual int open(const char *filename, double startPosSeconds = 0.0, double playTimeSeconds = -1.0) = 0;
 	virtual int close() = 0;
-	virtual bool done() const = 0;
 	virtual int seek(double seconds) = 0;
 	virtual int64_t outputSamplesEstimation() const = 0;
 };

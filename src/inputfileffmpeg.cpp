@@ -371,7 +371,6 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 	{
 		if(packet.stream_index == m_streamIndex)
 		{
-			properFrames++;
 			AVPacket decodePacket = packet;
 			while(decodePacket.size > 0)
 			{
@@ -380,24 +379,28 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 				// we can use it
 				int gotFrame = 0;
 				int consumed = avcodec_decode_audio4(m_codecCtx, frame, &gotFrame, &decodePacket);
-				if(consumed >= 0 && gotFrame)
+				if(consumed >= 0)
 				{
 					decodePacket.size -= consumed;
 					decodePacket.data += consumed;
-					m_decodedSamples += frame->nb_samples;
-					m_decodedSamplesTargetSR += getTargetSamples(frame->nb_samples, m_outputSamplerate, m_codecCtx->sample_rate);
-
-					//Resample
-					int res = handleDecoded(frame, sampleBuffer);
-					if(LogFFmpegError(res, "Unable to resample") < 0)
+					if (gotFrame)
 					{
-						av_free_packet(&packet);
-						av_frame_free(&frame);
-						return -1;
-					}
+						m_decodedSamples += frame->nb_samples;
+						m_decodedSamplesTargetSR += getTargetSamples(frame->nb_samples, m_outputSamplerate, m_codecCtx->sample_rate);
 
-					m_convertedSamples += res;
-					written += res;
+						//Resample
+						int res = handleDecoded(frame, sampleBuffer);
+						if (LogFFmpegError(res, "Unable to resample") < 0)
+						{
+							av_free_packet(&packet);
+							av_frame_free(&frame);
+							return -1;
+						}
+
+						m_convertedSamples += res;
+						written += res;
+						properFrames++;
+					}
 				}
 				else
 				{
@@ -424,6 +427,7 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 			while (avcodec_decode_audio4(m_codecCtx, frame, &gotFrame, &packet) >= 0 && gotFrame)
 			{
 				// We now have a fully decoded audio frame
+				properFrames++;
 				int res = handleDecoded(frame, sampleBuffer);
 				if(LogFFmpegError(res, "Unable to resample") < 0)
 				{
@@ -447,6 +451,10 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 	}
 
 	av_frame_free(&frame);
+
+	// something went wrong
+	if (written == 0 && properFrames == 0 && !m_done)
+		return -1;
 
 	return written;
 }
@@ -508,8 +516,11 @@ int InputFileFFmpeg::_close()
 int64_t InputFileFFmpeg::outputSamplesEstimation() const
 {
 	AVStream *stream = m_fmtCtx->streams[m_streamIndex];
-	return stream->duration * (int64_t)stream->time_base.num * 
-		(int64_t)m_outputSamplerate / (int64_t)stream->time_base.den;
+	if (stream->duration > 0)
+		return stream->duration * (int64_t)stream->time_base.num *
+			(int64_t)m_outputSamplerate / (int64_t)stream->time_base.den;
+	else
+		return m_fmtCtx->duration * m_outputSamplerate / AV_TIME_BASE;
 }
 
 
