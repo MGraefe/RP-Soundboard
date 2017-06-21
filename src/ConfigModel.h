@@ -61,10 +61,10 @@ public:
 	const SoundInfo *getSoundInfo(int itemId) const;
 	void setSoundInfo(int itemId, const SoundInfo &info);
 
-	inline int getRows() const { return m_rows; }
+	inline int getRows() const { return m_rows[m_activeConfig]; }
 	void setRows(int n);
 
-	inline int getCols() const { return m_cols; }
+	inline int getCols() const { return m_cols[m_activeConfig]; }
 	void setCols(int n);
 
 	inline int getVolume() const { return m_volume; }
@@ -112,8 +112,8 @@ private:
 	std::array<std::vector<SoundInfo>, NUM_CONFIGS> m_sounds;
 	int m_activeConfig;
 
-    int m_rows;
-	int m_cols;
+    std::array<int, NUM_CONFIGS> m_rows;
+	std::array<int, NUM_CONFIGS> m_cols;
 	int m_volume;
 	bool m_playbackLocal;
 	bool m_muteMyselfDuringPb;

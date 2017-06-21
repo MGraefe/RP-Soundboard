@@ -23,8 +23,8 @@
 //---------------------------------------------------------------
 ConfigModel::ConfigModel()
 {
-    m_rows = 2;
-	m_cols = 5;
+	m_rows.fill(2);
+	m_cols.fill(5);
 	m_volume = 80;
 	m_playbackLocal = true;
 	m_muteMyselfDuringPb = false;
@@ -58,8 +58,11 @@ void ConfigModel::readConfig(const QString &file)
 	for (int i = 0; i < NUM_CONFIGS; i++)
 		m_sounds[i] = readConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i+1));
 
-    m_rows = settings.value("num_rows", 2).toInt();
-	m_cols = settings.value("num_cols", 5).toInt();
+	for (int i = 0; i < NUM_CONFIGS; i++)
+	{
+		m_rows[i] = settings.value(i == 0 ? QString("num_rows") : QString("num_rows%1").arg(i + 1), i == 0 ? 2 : m_rows[0]).toInt();
+		m_cols[i] = settings.value(i == 0 ? QString("num_cols") : QString("num_cols%1").arg(i + 1), i == 0 ? 5 : m_cols[0]).toInt();
+	}
 	m_volume = settings.value("volume", 50).toInt();
 	m_playbackLocal = settings.value("playback_local", true).toBool();
 	m_muteMyselfDuringPb = settings.value("mute_myself_during_pb", false).toBool();
@@ -88,8 +91,6 @@ void ConfigModel::writeConfig(const QString &file)
     QSettings settings(path, QSettings::IniFormat);
 
     settings.setValue("config_build", buildinfo_getBuildNumber());
-    settings.setValue("num_rows", m_rows);
-    settings.setValue("num_cols", m_cols);
     settings.setValue("volume", m_volume);
     settings.setValue("playback_local", m_playbackLocal);
     settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
@@ -103,6 +104,11 @@ void ConfigModel::writeConfig(const QString &file)
 
 	for (int i = 0; i < NUM_CONFIGS; i++)
 		writeConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i + 1), m_sounds[i]);
+	for (int i = 0; i < NUM_CONFIGS; i++)
+	{
+		settings.setValue(i == 0 ? QString("num_rows") : QString("num_rows%1").arg(i + 1), m_rows[i]);
+		settings.setValue(i == 0 ? QString("num_cols") : QString("num_cols%1").arg(i + 1), m_cols[i]);
+	}
 }
 
 
@@ -228,7 +234,7 @@ QString ConfigModel::GetFullConfigPath()
 //---------------------------------------------------------------
 void ConfigModel::setRows( int n )
 {
-	m_rows = n;
+	m_rows[m_activeConfig] = n;
 	writeConfig();
 	notify(NOTIFY_SET_ROWS, n);
 }
@@ -259,7 +265,7 @@ void ConfigModel::setCols( int n )
     //                (*m_sounds)[i * n + k] = (*m_sounds)[i * m_cols + k];
     //}
 
-	m_cols = n;
+	m_cols[m_activeConfig] = n;
 	writeConfig();
 	notify(NOTIFY_SET_COLS, n);
 }
@@ -433,8 +439,8 @@ void ConfigModel::notifyAllEvents()
 	//Notify all changes
 	for(int i = 0; i < sounds().size(); i++)
 		notify(NOTIFY_SET_SOUND, i);
-	notify(NOTIFY_SET_COLS, m_cols);
-	notify(NOTIFY_SET_ROWS, m_rows);
+	notify(NOTIFY_SET_COLS, getCols());
+	notify(NOTIFY_SET_ROWS, getRows());
 	notify(NOTIFY_SET_VOLUME, m_volume);
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
 	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
