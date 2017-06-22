@@ -135,7 +135,7 @@ std::vector<SoundInfo> ConfigModel::readConfiguration(QSettings &settings, const
 void ConfigModel::writeConfiguration(QSettings & settings, const QString &name, const std::vector<SoundInfo> &sounds)
 {
     settings.beginWriteArray(name);
-    for (int i = 0; i < numSounds(); i++)
+    for (int i = 0; i < (int)sounds.size(); i++)
     {
         settings.setArrayIndex(i);
         sounds[i].saveToConfig(settings);
