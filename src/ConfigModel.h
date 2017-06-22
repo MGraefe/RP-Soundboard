@@ -41,6 +41,7 @@ public:
 	class Observer
 	{
 	public:
+        virtual ~Observer() {}
 		virtual void notify(ConfigModel &model, notifications_e what, int data) = 0;
 	};
 
@@ -100,6 +101,7 @@ public:
     void setConfiguration(int config);
 
 	const std::vector<SoundInfo> &sounds() const { return m_sounds[m_activeConfig]; }
+    int numSounds() const { return (int)sounds().size(); }
 
 private:
 	std::vector<SoundInfo> &sounds() { return m_sounds[m_activeConfig]; }

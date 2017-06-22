@@ -19,7 +19,7 @@ void logMessage(const char *msg, LogLevel level,  ...)
 	va_list argptr;
 
 	va_start(argptr, level);
-	int num = vsnprintf(buf, 512, msg, argptr);
+    vsnprintf(buf, 512, msg, argptr);
 	va_end(argptr);
 
 	ts3Functions.logMessage(buf, level, "SB", 0);
@@ -38,7 +38,7 @@ UINT checkError(UINT code, const char *msg, ...)
 		va_list argptr;
 
 		va_start(argptr, msg);
-		int num = vsnprintf(buf, 512, msg, argptr);
+        vsnprintf(buf, 512, msg, argptr);
 		va_end(argptr);
 
 		ts3Functions.logMessage(buf, LogLevel_ERROR, "SB", 0);

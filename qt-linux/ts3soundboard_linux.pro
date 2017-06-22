@@ -16,7 +16,7 @@ DESTDIR = ../bin/$${BUILDTYPE}_lin
 
 QT += core network widgets gui
 
-DEFINES += LINUX QT_DLL QT_WIDGETS_LIB
+DEFINES += LINUX
 CONFIG(debug, release|debug):DEFINES += _DEBUG
 CONFIG(release, release|debug):DEFINES += NDEBUG
 
@@ -28,6 +28,8 @@ LIBS += -lavcodec \
     -lavformat \
     -lavutil \
     -lswresample
+
+QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 QMAKE_POST_LINK += "cp $${DESTDIR}/lib$${TARGET}.so $(TS3DIR)/plugins"
 

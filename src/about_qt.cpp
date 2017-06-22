@@ -12,7 +12,7 @@
 
 extern "C"
 {
-#include <libavutil\avutil.h>
+#include <libavutil/avutil.h>
 }
 
 

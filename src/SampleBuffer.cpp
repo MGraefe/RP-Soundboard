@@ -30,7 +30,7 @@ SampleBuffer::SampleBuffer( int channels, size_t maxSize /*= 0*/ ) :
 void SampleBuffer::produce( const short *samples, int count )
 {
 	assert(!m_mutex.try_lock() && "Mutex not locked");
-	if(m_maxSize == 0 || avail() < m_maxSize)
+    if(m_maxSize == 0 || avail() < (int)m_maxSize)
 	{
 		m_buf.insert(m_buf.end(), samples, samples + (count * m_channels));
 		if(m_cbProd)

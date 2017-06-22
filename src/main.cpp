@@ -43,7 +43,6 @@ public:
 
 
 static uint64 activeServerId = 1;
-static uint64 playingServerId = 1;
 
 ConfigModel *configModel = NULL;
 SpeechBubble *notConnectedBubble = NULL;
@@ -288,7 +287,9 @@ CAPI void sb_openAbout()
 
 CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) 
 {
-	if(newStatus == STATUS_DISCONNECTED)
+    Q_UNUSED(errorNumber)
+
+    if(newStatus == STATUS_DISCONNECTED)
 		connectionStatusMap.erase(serverConnectionHandlerID);
 	else
 		connectionStatusMap[serverConnectionHandlerID] = newStatus;

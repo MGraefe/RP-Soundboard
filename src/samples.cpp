@@ -59,10 +59,10 @@ Sampler::Sampler() :
 	m_peakMeterCapture(0.01f, 0.00005f, 24000),
 	m_peakMeterPlayback(0.01f, 0.00005f, 24000),
 	m_volumeDivider(1),
-	m_state(eSILENT),
-	m_localPlayback(true),
 	m_globalDbSetting(-1.0),
-	m_soundDbSetting(0.0)
+    m_soundDbSetting(0.0),
+    m_state(eSILENT),
+    m_localPlayback(true)
 {
     /* Ensure resources are loaded */
     Q_INIT_RESOURCE(qtres);
@@ -186,7 +186,6 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 #endif
 
 #ifndef USE_SSE2
-	const float threshold = std::numeric_limits<short>::max() * 0.5f;
 	if(channels == 1)
 	{
 		for (int i = 0; i < write; i++)

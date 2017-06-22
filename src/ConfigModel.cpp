@@ -135,7 +135,7 @@ std::vector<SoundInfo> ConfigModel::readConfiguration(QSettings &settings, const
 void ConfigModel::writeConfiguration(QSettings & settings, const QString &name, const std::vector<SoundInfo> &sounds)
 {
     settings.beginWriteArray(name);
-    for (int i = 0; i < sounds.size(); i++)
+    for (int i = 0; i < numSounds(); i++)
     {
         settings.setArrayIndex(i);
         sounds[i].saveToConfig(settings);
@@ -157,7 +157,7 @@ void ConfigModel::setConfiguration(int config)
 //---------------------------------------------------------------
 QString ConfigModel::getFileName( int itemId ) const
 {
-	if(itemId >= 0 && itemId < sounds().size())
+    if(itemId >= 0 && itemId < numSounds())
 		return sounds()[itemId].filename;
 	return QString();
 }
@@ -170,7 +170,7 @@ void ConfigModel::setFileName( int itemId, const QString &fn )
 {
 	if(itemId >= 0)
 	{
-		if(itemId < 1000 && itemId >= sounds().size())
+        if(itemId < 1000 && itemId >= numSounds())
 			sounds().resize(itemId + 1);
 		sounds()[itemId].filename = fn;
 		writeConfig();
@@ -184,7 +184,7 @@ void ConfigModel::setFileName( int itemId, const QString &fn )
 //---------------------------------------------------------------
 const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
 {
-	if(itemId >= 0 && itemId < sounds().size())
+    if(itemId >= 0 && itemId < numSounds())
 		return &sounds()[itemId];
 	return NULL;
 }
@@ -195,7 +195,7 @@ const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
 //---------------------------------------------------------------
 void ConfigModel::setSoundInfo( int itemId, const SoundInfo &info )
 {
-	if(itemId < 1000 && itemId >= sounds().size())
+    if(itemId < 1000 && itemId >= numSounds())
 		sounds().resize(itemId + 1);
 	sounds()[itemId] = info;
 	writeConfig();
@@ -437,7 +437,7 @@ std::vector<SoundInfo> ConfigModel::getInitialSounds()
 void ConfigModel::notifyAllEvents()
 {
 	//Notify all changes
-	for(int i = 0; i < sounds().size(); i++)
+    for(int i = 0; i < numSounds(); i++)
 		notify(NOTIFY_SET_SOUND, i);
 	notify(NOTIFY_SET_COLS, getCols());
 	notify(NOTIFY_SET_ROWS, getRows());

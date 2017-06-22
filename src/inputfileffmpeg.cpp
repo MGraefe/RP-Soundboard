@@ -71,7 +71,7 @@ void InitFFmpegLibrary()
 }
 
 
-int LogFFmpegError(int code, char *msg = NULL)
+int LogFFmpegError(int code, const char *msg = NULL)
 {
 	if(code < 0)
 	{
@@ -363,7 +363,6 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 	AVFrame *frame = av_frame_alloc();
 	AVPacket packet;
 	av_init_packet(&packet);
-	int sampleSize = av_samples_get_buffer_size(NULL, m_codecCtx->channels, 1, m_codecCtx->sample_fmt, 1);
 	int written = 0; //samples read
 
 	int properFrames = 0;

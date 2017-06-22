@@ -391,10 +391,6 @@ void ts3plugin_onEditCapturedVoiceDataEvent(uint64 serverConnectionHandlerID, sh
 	sb_handleCaptureData(serverConnectionHandlerID, samples, sampleCount, channels, edited);
 }
 
-PLUGINS_EXPORTDLL void ts3plugin_onCustom3dRolloffCalculationClientEvent(uint64 serverConnectionHandlerID, anyID clientID, float distance, float * volume)
-{
-    
-}
 
 /*
  * Called when a plugin menu item (see ts3plugin_initMenus) is triggered. Optional function, when not using plugin menus, do not implement this.

@@ -67,7 +67,7 @@ void SoundButton::dragMoveEvent(QDragMoveEvent *evt)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void SoundButton::dragLeaveEvent(QDragLeaveEvent *evt)
+void SoundButton::dragLeaveEvent(QDragLeaveEvent *)
 {
 	pressing = false;
 	dragging = false;

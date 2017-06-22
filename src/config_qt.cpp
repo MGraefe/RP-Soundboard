@@ -200,7 +200,7 @@ void ConfigQt::onLoadModel()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::closeEvent(QCloseEvent * evt)
+void ConfigQt::closeEvent(QCloseEvent *)
 {
 	m_model->setWindowSize(size().width(), size().height());
 }
@@ -293,7 +293,7 @@ void ConfigQt::createButtons()
 	{
 		for(int j = 0; j < numCols; j++)
 		{
-			button_element_t elem = {0};
+            button_element_t elem = {0, 0};
 			elem.layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
 			elem.layout->setSpacing(0);
 			ui->gridLayout->addLayout(elem.layout, i, j);
@@ -318,7 +318,7 @@ void ConfigQt::createButtons()
 		}
 	}
 
-	for(int i = 0; i < m_buttons.size(); i++)
+    for(int i = 0; i < (int)m_buttons.size(); i++)
 		updateButtonText(i);
 
 	if(m_buttonBubble)
@@ -367,7 +367,7 @@ bool ConfigQt::hotkeysEnabled()
 //---------------------------------------------------------------
 void ConfigQt::updateButtonText(int i)
 {
-	if(i >= m_buttons.size())
+    if(i >= (int)m_buttons.size())
 		return;
 
 	QString text;
