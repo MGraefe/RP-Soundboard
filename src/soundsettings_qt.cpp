@@ -103,6 +103,14 @@ void SoundSettingsQt::fillFromGui(SoundInfo &sound)
 	sound.customColor = this->customColor;
 }
 
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+SoundSettingsQt::~SoundSettingsQt()
+{
+	delete ui;
+}
+
 
 //---------------------------------------------------------------
 // Purpose: 

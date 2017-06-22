@@ -31,6 +31,7 @@ class SoundSettingsQt: public QDialog
 
 public:
 	explicit SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QWidget *parent = 0);
+	~SoundSettingsQt();
 	const SoundInfo &getSoundInfo() const { return m_soundInfo; }
 
 protected:

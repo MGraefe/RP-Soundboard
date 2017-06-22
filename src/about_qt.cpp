@@ -30,3 +30,12 @@ AboutQt::AboutQt(QWidget *parent) :
 	    "\nFFmpeg Version: " + (ffmpeg_version ? ffmpeg_version : "unknown"));
 	setFixedSize(size());
 }
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+AboutQt::~AboutQt()
+{
+	delete ui;
+}

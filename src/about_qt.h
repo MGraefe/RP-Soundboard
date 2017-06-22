@@ -25,6 +25,7 @@ class AboutQt : public QWidget
 
 public:
 	explicit AboutQt(QWidget *parent = 0);
+	~AboutQt();
 
 private:
 	Ui::AboutQt *ui;
