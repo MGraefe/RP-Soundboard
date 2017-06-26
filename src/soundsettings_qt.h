@@ -46,6 +46,7 @@ private slots:
 	void updateHotkeyText();
 	void onColorEnabledPressed();
 	void onChooseColorPressed();
+	void updateSoundView();
 
 private:
 	void initGui(const SoundInfo &sound);

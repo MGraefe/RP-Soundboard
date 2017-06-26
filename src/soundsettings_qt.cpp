@@ -51,6 +51,12 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QW
 	connect(ui->colorCheckBox, SIGNAL(clicked()), this, SLOT(onColorEnabledPressed()));
 	connect(ui->colorButton, SIGNAL(clicked()), this, SLOT(onChooseColorPressed()));
 	connect(parent, SIGNAL(hotkeyRecordedEvent(QString,QString)), this, SLOT(updateHotkeyText()));
+	connect(ui->startSoundUnitCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSoundView()));
+	connect(ui->stopSoundUnitCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSoundView()));
+	connect(ui->stopSoundAtAfterCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSoundView()));
+	connect(ui->startSoundValueSpin, SIGNAL(valueChanged(int)), this, SLOT(updateSoundView()));
+	connect(ui->stopSoundValueSpin, SIGNAL(valueChanged(int)), this, SLOT(updateSoundView()));
+	connect(ui->groupCrop, SIGNAL(clicked(bool)), this, SLOT(updateSoundView()));
 	initGui(m_soundInfo);
 
 	m_timer = new QTimer(this);
@@ -224,6 +230,15 @@ void SoundSettingsQt::onChooseColorPressed()
 	customColor = QColorDialog::getColor(customColor, this, "Custom button color");
 	customColor.setAlpha(alpha);
 	ui->colorButton->setStyleSheet(QString("background-color: %1").arg(customColor.name()));
+}
+
+
+void SoundSettingsQt::updateSoundView()
+{
+	SoundInfo info;
+	fillFromGui(info);
+	m_soundview->setSound(info);
+	m_soundview->update();
 }
 
 

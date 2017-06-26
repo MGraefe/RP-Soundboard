@@ -44,6 +44,9 @@ public:
 		return m_numSamplesTotalEst;
 	}
 
+	// Get file length in seconds, might be an estimation when processing isn't finished yet
+	double fileLength() const;
+
 	static SampleVisualizerThread &GetInstance();
 
 private:

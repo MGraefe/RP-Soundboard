@@ -38,9 +38,32 @@ void SoundView::paintEvent(QPaintEvent *evt)
 	painter.setBrush(QColor(30, 30, 30));
 	painter.drawRect(QRect(0, 0, width() - 1, height() - 1));
 
-	painter.setPen(QColor(0, 130, 230));
-	painter.setBrush(QColor(0, 130, 230));
+	painter.setPen(QColor(255, 255, 255));
+	painter.setBrush(QColor(255, 255, 255));
 	drawWaves(&painter);
+
+	double songLength = SampleVisualizerThread::GetInstance().fileLength();
+	double start = m_soundInfo.getStartTime();
+	double playTime = m_soundInfo.getPlayTime();
+	double end = (playTime > 0.0) ? (start + playTime) : songLength;
+	int startPixel = int(start / songLength * (width() - 1));
+	int endPixel = int(end / songLength * (width() - 1));
+
+	painter.setPen(QColor(255, 174, 0));
+	painter.setBrush(Qt::NoBrush);
+	painter.drawRect(startPixel, 0, endPixel - startPixel, height() - 1);
+
+	painter.setCompositionMode(QPainter::CompositionMode_Multiply);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(QColor(0, 130, 230, 255));
+	painter.drawRect(startPixel + 1, 1, endPixel - startPixel - 1, height() - 2);
+
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(QColor(100, 100, 100));
+	if (start > 0.0)
+		painter.drawRect(0, 0, startPixel, height() - 1);
+	if (end < songLength)
+		painter.drawRect(endPixel + 1, 0, width() - 1 - (endPixel + 1), height() - 1);
 }
 
 
@@ -59,12 +82,17 @@ void SoundView::resizeEvent(QResizeEvent *evt)
 //---------------------------------------------------------------
 void SoundView::setSound( const SoundInfo &sound )
 {
+	bool filenameDiffers = m_soundInfo.filename != sound.filename;
 	m_soundInfo = sound;
 	m_drawnBins = 0;
-	if(!sound.filename.isEmpty())
+	if(filenameDiffers && !sound.filename.isEmpty())
 	{
 		SampleVisualizerThread::GetInstance().startAnalysis(sound.filename.toUtf8(), 1024);
 		m_timer->start(250);
+	}
+	else
+	{
+		update();
 	}
 }
 

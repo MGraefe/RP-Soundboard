@@ -14,6 +14,7 @@
 #include "SampleBuffer.h"
 
 #define MIN_SAMPLES_PER_ITERATION (1024 * 32)
+#define SAMPLE_RATE 44100;
 
 
 //---------------------------------------------------------------
@@ -31,6 +32,16 @@ void SampleVisualizerThread::SampleBufferSynced::produce(const short *samples, i
 {
 	SampleBuffer::Lock l(getMutex());
 	SampleBuffer::produce(samples, count);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+double SampleVisualizerThread::fileLength() const
+{
+	uint64_t samples = m_running ? m_numSamplesTotalEst : m_numSamplesProcessed;
+	return double(samples) / SAMPLE_RATE;
 }
 
 
@@ -182,7 +193,7 @@ void SampleVisualizerThread::openNewFile()
 		delete m_file;
 	InputFileOptions options;
 	options.outputChannelLayout = InputFileOptions::MONO;
-	options.outputSampleRate = 44100;
+	options.outputSampleRate = SAMPLE_RATE;
 	m_file = CreateInputFileFFmpeg(options);
 	if(m_file->open(m_filename.c_str()) == 0)
 		m_numSamplesTotalEst = m_file->outputSamplesEstimation();
