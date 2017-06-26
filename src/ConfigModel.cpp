@@ -39,6 +39,7 @@ ConfigModel::ConfigModel()
 	m_hotkeysEnabled = true;
 
     m_activeConfig = 0;
+	m_nextUpdateCheck = 0;
 }
 
 
@@ -73,6 +74,7 @@ void ConfigModel::readConfig(const QString &file)
 	m_bubbleColsBuild = settings.value("bubble_cols_build", 0).toInt();
 	m_showHotkeysOnButtons = settings.value("show_hotkeys_on_buttons", false).toBool();
 	m_hotkeysEnabled = settings.value("hotkeys_enabled", true).toBool();
+	m_nextUpdateCheck = settings.value("next_update_check", 0).toUInt();
 
 	notifyAllEvents();
 }
@@ -101,6 +103,7 @@ void ConfigModel::writeConfig(const QString &file)
     settings.setValue("bubble_cols_build", m_bubbleColsBuild);
     settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
 	settings.setValue("hotkeys_enabled", m_hotkeysEnabled);
+	settings.setValue("next_update_check", m_nextUpdateCheck);
 
 	for (int i = 0; i < NUM_CONFIGS; i++)
 		writeConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i + 1), m_sounds[i]);
@@ -323,6 +326,16 @@ void ConfigModel::setWindowSize(int width, int height)
 	m_windowWidth = width;
 	m_windowHeight = height;
 	notify(NOTIFY_SET_WINDOW_SIZE, 0);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setNextUpdateCheck(uint time)
+{
+	m_nextUpdateCheck = time;
+	notify(NOTIFY_SET_NEXT_UPDATE_CHECK, (int)time);
 }
 
 

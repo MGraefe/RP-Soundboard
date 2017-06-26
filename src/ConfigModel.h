@@ -36,6 +36,7 @@ public:
 		NOTIFY_SET_BUBBLE_COLS_BUILD,
 		NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS,
 		NOTIFY_SET_HOTKEYS_ENABLED,
+		NOTIFY_SET_NEXT_UPDATE_CHECK,
 	};
 
 	class Observer
@@ -103,6 +104,9 @@ public:
 	const std::vector<SoundInfo> &sounds() const { return m_sounds[m_activeConfig]; }
     int numSounds() const { return (int)sounds().size(); }
 
+	uint getNextUpdateCheck() const { return m_nextUpdateCheck; }
+	void setNextUpdateCheck(uint time);
+
 private:
 	std::vector<SoundInfo> &sounds() { return m_sounds[m_activeConfig]; }
 	void notify(notifications_e what, int data);
@@ -128,6 +132,8 @@ private:
 
 	bool m_showHotkeysOnButtons;
 	bool m_hotkeysEnabled;
+
+	uint m_nextUpdateCheck;
 };
 
 #endif // rpsbsrc__ConfigModel_H__

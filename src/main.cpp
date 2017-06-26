@@ -169,7 +169,7 @@ CAPI void sb_init()
 	configModel->notifyAllEvents();
 
 	updateChecker = new UpdateChecker();
-	updateChecker->startCheck();
+	updateChecker->startCheck(false, configModel);
 }
 
 
@@ -362,5 +362,13 @@ CAPI void sb_onHotkeyPressed(const char * keyword)
 	{
 		configModel->setVolume(std::max(configModel->getVolume() - 20, 0));
 	}
+}
+
+
+CAPI void sb_checkForUpdates()
+{
+	if (!updateChecker)
+		updateChecker = new UpdateChecker();
+	updateChecker->startCheck(true);
 }
 

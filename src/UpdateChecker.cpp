@@ -27,12 +27,14 @@
 #include <QtWidgets/QMessageBox>
 #include <QtCore/QFileInfo>
 #include <QtCore/QDir>
+#include <QDateTime>
 
 #include "buildinfo.h"
 
 #include "UpdateChecker.h"
 #include "ts3log.h"
 #include "updater_qt.h"
+#include "ConfigModel.h"
 
 #if defined(_WIN32)
 #define CHECK_URL "http://mgraefe.de/rpsb/version/version.xml"
@@ -65,7 +67,9 @@ bool isValid(const QXmlStreamReader &xml)
 //---------------------------------------------------------------
 UpdateChecker::UpdateChecker( QObject *parent /*= NULL*/ ) :
 	QObject(parent),
-	m_updater(NULL)
+	m_updater(NULL),
+	m_config(NULL),
+	m_explicitCheck(false)
 {
 
 }
@@ -74,8 +78,15 @@ UpdateChecker::UpdateChecker( QObject *parent /*= NULL*/ ) :
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void UpdateChecker::startCheck()
+void UpdateChecker::startCheck(bool explicitCheck, ConfigModel *config)
 {
+	m_explicitCheck = explicitCheck;
+	m_config = config;
+	
+	uint currentTime = QDateTime::currentDateTime().toTime_t();
+	if (!m_explicitCheck && m_config && currentTime < m_config->getNextUpdateCheck())
+		return;
+
 	m_mgr = new QNetworkAccessManager(this);
 	connect(m_mgr, SIGNAL(finished(QNetworkReply*)), this, SLOT(onFinishDownload(QNetworkReply*)));
 
@@ -130,6 +141,20 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 			}
 			else
 				askUserForUpdate();
+		}
+		else // no new version
+		{
+			if (m_config)
+			{
+				// No update found -> don't bother checking again for a day
+				uint currentTime = QDateTime::currentDateTime().toTime_t();
+				m_config->setNextUpdateCheck(currentTime + 60 * 60 * 24);
+			}
+
+			if (m_explicitCheck)
+			{
+				QMessageBox::information(NULL, "Update Check", "Your version of RP Soundboard is up to date.");
+			}
 		}
 	}
 }
@@ -255,6 +280,15 @@ void UpdateChecker::askUserForUpdate()
 		connect(m_updater, SIGNAL(finished()), this, SLOT(onFinishedUpdate()));
 		m_updater->show();
 		m_updater->startDownload(url, info, true);
+	}
+	else
+	{
+		if (m_config)
+		{
+			// Don't bother user for 3 days
+			uint currentTime = QDateTime::currentDateTime().toTime_t();
+			m_config->setNextUpdateCheck(currentTime + 60 * 60 * 24 * 3);
+		}
 	}
 }
 

@@ -17,6 +17,7 @@
 class QNetworkReply;
 class QNetworkAccessManager;
 class UpdaterWindow;
+class ConfigModel;
 
 class UpdateChecker : public QObject
 {
@@ -38,7 +39,7 @@ public:
 
 public:
 	explicit UpdateChecker(QObject *parent = NULL);
-	void startCheck();
+	void startCheck(bool explicitCheck = true, ConfigModel *config = false);
 	static QByteArray getUserAgent();
 	static void setUserAgent(QNetworkRequest &request);
 
@@ -64,6 +65,8 @@ private:
 	QNetworkAccessManager *m_mgr;
 	version_info_t m_verInfo;
 	UpdaterWindow *m_updater;
+	ConfigModel *m_config;
+	bool m_explicitCheck;
 };
 
 #endif // rpsbsrc__UpdateChecker_H__
