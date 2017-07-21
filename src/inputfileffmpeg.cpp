@@ -421,7 +421,10 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 			// Some codecs will cause frames to be buffered up in the decoding process. If the CODEC_CAP_DELAY flag
 			// is set, there can be buffered up frames that need to be flushed, so we'll do that
 
-			av_init_packet(&packet);
+			//av_init_packet(&packet);
+			packet.data = NULL;
+			packet.size = 0;
+
 			// Decode all the remaining frames in the buffer, until the end is reached
 			int gotFrame = 0;
 			while (avcodec_decode_audio4(m_codecCtx, frame, &gotFrame, &packet) >= 0 && gotFrame)
@@ -438,18 +441,17 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 				written += res;
 			}
 		}
-		else
+
+		//Flush resampling
+		int res;
+		while(m_convertedSamples < m_decodedSamplesTargetSR && (res = handleDecoded(NULL, sampleBuffer)) > 0)
 		{
-			//Flush resampling
-			int res;
-			while(m_convertedSamples < m_decodedSamplesTargetSR && (res = handleDecoded(NULL, sampleBuffer)) > 0)
-			{
-				written += res;
-			}
-			m_done = true;
+			written += res;
 		}
+		m_done = true;
 	}
 
+	av_free_packet(&packet);
 	av_frame_free(&frame);
 
 	return written;
