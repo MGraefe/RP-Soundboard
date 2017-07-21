@@ -140,9 +140,9 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	/* Force configuration 0 */
 	setConfiguration(0);
 
-	setStyleSheet(
+	ui->gridWidget->setStyleSheet(
 		"QPushButton {"
-		"  padding: 2px;"
+		"  padding: 4px;"
 		"  border: 1px solid rgb(173, 173, 173);"
 		"  color: black;"
 		"  background-color: rgb(225, 225, 225);"

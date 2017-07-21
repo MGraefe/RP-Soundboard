@@ -34,14 +34,16 @@
     <number>0</number>
    </property>
    <item>
-    <layout class="QGridLayout" name="gridLayout">
-     <property name="bottomMargin">
-      <number>3</number>
-     </property>
-     <property name="spacing">
-      <number>3</number>
-     </property>
-    </layout>
+    <widget class="QWidget" name="gridWidget" native="true">
+     <layout class="QGridLayout" name="gridLayout">
+      <property name="bottomMargin">
+       <number>3</number>
+      </property>
+      <property name="spacing">
+       <number>3</number>
+      </property>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QFrame" name="frame">
