@@ -48,7 +48,7 @@ void SoundButton::dragEnterEvent(QDragEnterEvent *evt)
 {
 	if (evt->mimeData()->hasUrls() || evt->mimeData()->hasFormat(getButtonMime()))
 	{
-		setStyleSheet("background-color: #99ccff;");
+		applyBackgroundColor(QColor(153, 204, 255));
 		evt->acceptProposedAction();
 	}
 }
@@ -71,7 +71,7 @@ void SoundButton::dragLeaveEvent(QDragLeaveEvent *)
 {
 	pressing = false;
 	dragging = false;
-	setBackgroundColor(backgroundColor);
+	applyBackgroundColor(backgroundColor);
 }
 
 
@@ -82,7 +82,7 @@ void SoundButton::dropEvent(QDropEvent *evt)
 {
 	pressing = false;
 	dragging = false;
-	setBackgroundColor(backgroundColor);
+	applyBackgroundColor(backgroundColor);
 	SoundButton *button = nullptr;
 	if (evt->mimeData()->hasUrls())
 	{
@@ -143,7 +143,15 @@ void SoundButton::mouseMoveEvent(QMouseEvent *evt)
 void SoundButton::setBackgroundColor(const QColor &color)
 {
 	backgroundColor = color;
-	
+	applyBackgroundColor(color);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void SoundButton::applyBackgroundColor(const QColor & color)
+{
 	if (color.alpha() != 0)
 	{
 		float brightness = 0.2126f * color.redF() + 0.7152f * color.greenF() + 0.0722f * color.blueF();

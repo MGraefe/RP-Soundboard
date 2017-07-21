@@ -137,8 +137,29 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 
 	m_model->addObserver(&m_modelObserver);
 
-    /* Force configuration 0 */
-    setConfiguration(0);
+	/* Force configuration 0 */
+	setConfiguration(0);
+
+	setStyleSheet(
+		"QPushButton {"
+		"  padding: 2px;"
+		"  border: 1px solid rgb(173, 173, 173);"
+		"  color: black;"
+		"  background-color: rgb(225, 225, 225);"
+		"}"
+		"QPushButton:disabled {"
+		"  background-color: rgb(204, 204, 204);"
+		"  border-color: rgb(191, 191, 191);"
+		"  color: rgb(120, 120, 120);"
+		"}"
+		"QPushButton:hover {"
+		"  background-color: rgb(228, 239, 249);"
+		"  border-color: rgb(11, 123, 212);"
+		"}"
+		"QPushButton:pressed {"
+		"  background-color: rgb(204, 228, 247);"
+		"  border-color: rgb(0, 85, 155);"
+		"}");
 }
 
 void ConfigQt::setConfiguration(int cfg)

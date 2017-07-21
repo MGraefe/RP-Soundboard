@@ -30,6 +30,8 @@ signals:
 	void buttonDropped(SoundButton *button);
 
 private:
+	void applyBackgroundColor(const QColor &color);
+
 	bool pressing;
 	bool dragging;
 	QPoint dragStart;
