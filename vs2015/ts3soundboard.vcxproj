@@ -580,8 +580,9 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "$(USERPROFILE)\Documents\Teamspeak3_win32\config\plugins\$(TargetFileName)"
-xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(USERPROFILE)\Documents\Teamspeak3\plugins\rp_soundboard\"</Command>
+      <Command>copy "$(TargetPath)" "$(APPDATA)\TS3Client\plugins\$(TargetFileName)"
+
+xcopy /Y "$(ProjectDir)..\img\rpmb_icon_16.png" "$(APPDATA)\TS3Client\plugins\rp_soundboard\"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
