@@ -39,7 +39,7 @@ public:
 
 public:
 	explicit UpdateChecker(QObject *parent = NULL);
-	void startCheck(bool explicitCheck = true, ConfigModel *config = false);
+	void startCheck(bool explicitCheck = true, ConfigModel *config = NULL);
 	static QByteArray getUserAgent();
 	static void setUserAgent(QNetworkRequest &request);
 
