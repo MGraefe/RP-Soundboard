@@ -1,7 +1,33 @@
-#!/bin/sh
+#!/bin/bash
+
+unameOut="$(uname -s)"
+case "${unameOut}" in
+	Linux*) 	machine=Linux;;
+	Darwin*) 	machine=Mac;;
+	*) 		machine=Windows
+esac
+
+if [[ "$machine" == "Windows" ]]; then
+	toolchainopt="--toolchain=msvc"
+else
+	toolchainopt=""
+fi
+
+
+if [[ "$1" == "x86" ]]; then
+	archprefix="x86"
+	arch="x86"
+elif [[ "$1" == "x64" || "$1" == "x86_64" || "$1" == "amd64" || "$(uname -m)" == "x86_64" ]]; then
+	archprefix="x64"
+	arch="x86_64"
+else
+	archprefix="x86"
+	arch="x86"
+fi
+
+echo "Machine =" $machine $arch
 
 opts="\
---toolchain=msvc \
 --disable-programs \
 --disable-doc \
 --disable-avdevice \
@@ -284,11 +310,7 @@ disabled_decs="\
 --disable-decoder=webvtt \
 --disable-decoder=xsub"
 
-if [ "$1" == "x86" ]; then
-	cmd="./configure --arch=x86 --prefix=x86 $opts $disabled_decs"
-else
-	cmd="./configure --arch=x86_64 --prefix=x64 $opts $disabled_decs"
-fi
+cmd="./configure --arch=$arch --prefix=$archprefix $toolchainopt $opts $disabled_decs"
 
 pushd ffmpeg
 echo "Command: $cmd"
