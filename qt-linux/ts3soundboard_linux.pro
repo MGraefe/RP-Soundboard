@@ -10,6 +10,11 @@ CONFIG(release, release|debug):BUILDTYPE = "release"
 	error(evironment variable TS3DIR=\'$(TS3DIR)\' invalid or not set);
 }
 
+version_script.target = ../src/version/version.h
+version_script.commands = "cd ../src/version && python version.py"
+version_script.depends = "../src/version/version.txt"
+QMAKE_EXTRA_TARGETS += version_script
+
 TEMPLATE = lib
 TARGET = rp_soundboard
 DESTDIR = ../bin/$${BUILDTYPE}_lin
