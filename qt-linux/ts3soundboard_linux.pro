@@ -25,9 +25,9 @@ DEFINES += LINUX
 CONFIG(debug, release|debug):DEFINES += _DEBUG
 CONFIG(release, release|debug):DEFINES += NDEBUG
 
-INCLUDEPATH += ../include
+INCLUDEPATH += ../include ../ffmpeg/linux/lib_lin_x$${ARCHID}/include
 
-LIBS += -L$(TS3DIR)
+LIBS += -L$(TS3DIR) -L../ffmpeg/linux/lib_lin_x$${ARCHID}
 
 LIBS += -lavcodec \
     -lavformat \
@@ -37,7 +37,6 @@ LIBS += -lavcodec \
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 QMAKE_POST_LINK += "cp $${DESTDIR}/lib$${TARGET}.so $(TS3DIR)/plugins"
-
 
 include(./ts3soundboard.pri)
 
