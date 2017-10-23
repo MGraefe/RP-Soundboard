@@ -158,11 +158,37 @@ const char* ts3plugin_commandKeyword()
 	return "ts3sb";
 }
 
-///* Plugin processes console command. Return 0 if plugin handled the command, 1 if not handled. */
-//int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* command) 
-//{
-//	return 1;
-//}
+/* Plugin processes console command. Return 0 if plugin handled the command, 1 if not handled. */
+int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* command) 
+{
+	char* args[3]; // <[conf] <snd>|<stop>> -> max 2, 3+ == error
+	char* token; //last strtok result
+	int argc = 0; //number of arguments
+	
+	char* tokanize = strdup(command); //create working copy of command for strtok that is not const
+	if (tokanize != NULL)
+	{
+		token = strtok((char*)tokanize, " ");
+		while (token != NULL && argc < 3) //read next token, but not more than 3
+		{
+			args[argc++] = token; //append token, increase arg counter
+			token = strtok(NULL, " "); //try to read next token
+		}
+		free(tokanize);
+	}
+
+	//convert string to lower (if you know a lib you can use it)
+	for (int a = 0; a<argc; a++)
+	{
+		char* b = args[argc];
+		for (; *b != 0; b++)
+			//assuming ascii encoding, turning on the 6th bit (value equals space) will convert it to lower case
+			if (*b >= 'A' && *b <= 'Z')
+				*b |= ' '; // tuning on 6th bit, converting upper case letters to lower case (see ascii table)
+	}
+
+	return sb_parseCommand(args, argc);
+}
 
 /* Client changed current server connection handler */
 void ts3plugin_currentServerConnectionChanged(uint64 serverConnectionHandlerID) 

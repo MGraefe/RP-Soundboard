@@ -260,6 +260,28 @@ CAPI void sb_pauseButtonPressed()
 		sb_unpauseSound();
 }
 
+/** play button by name or index(strtol), return 0 on success */
+CAPI int sb_playButtonEx(const char* button)
+{
+	long arg1 = strtol(button, NULL, 10);
+
+	if ((NULL != configDialog) && (configDialog->hotkeysEnabled()))
+	{
+		if (arg1 <= 0)
+		{
+			//TODO search by name, too lazy right now
+		}
+		else
+		{
+			const SoundInfo *sound = configModel->getSoundInfo(arg1);
+			if (sound)
+				sb_playFile(*sound);
+			else
+				return 1;
+		}
+	}
+	return 0;
+}
 
 CAPI void sb_playButton(int btn)
 {
@@ -372,3 +394,34 @@ CAPI void sb_checkForUpdates()
 	updateChecker->startCheck(true);
 }
 
+/** return 0 if the command was handled, 1 otherwise */
+CAPI int sb_parseCommand(char** args, int argc)
+{
+	if (argc >= 3)
+		ts3Functions.printMessageToCurrentTab("Too many arguments");
+	else if (argc == 0)
+		sb_openDialog();
+	else if (argc == 1)
+	{
+		long arg1 = strtol(args[0], NULL, 10);
+		if (strcmp(args[0], "stop")==0)
+			sb_stopPlayback();
+		else if (strcmp(args[0], "-?") == 0)
+			ts3Functions.printMessageToCurrentTab("Arguments: 'stop' to stop playback or '[configuration number] <button number>'");
+		else if (sb_playButtonEx(args[0]) != 0)
+			ts3Functions.printMessageToCurrentTab("No such button found");
+	}
+	else if (argc == 2)
+	{
+		long arg0 = strtol(args[0], NULL, 10);
+		int pconfig = configModel->getConfiguration(); //TODO ConfigModel::getConfiguration() { return m_activeConfig; }
+		if (arg0 < 1 || arg0 > 4)
+			ts3Functions.printMessageToCurrentTab("Invalid configuration number");
+		configModel->setConfiguration((int)arg0); //switch to specified configuration
+		if (sb_playButtonEx(args[0]) != 0)
+			ts3Functions.printMessageToCurrentTab("No such button found");
+		configModel->setConfiguration(pconfig); //return to previous configuration
+
+	}
+	return 0;
+}
