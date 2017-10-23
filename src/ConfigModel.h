@@ -100,6 +100,7 @@ public:
 	void remObserver(Observer *obs);
 
     void setConfiguration(int config);
+	int getConfiguration();
 
 	const std::vector<SoundInfo> &sounds() const { return m_sounds[m_activeConfig]; }
     int numSounds() const { return (int)sounds().size(); }

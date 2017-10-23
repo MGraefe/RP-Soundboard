@@ -155,6 +155,11 @@ void ConfigModel::setConfiguration(int config)
     notifyAllEvents();
 }
 
+int ConfigModel::getConfiguration()
+{
+	return m_activeConfig;
+}
+
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------

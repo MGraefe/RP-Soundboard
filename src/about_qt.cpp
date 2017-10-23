@@ -12,7 +12,8 @@
 
 extern "C"
 {
-#include <libavutil/avutil.h>
+//#include <libavutil/avutil.h>
+const char *av_version_info();
 }
 
 
