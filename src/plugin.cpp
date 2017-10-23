@@ -155,7 +155,7 @@ void ts3plugin_registerPluginID(const char* id)
 /* Plugin command keyword. Return NULL or "" if not used. */
 const char* ts3plugin_commandKeyword() 
 {
-	return "ts3sb";
+	return "rpsb";
 }
 
 /* Plugin processes console command. Return 0 if plugin handled the command, 1 if not handled. */
