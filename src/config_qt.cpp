@@ -737,13 +737,12 @@ void ConfigQt::openHotkeySetDialog( size_t buttonId, QWidget *parent )
 //---------------------------------------------------------------
 QString ConfigQt::getShortcutString(const char *internalName)
 {
-	char *hotkeyName = new char[128];
-    hotkeyName[0] = 0;
+	std::vector<char> name(128, 0);
+	char *namePtr = name.data();
 	unsigned int res = ts3Functions.getHotkeyFromKeyword(
-		getPluginID(), &internalName, &hotkeyName, 1, 128);
-	QString name = res == 0 ? QString(hotkeyName) : QString();
-	delete[] hotkeyName;
-	return name;
+		getPluginID(), &internalName, &namePtr, 1, 128);
+	QString str = res == 0 ? QString(name.data()) : QString();
+	return str;
 }
 
 
