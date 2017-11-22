@@ -13,10 +13,18 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "teamspeak/public_errors.h"
-#include "teamspeak/public_errors_rare.h"
-#include "teamspeak/public_definitions.h"
-#include "teamspeak/public_rare_definitions.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+	#include "teamspeak/public_errors.h"
+	#include "teamspeak/public_errors_rare.h"
+	#include "teamspeak/public_definitions.h"
+	#include "teamspeak/public_rare_definitions.h"
+#ifdef __cplusplus
+}
+#endif
+
 #include "ts3_functions.h"
 
 
