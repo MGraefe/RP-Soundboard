@@ -146,30 +146,32 @@ CAPI void sb_init()
 
 	InitFFmpegLibrary();
 
-	configModel = new ConfigModel();
-	configModel->readConfig();
+	QTimer::singleShot(10, []{
+		configModel = new ConfigModel();
+		configModel->readConfig();
 
-    /* This if first QObject instantiated, it will load the resources */
-	sampler = new Sampler();
-	sampler->init();
+		/* This if first QObject instantiated, it will load the resources */
+		sampler = new Sampler();
+		sampler->init();
 
-	tsMgr = new TalkStateManager();
-    QObject::connect(sampler, &Sampler::onStartPlaying,   tsMgr, &TalkStateManager::onStartPlaying, Qt::QueuedConnection);
-	QObject::connect(sampler, &Sampler::onStopPlaying,    tsMgr, &TalkStateManager::onStopPlaying, Qt::QueuedConnection);
-	QObject::connect(sampler, &Sampler::onPausePlaying,   tsMgr, &TalkStateManager::onPauseSound, Qt::QueuedConnection);
-	QObject::connect(sampler, &Sampler::onUnpausePlaying, tsMgr, &TalkStateManager::onUnpauseSound, Qt::QueuedConnection);
+		tsMgr = new TalkStateManager();
+		QObject::connect(sampler, &Sampler::onStartPlaying, tsMgr, &TalkStateManager::onStartPlaying, Qt::QueuedConnection);
+		QObject::connect(sampler, &Sampler::onStopPlaying, tsMgr, &TalkStateManager::onStopPlaying, Qt::QueuedConnection);
+		QObject::connect(sampler, &Sampler::onPausePlaying, tsMgr, &TalkStateManager::onPauseSound, Qt::QueuedConnection);
+		QObject::connect(sampler, &Sampler::onUnpausePlaying, tsMgr, &TalkStateManager::onUnpauseSound, Qt::QueuedConnection);
 
-	configDialog = new ConfigQt(configModel);
-	//configDialog->showMinimized();
-	//configDialog->hide();
+		configDialog = new ConfigQt(configModel);
+		//configDialog->showMinimized();
+		//configDialog->hide();
 
-	modelObserver = new ModelObserver_Prog();
-	configModel->addObserver(modelObserver);
+		modelObserver = new ModelObserver_Prog();
+		configModel->addObserver(modelObserver);
 
-	configModel->notifyAllEvents();
+		configModel->notifyAllEvents();
 
-	updateChecker = new UpdateChecker();
-	updateChecker->startCheck(false, configModel);
+		updateChecker = new UpdateChecker();
+		updateChecker->startCheck(false, configModel);
+	});
 }
 
 
