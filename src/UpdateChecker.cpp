@@ -37,9 +37,9 @@
 #include "ConfigModel.h"
 
 #if defined(_WIN32)
-#define CHECK_URL "http://mgraefe.de/rpsb/version/version.xml"
+#define CHECK_URL "https://mgraefe.de/rpsb/version/version.xml"
 #elif defined(LINUX)
-#define CHECK_URL "http://mgraefe.de/rpsb/version/version_linux_amd64.xml"
+#define CHECK_URL "https://mgraefe.de/rpsb/version/version_linux_amd64.xml"
 #endif
 
 
