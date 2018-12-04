@@ -112,17 +112,6 @@ private:
 	void openButtonColorDialog(size_t buttonId);
 	QString unescapeCustomText(const QString &text);
 
-	// layout
-	//   | play
-	//   | subLayout
-	//      | choose
-	struct button_element_t
-	{
-		QBoxLayout *layout;
-		SoundButton *play;
-	};
-
-
 	class ModelObserver : public ConfigModel::Observer
 	{
 	public:
@@ -133,7 +122,7 @@ private:
 	};
 
 	Ui::ConfigQt *ui;
-	std::vector<button_element_t> m_buttons;
+	std::vector<SoundButton*> m_buttons;
 	ConfigModel *m_model;
 	QBoxLayout *m_configArea;
 	ModelObserver m_modelObserver;

@@ -232,7 +232,7 @@ void ConfigQt::closeEvent(QCloseEvent *)
 void ConfigQt::onClickedPlay()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
+	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](SoundButton *b){return b == button;}) - m_buttons.begin();
 
 	playSound(buttonId);
 }
@@ -297,14 +297,8 @@ void ConfigQt::onUpdateMuteMyself(bool val)
 //---------------------------------------------------------------
 void ConfigQt::createButtons()
 {
-	for(button_element_t &elem : m_buttons)
-	{
-		elem.layout->removeWidget(elem.play);
-		delete elem.play;
-		ui->gridLayout->removeItem(elem.layout);
-		delete elem.layout;
-	}
-	
+	for(SoundButton *button : m_buttons)
+		delete button;
 	m_buttons.clear();
 
 	int numRows = m_model->getRows();
@@ -314,27 +308,22 @@ void ConfigQt::createButtons()
 	{
 		for(int j = 0; j < numCols; j++)
 		{
-            button_element_t elem = {0, 0};
-			elem.layout = new QBoxLayout(QBoxLayout::Direction::TopToBottom);
-			elem.layout->setSpacing(0);
-			ui->gridLayout->addLayout(elem.layout, i, j);
-
-			elem.play = new SoundButton(this);
-			elem.play->setProperty("buttonId", (int)m_buttons.size());
-			elem.play->setText("(no file)");
-			elem.play->setEnabled(true);
+			SoundButton *elem = new SoundButton(this);
+			elem->setProperty("buttonId", (int)m_buttons.size());
+			elem->setText("(no file)");
+			elem->setEnabled(true);
 			QSizePolicy policy(QSizePolicy::Ignored, QSizePolicy::Expanding);
 			policy.setRetainSizeWhenHidden(true);
-			elem.play->setSizePolicy(policy);
-			elem.layout->addWidget(elem.play);
-			connect(elem.play, SIGNAL(clicked()), this, SLOT(onClickedPlay()));
-			elem.play->setContextMenuPolicy(Qt::CustomContextMenu);
-			connect(elem.play, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+			elem->setSizePolicy(policy);
+			ui->gridLayout->addWidget(elem, i, j);
+			connect(elem, SIGNAL(clicked()), this, SLOT(onClickedPlay()));
+			elem->setContextMenuPolicy(Qt::CustomContextMenu);
+			connect(elem, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 				SLOT(showButtonContextMenu(const QPoint&)));
-			connect(elem.play, SIGNAL(fileDropped(QList<QUrl>)), this, SLOT(onButtonFileDropped(QList<QUrl>)));
-			connect(elem.play, SIGNAL(buttonDropped(SoundButton*)), this, SLOT(onButtonDroppedOnButton(SoundButton*)));
+			connect(elem, SIGNAL(fileDropped(QList<QUrl>)), this, SLOT(onButtonFileDropped(QList<QUrl>)));
+			connect(elem, SIGNAL(buttonDropped(SoundButton*)), this, SLOT(onButtonDroppedOnButton(SoundButton*)));
 
-			elem.play->updateGeometry();
+			elem->updateGeometry();
 			m_buttons.push_back(elem);
 		}
 	}
@@ -343,7 +332,7 @@ void ConfigQt::createButtons()
 		updateButtonText(i);
 
 	if(m_buttonBubble)
-		m_buttonBubble->attachTo(m_buttons[0].play);
+		m_buttonBubble->attachTo(m_buttons[0]);
 }
 
 
@@ -409,8 +398,8 @@ void ConfigQt::updateButtonText(int i)
 		if (shortcut.length() > 0)
 			text = text + "\n" + shortcut;
 	}
-	m_buttons[i].play->setText(text);
-	m_buttons[i].play->setBackgroundColor(info ? info->customColor : QColor(0, 0, 0, 0));
+	m_buttons[i]->setText(text);
+	m_buttons[i]->setBackgroundColor(info ? info->customColor : QColor(0, 0, 0, 0));
 }
 
 
@@ -420,14 +409,14 @@ void ConfigQt::updateButtonText(int i)
 void ConfigQt::showButtonContextMenu( const QPoint &point )
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](button_element_t &e){return e.play == button;}) - m_buttons.begin();
+	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](SoundButton *b){return b == button;}) - m_buttons.begin();
 
 	QString shortcutName = getShortcutString(buttonId);
 	QString hotkeyText = "Set hotkey (Current: " +
 		(shortcutName.isEmpty() ? QString("None") : shortcutName) + ")";
 	actSetHotkey->setText(hotkeyText);
 
-	QPoint globalPos = m_buttons[buttonId].play->mapToGlobal(point);
+	QPoint globalPos = m_buttons[buttonId]->mapToGlobal(point);
 	QAction *action = m_buttonContextMenu.exec(globalPos);
 	if(action)
 	{
@@ -533,7 +522,7 @@ void ConfigQt::createBubbles()
 		m_buttonBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 		m_buttonBubble->setFixedSize(180, 80);
 		m_buttonBubble->setText("Right click to choose sound file\nor open advanced options.");
-		m_buttonBubble->attachTo(m_buttons[0].play);
+		m_buttonBubble->attachTo(m_buttons[0]);
 		connect(m_buttonBubble, SIGNAL(closePressed()), this, SLOT(onButtonBubbleFinished()));
 	}
 
@@ -949,12 +938,12 @@ void ConfigQt::onFilterEditTextChanged(const QString &text)
 	QString filter = text.trimmed();
 	for (auto &button : m_buttons)
 	{
-		int buttonId = button.play->property("buttonId").toInt();
+		int buttonId = button->property("buttonId").toInt();
 		const SoundInfo *info = m_model->getSoundInfo(buttonId);
 		bool hasFile = info && !info->filename.isEmpty();
-		QString buttonText = button.play->text();
+		QString buttonText = button->text();
 		bool pass = filter.length() == 0 || (hasFile && buttonText.contains(filter, Qt::CaseInsensitive));
-		button.play->setVisible(pass);
+		button->setVisible(pass);
 	}
 }
 
