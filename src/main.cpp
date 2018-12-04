@@ -51,6 +51,8 @@ AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 TalkStateManager *tsMgr = NULL;
 
+bool hotkeysTemporarilyDisabled = false;
+
 ModelObserver_Prog *modelObserver = NULL;
 UpdateChecker *updateChecker = NULL;
 std::map<uint64, int> connectionStatusMap;
@@ -353,6 +355,9 @@ CAPI void sb_onStopTalking()
 
 CAPI void sb_onHotkeyPressed(const char * keyword)
 {
+	if (hotkeysTemporarilyDisabled)
+		return;
+
 	int btn = -1;
 	if (sscanf(keyword, "button_%i", &btn) > 0)
 	{
@@ -426,4 +431,10 @@ CAPI int sb_parseCommand(char** args, int argc)
 
 	}
 	return 0;
+}
+
+
+CAPI void sb_disableHotkeysTemporarily(bool disable)
+{
+	hotkeysTemporarilyDisabled = disable;
 }

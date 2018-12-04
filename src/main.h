@@ -49,6 +49,7 @@ CAPI void sb_onStopTalking();
 CAPI void sb_onHotkeyPressed(const char *keyword);
 CAPI void sb_checkForUpdates();
 CAPI int sb_parseCommand(char**, int);
+CAPI void sb_disableHotkeysTemporarily(bool disable);
 
 
 #define HOTKEY_STOP_ALL "stop_all"

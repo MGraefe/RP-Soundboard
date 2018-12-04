@@ -69,6 +69,8 @@ void SoundButton::dragMoveEvent(QDragMoveEvent *evt)
 //---------------------------------------------------------------
 void SoundButton::dragLeaveEvent(QDragLeaveEvent *)
 {
+	sb_disableHotkeysTemporarily(false);
+
 	pressing = false;
 	dragging = false;
 	applyBackgroundColor(backgroundColor);
@@ -107,6 +109,13 @@ void SoundButton::dropEvent(QDropEvent *evt)
 //---------------------------------------------------------------
 void SoundButton::mousePressEvent(QMouseEvent *evt)
 {
+	// If the user has a hotkey 'switch config' bound to mouse 1 then
+	// this button is actually deleted before mouseReleaseEvent is called
+	// hence the clicked() signal is never emitted, resulting in silence
+	// instead of a lovely sound. Disabling hotkeys while a button is pressed
+	// is a workaround for this.
+	sb_disableHotkeysTemporarily(true);
+
 	pressing = true;
 	dragStart = evt->pos();
 	QPushButton::mousePressEvent(evt);
@@ -168,6 +177,8 @@ void SoundButton::applyBackgroundColor(const QColor & color)
 //---------------------------------------------------------------
 void SoundButton::mouseReleaseEvent(QMouseEvent *evt)
 {
+	sb_disableHotkeysTemporarily(false);
+
 	pressing = false;
 	dragging = false;
 	QPushButton::mouseReleaseEvent(evt);
