@@ -194,11 +194,11 @@ struct TS3Functions {
 
 	/* Interacting with the server - banning */
 	unsigned int (*banclient)(uint64 serverConnectionHandlerID, anyID clientID, uint64 timeInSeconds, const char* banReason, const char* returnCode);
-	unsigned int (*banadd)(uint64 serverConnectionHandlerID, const char* ipRegExp, const char* nameRegexp, const char* uniqueIdentity, uint64 timeInSeconds, const char* banReason, const char* returnCode);
+	unsigned int (*banadd)(uint64 serverConnectionHandlerID, const char* ipRegExp, const char* nameRegexp, const char* uniqueIdentity, const char* mytsID, uint64 timeInSeconds, const char* banReason, const char* returnCode);
 	unsigned int (*banclientdbid)(uint64 serverConnectionHandlerID, uint64 clientDBID, uint64 timeInSeconds, const char* banReason, const char* returnCode);
 	unsigned int (*bandel)(uint64 serverConnectionHandlerID, uint64 banID, const char* returnCode);
 	unsigned int (*bandelall)(uint64 serverConnectionHandlerID, const char* returnCode);
-	unsigned int (*requestBanList)(uint64 serverConnectionHandlerID, const char* returnCode);
+	unsigned int (*requestBanList)(uint64 serverConnectionHandlerID, uint64 start, unsigned int duration, const char* returnCode);
 
 	/* Interacting with the server - complain */
 	unsigned int (*requestComplainAdd)(uint64 serverConnectionHandlerID, uint64 targetClientDatabaseID, const char* complainReason, const char* returnCode);
