@@ -1,10 +1,6 @@
-vs2017/*.db
-vs2017/*.opendb
-vs2017/*.user
-vs2017/.vs/
-vs2017/GeneratedFiles/
 src/version/version.h
 release/releases/
 release/plugins/
-obj/
-bin/
+build/
+build32/
+build64/

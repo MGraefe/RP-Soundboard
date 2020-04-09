@@ -2,9 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by Resource.rc
 
-#include "../src/version/version.h"
+#include "../version/version.h"
 
-// Nächste Standardwerte für neue Objekte
+// Nï¿½chste Standardwerte fï¿½r neue Objekte
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
