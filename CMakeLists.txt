@@ -6,8 +6,9 @@ include(files.cmake)
 
 # Get prebuilt ffmpeg folders for windows builds
 set(ffmpegLibHint "")
-set(ffmpegIncHint "")
+set(ffmpegIncHint "ffmpeg/include")
 set(libSuffix "")
+set(pluginDir "")
 if (MSVC)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(ffmpegLibHint "ffmpeg/lib_win_x64")
@@ -16,13 +17,16 @@ if (MSVC)
 		set(ffmpegLibHint "ffmpeg/lib_win_x86")
 		set(libSuffix "_win32.dll")
 	endif()
-	set(ffmpegIncHint "ffmpeg/include")
+	set(pluginDir "%appdata%/TS3Client/plugins")
 else()
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(libSuffix "_lin64.dll")
+		set(ffmpegLibHint "ffmpeg/lib_lin_x64")
+		set(libSuffix "_lin64.so")
 	else()
-		set(libSuffix "_lin32.dll")
+		set(ffmpegLibHint "ffmpeg/lib_lin_x86")
+		set(libSuffix "_lin32.so")
 	endif()
+	set(pluginDir "~/.ts3client/plugins")
 endif()
 
 
@@ -65,16 +69,18 @@ set_target_properties(rp_soundboard PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY_RELEASE release
 )
 
-if (WIN32)
+if (MSVC)
 	target_sources(rp_soundboard PRIVATE "src/windows/resource.h" "src/windows/Resource.rc")
 	target_link_libraries(rp_soundboard wsock32 ws2_32 secur32) # some windows stuff
 	target_compile_options(rp_soundboard PRIVATE /MP) # multiprocessor compiling
-	
-	# copy to teamspeak dir command stuff
-	set(COPY_DLL_TO_TEAMSPEAK_DIR TRUE CACHE BOOL "Copy the soundboard DLL to teamspeaks directory")
-	if (COPY_DLL_TO_TEAMSPEAK_DIR)
-		add_custom_command(TARGET rp_soundboard POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rp_soundboard> "%appdata%/TS3Client/plugins"
-		)
-	endif()
+else()
+	target_compile_definitions(rp_soundboard PRIVATE "LINUX")
+endif()
+
+# copy to teamspeak dir command stuff
+set(COPY_DLL_TO_TEAMSPEAK_DIR TRUE CACHE BOOL "Copy the soundboard DLL to teamspeaks directory")
+if (COPY_DLL_TO_TEAMSPEAK_DIR)
+	add_custom_command(TARGET rp_soundboard POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rp_soundboard> ${pluginDir}
+	)
 endif()

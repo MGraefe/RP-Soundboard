@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# expected to be executed in ffmpeg/build-scripts
+
 unameOut="$(uname -s)"
 case "${unameOut}" in
 	Linux*) 	machine=Linux;;
@@ -43,7 +45,7 @@ opts="\
 
 # we need no video or subtitle decoders
 # obtain list of video and subtitle decoders via:
-# ffmpeg -decoders | egrep '^ [VS][\.A-Z]{5} ' | sed -E 's/^ [VS][\.A-Z]{5} +([[:graph:]]+) .*$/--disable-decoder=\1 \\/g'
+# ffmpeg -decoders | egrep '^ [VS][\.A-Z]{5} [^=]' | sed -E 's/^ [VS][\.A-Z]{5} +([[:graph:]]+) .*$/--disable-decoder=\1 \\/g'
 disabled_decs="\
 --disable-decoder=012v \
 --disable-decoder=4xm \
@@ -312,10 +314,11 @@ disabled_decs="\
 
 cmd="./configure --arch=$arch --prefix=$archprefix $toolchainopt $opts $disabled_decs"
 
-pushd ffmpeg
+pushd ../ffmpeg
 echo "Command: $cmd"
 $cmd
 make clean && make -j8 && make install
 
 popd
+
 ./copy_binaries.sh
