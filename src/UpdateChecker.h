@@ -10,9 +10,9 @@
 #ifndef rpsbsrc__UpdateChecker_H__
 #define rpsbsrc__UpdateChecker_H__
 
-#include <QtCore/QObject>
-#include <QtCore/QXmlStreamReader>
-#include <QtNetwork/QNetworkRequest>
+#include <QObject>
+#include <QXmlStreamReader>
+#include <QNetworkRequest>
 
 class QNetworkReply;
 class QNetworkAccessManager;

@@ -10,8 +10,8 @@
 #include "buildinfo.h"
 #include "updater_qt.h"
 #include "ts3log.h"
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QProcess>
+#include <QMessageBox>
+#include <QProcess>
 
 
 

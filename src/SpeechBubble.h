@@ -11,7 +11,7 @@
 #ifndef rpsbsrc__SpeechBubble_H__
 #define rpsbsrc__SpeechBubble_H__
 
-#include <QtWidgets/QDialog>
+#include <QDialog>
 #include <QColor>
 
 class QLayout;

@@ -10,7 +10,7 @@
 #ifndef rpsbsrc__SoundInfo_H__
 #define rpsbsrc__SoundInfo_H__
 
-#include <QtCore/QSettings>
+#include <QSettings>
 #include <QColor>
 
 class SoundInfo

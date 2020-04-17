@@ -22,11 +22,11 @@
 //   </product>
 // </versionDescription>
 
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
-#include <QtWidgets/QMessageBox>
-#include <QtCore/QFileInfo>
-#include <QtCore/QDir>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QMessageBox>
+#include <QFileInfo>
+#include <QDir>
 #include <QDateTime>
 
 #include "buildinfo.h"

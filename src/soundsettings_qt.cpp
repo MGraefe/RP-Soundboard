@@ -14,8 +14,8 @@
 #include "main.h"
 #include "samples.h"
 #include "soundview_qt.h"
-#include <QtWidgets/QFileDialog>
-#include <QtGui/QPainter>
+#include <QFileDialog>
+#include <QPainter>
 #include <QFileInfo>
 #include "config_qt.h"
 #include <QColorDialog>

@@ -11,10 +11,10 @@
 #define rpsbsrc__soundsettings_qt_H__
 
 
-#include <QtWidgets/QDialog>
-#include <QtGui/QCloseEvent>
-#include <QtGui/QIcon>
-#include <QtCore/QTimer>
+#include <QDialog>
+#include <QCloseEvent>
+#include <QIcon>
+#include <QTimer>
 #include "SoundInfo.h"
 
 class ConfigModel;

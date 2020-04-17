@@ -8,11 +8,11 @@
 
 
 #include "SpeechBubble.h"
-#include <QtGui/QPainter>
-#include <QtWidgets/QVBoxLayout>
-#include <QtWidgets/QLabel>
-#include <QtCore/QEvent>
-#include <QtGui/QMouseEvent>
+#include <QPainter>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QEvent>
+#include <QMouseEvent>
 #include <QTimer>
 
 //---------------------------------------------------------------

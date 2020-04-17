@@ -8,8 +8,8 @@
 
 
 
-#include <QtGui/QPainter>
-#include <QtCore/QTimer>
+#include <QPainter>
+#include <QTimer>
 #include "soundview_qt.h"
 #include "SampleVisualizerThread.h"
 

@@ -20,8 +20,8 @@
 #include <map>
 
 #include <QObject>
-#include <QtWidgets/qmessagebox.h>
-#include <QtCore/QString>
+#include <QMessageBox>
+#include <QString>
 
 #include "main.h"
 #include "ts3log.h"
