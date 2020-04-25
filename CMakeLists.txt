@@ -5,29 +5,38 @@ project(rp_soundboard)
 include(files.cmake)
 
 # Get prebuilt ffmpeg folders for windows builds
-set(ffmpegLibHint "")
 set(ffmpegIncHint "ffmpeg/include")
-set(libSuffix "")
-set(pluginDir "")
-if (MSVC)
+
+# figure out platform defaults for certain things
+if (WIN32)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(ffmpegLibHint "ffmpeg/lib_win_x64")
-		set(libSuffix "_win64.dll")
+		set(defFFmpegLibHint "ffmpeg/lib_win_x64")
+		set(defLibSuffix "_win64.dll")
 	else()
-		set(ffmpegLibHint "ffmpeg/lib_win_x86")
-		set(libSuffix "_win32.dll")
+		set(defFFmpegLibHint "ffmpeg/lib_win_x86")
+		set(defLibSuffix "_win32.dll")
 	endif()
-	set(pluginDir "%appdata%/TS3Client/plugins")
+	set(defPluginDir "%appdata%/TS3Client/plugins")
+elseif(APPLE) # untested thanks to MacOS being a pain in the ass to set up in VM
+	# mac has no 32 bit variant
+	set(defFFmpegLibHint "ffmpeg/lib_mac_x64")
+	set(defLibSuffix "_mac.so")
+	set(defPluginDir "~/.ts3client/plugins")
 else()
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(ffmpegLibHint "ffmpeg/lib_lin_x64")
-		set(libSuffix "_lin64.so")
+		set(defFFmpegLibHint "ffmpeg/lib_lin_x64")
+		set(defLibSuffix "_linux_amd64.so")
 	else()
-		set(ffmpegLibHint "ffmpeg/lib_lin_x86")
-		set(libSuffix "_lin32.so")
+		set(defFFmpegLibHint "ffmpeg/lib_lin_x86")
+		set(defLibSuffix "_linux_x86.so")
 	endif()
-	set(pluginDir "~/.ts3client/plugins")
+	set(defPluginDir "~/.ts3client/plugins")
 endif()
+
+
+set(ffmpegLibHint ${defFFmpegLibHint} CACHE PATH "directory with static ffmpeg libs")
+set(libSuffix ${defLibSuffix} CACHE STRING "output library suffix")
+set(pluginDir ${defPluginDir} CACHE PATH "TS3 plugin directory (for file copy)")
 
 
 find_path(ffmpegIncludeDir libavcodec/avcodec.h HINTS ${ffmpegIncHint})
@@ -73,6 +82,8 @@ if (MSVC)
 	target_sources(rp_soundboard PRIVATE "src/windows/resource.h" "src/windows/Resource.rc")
 	target_link_libraries(rp_soundboard wsock32 ws2_32 secur32) # some windows stuff
 	target_compile_options(rp_soundboard PRIVATE /MP) # multiprocessor compiling
+elseif(APPLE)
+	target_compile_definitions(rp_soundboard PRIVATE "MACOS")
 else()
 	target_compile_definitions(rp_soundboard PRIVATE "LINUX")
 endif()
