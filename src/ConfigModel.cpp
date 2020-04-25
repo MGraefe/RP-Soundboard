@@ -9,7 +9,7 @@
 
 #include "common.h"
 
-#include <QtCore/QSettings>
+#include <QSettings>
 
 #include "ConfigModel.h"
 #include "main.h"

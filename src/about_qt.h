@@ -10,7 +10,7 @@
 #ifndef rpsbsrc__about_qt_H__
 #define rpsbsrc__about_qt_H__
 
-#include <QtWidgets/QWidget>
+#include <QWidget>
 
 #include "ui_about_qt.h"
 

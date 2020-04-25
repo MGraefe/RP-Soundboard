@@ -10,13 +10,13 @@
 #ifndef rpsbsrc__config_qt_H__
 #define rpsbsrc__config_qt_H__
 
-#include <QtWidgets/QDialog>
-#include <QtWidgets/QWidget>
-#include <QtWidgets/QGridLayout>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QBoxLayout>
-#include <QtWidgets/QMenu>
-#include <QtCore/QPointer>
+#include <QDialog>
+#include <QWidget>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QBoxLayout>
+#include <QMenu>
+#include <QPointer>
 #include <QTimer>
 #include <QList>
 #include <QUrl>

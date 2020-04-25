@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# expected to be executed in ffmpeg/build-scripts
 
 os="$(uname -s)"
 case "$os" in 
@@ -10,6 +11,8 @@ case "$os" in
 	*) prefix="lib_win" 
 	   postfix="lib" ;;
 esac
+
+pushd ..
 
 mkdir -p "${prefix}_x64"
 mkdir -p "${prefix}_x86"

@@ -11,11 +11,10 @@
 #define TS3_MAX_SIZE_REASON_MESSAGE 80
 
 //limited length, measured in bytes (utf8 encoded)
-#define TS3_MAX_SIZE_TEXTMESSAGE 8192
+#define TS3_MAX_SIZE_TEXTMESSAGE 1024
 #define TS3_MAX_SIZE_CHANNEL_TOPIC 255
 #define TS3_MAX_SIZE_CHANNEL_DESCRIPTION 8192
 #define TS3_MAX_SIZE_VIRTUALSERVER_WELCOMEMESSAGE 1024
-#define TS3_SIZE_MYTSID 44
 
 //minimum amount of seconds before a clientID that was in use can be assigned to a new client
 #define TS3_MIN_SECONDS_CLIENTID_REUSE 300
@@ -150,7 +149,6 @@ enum ClientProperties {
 	CLIENT_VOLUME_MODIFICATOR,              //internal use
 	CLIENT_VERSION_SIGN,					//sign
 	CLIENT_SECURITY_HASH,                   //SDK use, not used by teamspeak. Hash is provided by an outside source. A channel will use the security salt + other client data to calculate a hash, which must be the same as the one provided here.
-    CLIENT_ENCRYPTION_CIPHERS,              //internal use
 	CLIENT_ENDMARKER,
 };
 
@@ -167,7 +165,6 @@ enum VirtualServerProperties {
 	VIRTUALSERVER_CREATED,                           //available when connected, stores the time when the server was created
 	VIRTUALSERVER_UPTIME,                            //only available on request (=> requestServerVariables), the time since the server was started
 	VIRTUALSERVER_CODEC_ENCRYPTION_MODE,             //available and always up-to-date when connected
-    VIRTUALSERVER_ENCRYPTION_CIPHERS,                //internal use
 	VIRTUALSERVER_ENDMARKER,
 };
 

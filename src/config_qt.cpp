@@ -8,10 +8,10 @@
 
 #include "common.h"
 
-#include <QtWidgets/QFileDialog>
-#include <QtCore/QFileInfo>
-#include <QtGui/QResizeEvent>
-#include <QtWidgets/QMessageBox>
+#include <QFileDialog>
+#include <QFileInfo>
+#include <QResizeEvent>
+#include <QMessageBox>
 #include <QPropertyAnimation>
 #include <QColorDialog>
 

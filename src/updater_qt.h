@@ -11,12 +11,12 @@
 #define rpsbsrc__updater_qt_H__
 
 
-#include <QtWidgets/QDialog>
-#include <QtCore/QUrl>
-#include <QtCore/QFileInfo>
-#include <QtCore/QFile>
-#include <QtNetwork/QNetworkRequest>
-#include <QtNetwork/QNetworkReply>
+#include <QDialog>
+#include <QUrl>
+#include <QFileInfo>
+#include <QFile>
+#include <QNetworkRequest>
+#include <QNetworkReply>
 
 #include "ui_updater_qt.h"
 

@@ -14,7 +14,7 @@
 #include <vector>
 #include <array>
 #include "SoundInfo.h"
-#include <QtCore/QString>
+#include <QString>
 #include <memory>
 #include <set>
 #include "common.h"
