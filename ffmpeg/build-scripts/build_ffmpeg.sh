@@ -30,6 +30,7 @@ fi
 echo "Machine =" $machine $arch
 
 opts="\
+--enable-pic \
 --disable-programs \
 --disable-doc \
 --disable-avdevice \

@@ -34,16 +34,15 @@ else()
 endif()
 
 
-set(ffmpegLibHint ${defFFmpegLibHint} CACHE PATH "directory with static ffmpeg libs")
+set(ffmpegLibHint "${CMAKE_CURRENT_SOURCE_DIR}/${defFFmpegLibHint}" CACHE PATH "directory with static ffmpeg libs")
 set(libSuffix ${defLibSuffix} CACHE STRING "output library suffix")
 set(pluginDir ${defPluginDir} CACHE PATH "TS3 plugin directory (for file copy)")
 
-
-find_path(ffmpegIncludeDir libavcodec/avcodec.h HINTS ${ffmpegIncHint})
-find_library(avcodec avcodec HINTS ${ffmpegLibHint})
-find_library(avformat avformat HINTS ${ffmpegLibHint})
-find_library(avutil avutil HINTS ${ffmpegLibHint})
-find_library(swresample swresample HINTS ${ffmpegLibHint})
+find_path(ffmpegIncludeDir libavcodec/avcodec.h PATHS ${ffmpegIncHint} NO_DEFAULT_PATH)
+find_library(avcodec avcodec PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+find_library(avformat avformat PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+find_library(avutil avutil PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+find_library(swresample swresample PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
 
 find_package(Qt5 COMPONENTS Core Widgets Gui Network REQUIRED)
 
@@ -54,6 +53,9 @@ set(CMAKE_AUTORCC ON)
 
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+# Turn fPIC on
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # version advance script (generates version.h file)
 add_custom_command(
@@ -67,10 +69,12 @@ set_property(SOURCE "src/version/version.h" PROPERTY SKIP_AUTOGEN ON)
 
 # actual library definition
 add_library(rp_soundboard SHARED ${sources} "src/version/version.h")
-target_link_libraries(rp_soundboard
-	Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Network
-	${avcodec} ${avformat} ${avutil} ${swresample}
-)
+target_link_libraries(rp_soundboard Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Network)
+if (WIN32)
+	# only link this way on Windows. Linux requires VERY special linker commands, see below
+	target_link_libraries(rp_soundboard ${avcodec} ${avformat} ${avutil} ${swresample})
+endif()
+
 target_include_directories(rp_soundboard PUBLIC "pluginsdk/include" ${ffmpegIncludeDir})
 set_target_properties(rp_soundboard PROPERTIES
 	SUFFIX ${libSuffix}
@@ -78,15 +82,26 @@ set_target_properties(rp_soundboard PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY_RELEASE release
 )
 
+# Special platform dependent compile options
 if (MSVC)
 	target_sources(rp_soundboard PRIVATE "src/windows/resource.h" "src/windows/Resource.rc")
 	target_link_libraries(rp_soundboard wsock32 ws2_32 secur32) # some windows stuff
 	target_compile_options(rp_soundboard PRIVATE /MP) # multiprocessor compiling
-elseif(APPLE)
-	target_compile_definitions(rp_soundboard PRIVATE "MACOS")
 else()
-	target_compile_definitions(rp_soundboard PRIVATE "LINUX")
+	if(APPLE)
+		target_compile_definitions(rp_soundboard PRIVATE "MACOS")
+	else()
+		target_compile_definitions(rp_soundboard PRIVATE "LINUX")
+	endif()
+	# Compile options that are required to NOT get the "recompile with -fPIC"
+	# error when linking the ffmpeg libs. Took me many hours to find this out...
+	set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
+		"-Wl,-Bsymbolic -Wl,--whole-archive \
+		${avcodec} ${avformat} ${avutil} ${swresample} \
+		-Wl,--no-whole-archive"
+	)
 endif()
+
 
 # copy to teamspeak dir command stuff
 set(COPY_DLL_TO_TEAMSPEAK_DIR TRUE CACHE BOOL "Copy the soundboard DLL to teamspeaks directory")
