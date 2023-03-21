@@ -95,7 +95,8 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	ui->b_pause->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui->cb_mute_locally->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui->cb_mute_myself->setContextMenuPolicy(Qt::CustomContextMenu);
-	ui->sl_volume->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui->sl_volumeLocal->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui->sl_volumeRemote->setContextMenuPolicy(Qt::CustomContextMenu);
 	
 	connect(ui->b_stop, SIGNAL(clicked()), this, SLOT(onClickedStop()));
 	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
@@ -103,7 +104,8 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->b_pause, SIGNAL(clicked()), this, SLOT(onButtonPausePressed()));
 	connect(ui->b_pause, SIGNAL(customContextMenuRequested(const QPoint&)), this,
 		SLOT(showPauseButtonContextMenu(const QPoint&)));
-	connect(ui->sl_volume, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolume(int)));
+	connect(ui->sl_volumeLocal, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolumeLocal(int)));
+	connect(ui->sl_volumeRemote, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolumeRemote(int)));
 	connect(ui->cb_mute_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteLocally(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
@@ -115,7 +117,8 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 		[this](const QPoint &point) {this->showSetHotkeyMenu(HOTKEY_MUTE_ON_MY_CLIENT, ui->cb_mute_locally->mapToGlobal(point));});
 	connect(ui->cb_mute_myself, &QCheckBox::customContextMenuRequested,
 		[this](const QPoint &point) {this->showSetHotkeyMenu(HOTKEY_MUTE_MYSELF, ui->cb_mute_myself->mapToGlobal(point));});
-	connect(ui->sl_volume, &QSlider::customContextMenuRequested, this, &ConfigQt::onVolumeSliderContextMenu);
+	connect(ui->sl_volumeLocal, &QSlider::customContextMenuRequested, this, &ConfigQt::onVolumeSliderContextMenuLocal);
+	connect(ui->sl_volumeRemote, &QSlider::customContextMenuRequested, this, &ConfigQt::onVolumeSliderContextMenuRemote);
 
     /* Load/Save Model */
     connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
@@ -250,9 +253,18 @@ void ConfigQt::onClickedStop()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::onUpdateVolume(int val)
+void ConfigQt::onUpdateVolumeLocal(int val)
 {
-	m_model->setVolume(val);
+	m_model->setVolumeLocal(val);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdateVolumeRemote(int val)
+{
+	m_model->setVolumeRemote(val);
 }
 
 
@@ -951,7 +963,7 @@ void ConfigQt::onFilterEditTextChanged(const QString &text)
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigQt::onVolumeSliderContextMenu(const QPoint &point)
+void ConfigQt::onVolumeSliderContextMenuLocal(const QPoint &point)
 {
 	QString hotkeyStringIncr = getShortcutString(HOTKEY_VOLUME_INCREASE);
 	QString hotkeyTextIncr = "Set 'increase 20%' hotkey (Current: " +
@@ -964,13 +976,36 @@ void ConfigQt::onVolumeSliderContextMenu(const QPoint &point)
 	QMenu menu;
 	QAction *actIncr = menu.addAction(hotkeyTextIncr);
 	QAction *actDecr = menu.addAction(hotkeyTextDecr);
-	QAction *action = menu.exec(ui->sl_volume->mapToGlobal(point));
+	QAction *action = menu.exec(ui->sl_volumeLocal->mapToGlobal(point));
 	if (action == actIncr)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_INCREASE, 0, this);
 	else if (action == actDecr)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_DECREASE, 0, this);
 }
 
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onVolumeSliderContextMenuRemote(const QPoint &point)
+{
+	QString hotkeyStringIncr = getShortcutString(HOTKEY_VOLUME_INCREASE);
+	QString hotkeyTextIncr = "Set 'increase 20%' hotkey (Current: " +
+		(hotkeyStringIncr.isEmpty() ? QString("None") : hotkeyStringIncr) + ")";
+
+	QString hotkeyStringDecr = getShortcutString(HOTKEY_VOLUME_DECREASE);
+	QString hotkeyTextDecr = "Set 'decrease 20%' hotkey (Current: " +
+		(hotkeyStringDecr.isEmpty() ? QString("None") : hotkeyStringDecr) + ")";
+
+	QMenu menu;
+	QAction *actIncr = menu.addAction(hotkeyTextIncr);
+	QAction *actDecr = menu.addAction(hotkeyTextDecr);
+	QAction *action = menu.exec(ui->sl_volumeRemote->mapToGlobal(point));
+	if (action == actIncr)
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_INCREASE, 0, this);
+	else if (action == actDecr)
+		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_DECREASE, 0, this);
+}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -989,9 +1024,13 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 		p.ui->sb_cols->setValue(model.getCols());
 		p.createButtons();
 		break;
-	case ConfigModel::NOTIFY_SET_VOLUME:
-		if (p.ui->sl_volume->value() != model.getVolume())
-			p.ui->sl_volume->setValue(model.getVolume());
+	case ConfigModel::NOTIFY_SET_VOLUME_LOCAL:
+		if (p.ui->sl_volumeLocal->value() != model.getVolumeLocal())
+			p.ui->sl_volumeLocal->setValue(model.getVolumeLocal());
+		break;
+	case ConfigModel::NOTIFY_SET_VOLUME_REMOTE:
+		if (p.ui->sl_volumeRemote->value() != model.getVolumeRemote())
+			p.ui->sl_volumeRemote->setValue(model.getVolumeRemote());
 		break;
 	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
 		if (p.ui->cb_mute_locally->isChecked() != !model.getPlaybackLocal())

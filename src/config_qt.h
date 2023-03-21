@@ -61,7 +61,8 @@ protected:
 private slots:
 	void onClickedPlay();
 	void onClickedStop();
-	void onUpdateVolume(int val);
+	void onUpdateVolumeLocal(int val);
+	void onUpdateVolumeRemote(int val);
 	void onUpdateMuteLocally(bool val);
 	void onUpdateCols(int val);
 	void onUpdateRows(int val);
@@ -83,7 +84,8 @@ private slots:
 	void onButtonPausePressed();
 	void onButtonDroppedOnButton(SoundButton *button);
 	void onFilterEditTextChanged(const QString &filter);
-	void onVolumeSliderContextMenu(const QPoint &point);
+	void onVolumeSliderContextMenuLocal(const QPoint &point);
+	void onVolumeSliderContextMenuRemote(const QPoint &point);
 
     void onSetConfig();
     void onConfigHotkey();

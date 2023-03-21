@@ -215,12 +215,12 @@
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Volume:</string>
+             <string>Volume Remote:</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QSlider" name="sl_volume">
+           <widget class="QSlider" name="sl_volumeRemote">
             <property name="maximum">
              <number>100</number>
             </property>
@@ -241,7 +241,34 @@
          </layout>
         </item>
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_5"/>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QLabel" name="label">
+            <property name="text">
+             <string>Volume Local:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QSlider" name="sl_volumeLocal">
+            <property name="maximum">
+             <number>100</number>
+            </property>
+            <property name="pageStep">
+             <number>10</number>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="tickPosition">
+             <enum>QSlider::NoTicks</enum>
+            </property>
+            <property name="tickInterval">
+             <number>0</number>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>

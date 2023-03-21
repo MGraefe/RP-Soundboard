@@ -63,8 +63,11 @@ void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e
 {
 	switch(what)
 	{
-	case ConfigModel::NOTIFY_SET_VOLUME:
-		sampler->setVolume(data);
+	case ConfigModel::NOTIFY_SET_VOLUME_LOCAL:
+		sampler->setVolumeLocal(data);
+		break;
+	case ConfigModel::NOTIFY_SET_VOLUME_REMOTE:
+		sampler->setVolumeRemote(data);
 		break;
 	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
 		sampler->setLocalPlayback(model.getPlaybackLocal());
@@ -385,11 +388,13 @@ CAPI void sb_onHotkeyPressed(const char * keyword)
 	}
 	else if (strcmp(keyword, HOTKEY_VOLUME_INCREASE) == 0)
 	{
-		configModel->setVolume(std::min(configModel->getVolume() + 20, 100));
+		configModel->setVolumeRemote(std::min(configModel->getVolumeRemote() + 20, 100));
+		configModel->setVolumeLocal(std::min(configModel->getVolumeLocal() + 20, 100));
 	}
 	else if (strcmp(keyword, HOTKEY_VOLUME_DECREASE) == 0)
 	{
-		configModel->setVolume(std::max(configModel->getVolume() - 20, 0));
+		configModel->setVolumeRemote(std::max(configModel->getVolumeRemote() - 20, 0));
+		configModel->setVolumeLocal(std::min(configModel->getVolumeLocal() - 20, 0));
 	}
 }
 
