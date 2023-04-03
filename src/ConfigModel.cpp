@@ -25,7 +25,8 @@ ConfigModel::ConfigModel()
 {
 	m_rows.fill(2);
 	m_cols.fill(5);
-	m_volume = 80;
+	m_volumeLocal = 80;
+	m_volumeRemote = 80;
 	m_playbackLocal = true;
 	m_muteMyselfDuringPb = false;
 	m_windowWidth = 600;
@@ -64,7 +65,9 @@ void ConfigModel::readConfig(const QString &file)
 		m_rows[i] = settings.value(i == 0 ? QString("num_rows") : QString("num_rows%1").arg(i + 1), i == 0 ? 2 : m_rows[0]).toInt();
 		m_cols[i] = settings.value(i == 0 ? QString("num_cols") : QString("num_cols%1").arg(i + 1), i == 0 ? 5 : m_cols[0]).toInt();
 	}
-	m_volume = settings.value("volume", 50).toInt();
+	int volume_old = settings.value("volume", 50).toInt();
+	m_volumeLocal = settings.value("volumeLocal", volume_old).toInt();
+	m_volumeLocal = settings.value("volumeRemote", volume_old).toInt();
 	m_playbackLocal = settings.value("playback_local", true).toBool();
 	m_muteMyselfDuringPb = settings.value("mute_myself_during_pb", false).toBool();
 	m_windowWidth = settings.value("window_width", 600).toInt();
@@ -93,7 +96,8 @@ void ConfigModel::writeConfig(const QString &file)
     QSettings settings(path, QSettings::IniFormat);
 
     settings.setValue("config_build", buildinfo_getBuildNumber());
-    settings.setValue("volume", m_volume);
+    settings.setValue("volumeLocal", m_volumeLocal);
+    settings.setValue("volumeRemote", m_volumeRemote);
     settings.setValue("playback_local", m_playbackLocal);
     settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
     settings.setValue("window_width", m_windowWidth);
@@ -282,12 +286,20 @@ void ConfigModel::setCols( int n )
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void ConfigModel::setVolume( int val )
+void ConfigModel::setVolumeLocal( int val )
 {
-	m_volume = val;
-	notify(NOTIFY_SET_VOLUME, val);
+	m_volumeLocal = val;
+	notify(NOTIFY_SET_VOLUME_LOCAL, val);
 }
 
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setVolumeRemote( int val )
+{
+	m_volumeRemote = val;
+	notify(NOTIFY_SET_VOLUME_REMOTE, val);
+}
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -459,7 +471,8 @@ void ConfigModel::notifyAllEvents()
 		notify(NOTIFY_SET_SOUND, i);
 	notify(NOTIFY_SET_COLS, getCols());
 	notify(NOTIFY_SET_ROWS, getRows());
-	notify(NOTIFY_SET_VOLUME, m_volume);
+	notify(NOTIFY_SET_VOLUME_LOCAL, m_volumeLocal);
+	notify(NOTIFY_SET_VOLUME_REMOTE, m_volumeRemote);
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
 	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
 	notify(NOTIFY_SET_WINDOW_SIZE, 0);

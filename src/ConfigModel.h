@@ -27,7 +27,8 @@ public:
 		NOTIFY_SET_SOUND,
 		NOTIFY_SET_ROWS,
 		NOTIFY_SET_COLS,
-		NOTIFY_SET_VOLUME,
+		NOTIFY_SET_VOLUME_LOCAL,
+		NOTIFY_SET_VOLUME_REMOTE,
 		NOTIFY_SET_PLAYBACK_LOCAL,
 		NOTIFY_SET_MUTE_MYSELF_DURING_PB,
 		NOTIFY_SET_WINDOW_SIZE,
@@ -69,8 +70,11 @@ public:
 	inline int getCols() const { return m_cols[m_activeConfig]; }
 	void setCols(int n);
 
-	inline int getVolume() const { return m_volume; }
-	void setVolume(int val);
+	inline int getVolumeLocal() const { return m_volumeLocal; }
+	void setVolumeLocal(int val);
+
+	inline int getVolumeRemote() const { return m_volumeRemote; }
+	void setVolumeRemote(int val);
 
 	inline bool getPlaybackLocal() const { return m_playbackLocal; }
 	void setPlaybackLocal(bool val);
@@ -121,7 +125,8 @@ private:
 
     std::array<int, NUM_CONFIGS> m_rows;
 	std::array<int, NUM_CONFIGS> m_cols;
-	int m_volume;
+	int m_volumeLocal;
+	int m_volumeRemote;
 	bool m_playbackLocal;
 	bool m_muteMyselfDuringPb;
 	int m_windowWidth;

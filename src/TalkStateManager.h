@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <QObject>
+#include <stdexcept>
 #include "common.h"
 
 class TalkStateManager : public QObject 

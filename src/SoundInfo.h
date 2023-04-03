@@ -12,6 +12,7 @@
 
 #include <QSettings>
 #include <QColor>
+#include <stdexcept>
 
 class SoundInfo
 {

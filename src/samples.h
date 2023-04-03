@@ -46,7 +46,8 @@ public:
 	bool playFile(const SoundInfo &sound);
 	bool playPreview(const SoundInfo &sound);
 	void stopPlayback();
-	void setVolume(int vol);
+	void setVolumeLocal(int vol);
+	void setVolumeRemote(int vol);
 	void setLocalPlayback(bool enabled);
 	void setMuteMyself(bool enabled);
 	void pausePlayback();
@@ -79,7 +80,8 @@ private:
 	int m_volumeDivider;
 	float m_volumeFactor;
 	static const int volumeScaleExp = 12;
-	double m_globalDbSetting;
+	double m_globalDbSettingLocal;
+	double m_globalDbSettingRemote;
 	double m_soundDbSetting;
 	std::mutex m_mutex;
 	std::atomic<state_e> m_state;

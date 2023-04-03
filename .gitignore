@@ -4,6 +4,7 @@ release/plugins/
 build/
 build32/
 build64/
+.vscode/
 
 # we don't commit pre-compiled linux libraries since it's way easier to compile
 # ffmpeg on linux compared to windows

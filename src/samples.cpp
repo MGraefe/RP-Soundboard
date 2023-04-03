@@ -59,7 +59,8 @@ Sampler::Sampler() :
 	m_peakMeterCapture(0.01f, 0.00005f, 24000),
 	m_peakMeterPlayback(0.01f, 0.00005f, 24000),
 	m_volumeDivider(1),
-	m_globalDbSetting(-1.0),
+	m_globalDbSettingLocal(-1.0),
+	m_globalDbSettingRemote(-1.0),
     m_soundDbSetting(0.0),
     m_state(eSILENT),
     m_localPlayback(true)
@@ -312,6 +313,7 @@ int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *fi
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
+	setVolumeDb(m_globalDbSettingRemote + m_soundDbSetting);
 	int written = fetchSamples(m_sbCapture, m_peakMeterCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
 	
     if(m_state == ePLAYING && m_inputFile && m_inputFile->done())
@@ -338,6 +340,7 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	const unsigned int bitMaskRight = SPEAKER_FRONT_RIGHT | SPEAKER_HEADPHONES_RIGHT;
 	int ciLeft = findChannelId(bitMaskLeft, channelSpeakerArray, channels);
 	int ciRight = findChannelId(bitMaskRight, channelSpeakerArray, channels);
+	setVolumeDb(m_globalDbSettingLocal + m_soundDbSetting);
 	int written = fetchSamples(m_sbPlayback, m_peakMeterPlayback, samples, count, channels, true, ciLeft, ciRight,
 		(*channelFillMask & bitMaskLeft) == 0,
 		(*channelFillMask & bitMaskRight) == 0);
@@ -388,12 +391,24 @@ void Sampler::stopPlayback()
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-void Sampler::setVolume( int vol )
+void Sampler::setVolumeRemote( int vol )
 {
 	double v = (double)vol / 100.0;
 	double db = pow(1.0 - v, VOLUMESCALER_EXPONENT) * VOLUMESCALER_DB_MIN;
-	m_globalDbSetting = db;
-	setVolumeDb(m_globalDbSetting + m_soundDbSetting);
+	m_globalDbSettingRemote = db;
+	setVolumeDb(m_globalDbSettingRemote + m_soundDbSetting);
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::setVolumeLocal( int vol )
+{
+	double v = (double)vol / 100.0;
+	double db = pow(1.0 - v, VOLUMESCALER_EXPONENT) * VOLUMESCALER_DB_MIN;
+	m_globalDbSettingLocal = db;
+	setVolumeDb(m_globalDbSettingLocal + m_soundDbSetting);
 }
 
 
@@ -470,7 +485,7 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	}
 
 	m_soundDbSetting = (double)sound.volume;
-	setVolumeDb(m_globalDbSetting + m_soundDbSetting);
+	setVolumeDb(m_globalDbSettingLocal + m_soundDbSetting);
 
 	SampleBuffer::Lock sblc(m_sbCapture.getMutex());
 	SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
