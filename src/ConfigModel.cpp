@@ -67,7 +67,7 @@ void ConfigModel::readConfig(const QString &file)
 	}
 	int volume_old = settings.value("volume", 50).toInt();
 	m_volumeLocal = settings.value("volumeLocal", volume_old).toInt();
-	m_volumeLocal = settings.value("volumeRemote", volume_old).toInt();
+	m_volumeRemote = settings.value("volumeRemote", volume_old).toInt();
 	m_playbackLocal = settings.value("playback_local", true).toBool();
 	m_muteMyselfDuringPb = settings.value("mute_myself_during_pb", false).toBool();
 	m_windowWidth = settings.value("window_width", 600).toInt();
