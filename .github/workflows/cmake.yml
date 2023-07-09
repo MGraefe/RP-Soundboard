@@ -131,5 +131,5 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
-        files: ${{github.workspace}}/release/*.ts3_plugin
+        files: release/*.ts3_plugin
         fail_on_unmatched_files: true
