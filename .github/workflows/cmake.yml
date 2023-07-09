@@ -1,0 +1,127 @@
+name: CMake
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  #### x86 build ####
+  build-win32:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win32_msvc2019'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action-x86'
+
+    - name: Configure CMake
+      run: >
+        cmake -G "Visual Studio 17 2022" -A Win32
+        -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install
+        -DRPSB_MAKE_PLUGIN_FILE=OFF
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target INSTALL
+
+    - name: Archive raw files
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-x86
+        path: ${{github.workspace}}/install/
+        if-no-files-found: error
+  
+  #### x64 build ####
+  build-win64:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+  
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'windows'
+        target: 'desktop'
+        arch: 'win64_msvc2019_64'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action'
+
+    - name: Configure CMake
+      run: >
+        cmake -G "Visual Studio 17 2022" -A x64
+        -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install
+        -DRPSB_MAKE_PLUGIN_FILE=OFF
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target INSTALL
+      
+    - name: Archive raw files
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-x64
+        path: ${{github.workspace}}/install/
+        if-no-files-found: error
+
+  #### PACKAGE JOB ####
+  package:
+    runs-on: windows-latest
+    needs:
+      - build-win32
+      - build-win64
+    steps:
+  
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Download x86 artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-x86
+        path: ${{github.workspace}}/install
+
+    - name: Download x64 artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-x64
+        path: ${{github.workspace}}/install
+
+    - name: package final plugin file
+      run: cmake -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DRPSB_PLUGINFILE_OUTPUT_DIR=${{github.workspace}}/release -P create-pluginfile.cmake
+    
+    - name: Archive
+      uses: actions/upload-artifact@v3
+      with:
+        name: plugin-windows
+        path: ${{github.workspace}}/release/*.ts3_plugin
+        if-no-files-found: error
