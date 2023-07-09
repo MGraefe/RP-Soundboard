@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.1)
+cmake_minimum_required(VERSION 3.12.0)
 
 project(rp_soundboard)
 
@@ -36,7 +36,11 @@ endif()
 
 set(ffmpegLibHint "${CMAKE_CURRENT_SOURCE_DIR}/${defFFmpegLibHint}" CACHE PATH "directory with static ffmpeg libs")
 set(libSuffix ${defLibSuffix} CACHE STRING "output library suffix")
-set(pluginDir ${defPluginDir} CACHE PATH "TS3 plugin directory (for file copy)")
+
+
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX "${pluginDir}" CACHE PATH "..." FORCE)
+endif()
 
 find_path(ffmpegIncludeDir libavcodec/avcodec.h PATHS ${ffmpegIncHint} NO_DEFAULT_PATH)
 find_library(avcodec avcodec PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
@@ -58,12 +62,16 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # version advance script (generates version.h file)
-add_custom_command(
-	OUTPUT "${CMAKE_CURRENT_SOURCE_DIR}/src/version/version.h"
-	WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/src/version"
-	COMMAND python version.py -inc
-	DEPENDS ${sources}
+add_custom_target(autogenFiles ALL
+	BYPRODUCTS "src/version/version.h" "deploy/package.ini"
+	COMMENT "running autogen file script"
+	COMMAND python version.py
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+# add_custom_command(
+# 	OUTPUT "src/version/version.h" "deploy/package.ini"
+# 	COMMAND python version.py
+# )
 # suppress warning for disabled autogen on generated files
 set_property(SOURCE "src/version/version.h" PROPERTY SKIP_AUTOGEN ON)
 
@@ -103,10 +111,14 @@ else()
 endif()
 
 
-# copy to teamspeak dir command stuff
-set(COPY_DLL_TO_TEAMSPEAK_DIR TRUE CACHE BOOL "Copy the soundboard DLL to teamspeaks directory")
-if (COPY_DLL_TO_TEAMSPEAK_DIR)
-	add_custom_command(TARGET rp_soundboard POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rp_soundboard> ${pluginDir}
-	)
-endif()
+# # copy to teamspeak dir command stuff
+# set(COPY_DLL_TO_TEAMSPEAK_DIR TRUE CACHE BOOL "Copy the soundboard DLL to teamspeaks directory")
+# if (COPY_DLL_TO_TEAMSPEAK_DIR)
+# 	add_custom_command(TARGET rp_soundboard POST_BUILD
+# 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rp_soundboard> ${pluginDir}
+# 	)
+# endif()
+
+install(TARGETS rp_soundboard LIBRARY RUNTIME DESTINATION ".")
+install(DIRECTORY "deploy/" DESTINATION ".")
+# install(FILES "deploy/package.ini" DESTINATION ".")
