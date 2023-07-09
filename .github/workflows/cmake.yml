@@ -32,12 +32,7 @@ jobs:
         cache-key-prefix: 'install-qt-action'
 
     - name: Configure CMake
-      run: >
-        cmake
-          -G "Visual Studio 17 2022" -A x64
-          -B ${{github.workspace}}/build
-          -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-          -DCOPY_DLL_TO_TEAMSPEAK_DIR=OFF
+      run: cmake -G "Visual Studio 17 2022" -A x64 -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCOPY_DLL_TO_TEAMSPEAK_DIR=OFF
 
     - name: Build
       # Build your program with the given configuration
