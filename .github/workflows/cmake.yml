@@ -95,6 +95,9 @@ jobs:
   #### PACKAGE JOB ####
   package:
     runs-on: windows-latest
+    needs:
+      - build-x86
+      - build-x64
     steps:
   
     - uses: actions/checkout@v3
