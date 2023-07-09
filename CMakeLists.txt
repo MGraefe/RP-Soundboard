@@ -68,10 +68,7 @@ add_custom_target(autogenFiles ALL
 	COMMAND python version.py
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
-# add_custom_command(
-# 	OUTPUT "src/version/version.h" "deploy/package.ini"
-# 	COMMAND python version.py
-# )
+
 # suppress warning for disabled autogen on generated files
 set_property(SOURCE "src/version/version.h" PROPERTY SKIP_AUTOGEN ON)
 
@@ -110,15 +107,14 @@ else()
 	)
 endif()
 
-
-# # copy to teamspeak dir command stuff
-# set(COPY_DLL_TO_TEAMSPEAK_DIR TRUE CACHE BOOL "Copy the soundboard DLL to teamspeaks directory")
-# if (COPY_DLL_TO_TEAMSPEAK_DIR)
-# 	add_custom_command(TARGET rp_soundboard POST_BUILD
-# 		COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:rp_soundboard> ${pluginDir}
-# 	)
-# endif()
-
-install(TARGETS rp_soundboard LIBRARY RUNTIME DESTINATION ".")
+install(TARGETS rp_soundboard LIBRARY RUNTIME DESTINATION "plugins")
 install(DIRECTORY "deploy/" DESTINATION ".")
-# install(FILES "deploy/package.ini" DESTINATION ".")
+
+set(RPSB_MAKE_PLUGIN_FILE OFF CACHE BOOL "Create the ts3_plugin file using 7zip")
+
+if (${RPSB_MAKE_PLUGIN_FILE})
+	set(RPSB_PLUGINFILE_OUTPUT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/release" CACHE PATH "Output directory for the final plugin file")
+
+	install(CODE "set(RPSB_PLUGINFILE_OUTPUT_DIR \"${RPSB_PLUGINFILE_OUTPUT_DIR}\")") # forward var
+	install(SCRIPT "create-pluginfile.cmake")
+endif()
