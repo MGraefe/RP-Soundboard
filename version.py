@@ -27,8 +27,12 @@ def main():
 				return 0
 
 	print('Git change or missing file detected, re-creating files...')
-	with open(checkFile, 'w') as fh:
+	try:
+		os.makedirs(os.path.dirname(checkFile), exist_ok=True)
+		fh = open(checkFile, 'w')
 		fh.write(versionStr)
+	except:
+		print('Unable to create git check file, write protected?')
 
 	pattern = 'v?([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)'
 
