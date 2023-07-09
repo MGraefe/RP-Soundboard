@@ -133,3 +133,4 @@ jobs:
       with:
         files: release/*.ts3_plugin
         fail_on_unmatched_files: true
+        generate_release_notes: true
