@@ -58,6 +58,7 @@ def main():
 	'#define ' + productNameCap + '_VERSION_BUILD ' + groups[3] + '\n' + \
 	'\n#endif\n'
 	
+	os.makedirs(os.path.dirname(outFileVersion), exist_ok=True)
 	with open(outFileVersion, 'w') as fh:
 		fh.write(sh)
 		fh.close()
@@ -65,6 +66,7 @@ def main():
 	# Generate package.ini
 	with open('src/package.ini.in', 'r') as fh:
 		txt = fh.read().replace('@version@', versionStr)
+	os.makedirs(os.path.dirname(outFilePackage), exist_ok=True)
 	with open(outFilePackage, 'w') as fh:
 		fh.write(txt)
 
