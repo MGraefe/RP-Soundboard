@@ -2,7 +2,8 @@ name: CMake
 
 on:
   push:
-    branches: [ "master" ]
+    tags:
+      - v1.**
   pull_request:
     branches: [ "master" ]
 
@@ -125,3 +126,10 @@ jobs:
         name: plugin-windows
         path: ${{github.workspace}}/release/*.ts3_plugin
         if-no-files-found: error
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: ${{github.workspace}}/release/*.ts3_plugin
+        fail_on_unmatched_files: true
