@@ -108,11 +108,13 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: windows-x86
+        path: ${{github.workspace}}/install
 
     - name: Download x64 artifacts
       uses: actions/download-artifact@v3
       with:
         name: windows-x64
+        path: ${{github.workspace}}/install
 
     - name: package final plugin file
       run: cmake -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DRPSB_PLUGINFILE_OUTPUT_DIR=${{github.workspace}}/release -P create-pluginfile.cmake
