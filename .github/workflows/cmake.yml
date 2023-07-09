@@ -85,11 +85,11 @@ jobs:
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target INSTALL
       
-    - name: Archive
+    - name: Archive raw files
       uses: actions/upload-artifact@v3
       with:
-        name: windows-x64
-        path: ${{github.workspace}}/release/*.ts3_plugin
+        name: windows-x86
+        path: ${{github.workspace}}/install/
         if-no-files-found: error
 
   #### PACKAGE JOB ####
@@ -103,13 +103,23 @@ jobs:
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-    
+
+    - name: Download x86 artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-x86
+
+    - name: Download x64 artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: windows-x64
+
     - name: package final plugin file
-      run: cmake -DRPSB_PLUGINFILE_OUTPUT_DIR=${{github.workspace}}/release -P create-pluginfile.cmake
+      run: cmake -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DRPSB_PLUGINFILE_OUTPUT_DIR=${{github.workspace}}/release -P create-pluginfile.cmake
     
     - name: Archive
       uses: actions/upload-artifact@v3
       with:
-        name: windows-x64
+        name: plugin-windows
         path: ${{github.workspace}}/release/*.ts3_plugin
         if-no-files-found: error
