@@ -12,7 +12,7 @@ env:
 
 jobs:
   #### x86 build ####
-  build-x86:
+  build-win32:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
@@ -36,7 +36,7 @@ jobs:
 
     - name: Configure CMake
       run: >
-        cmake -G "Visual Studio 17 2022" -A x86
+        cmake -G "Visual Studio 17 2022" -A Win32
         -B ${{github.workspace}}/build
         -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install
@@ -54,7 +54,7 @@ jobs:
         if-no-files-found: error
   
   #### x64 build ####
-  build-x64:
+  build-win64:
     runs-on: windows-latest
 
     steps:
@@ -88,7 +88,7 @@ jobs:
     - name: Archive raw files
       uses: actions/upload-artifact@v3
       with:
-        name: windows-x86
+        name: windows-x64
         path: ${{github.workspace}}/install/
         if-no-files-found: error
 
@@ -96,8 +96,8 @@ jobs:
   package:
     runs-on: windows-latest
     needs:
-      - build-x86
-      - build-x64
+      - build-win32
+      - build-win64
     steps:
   
     - uses: actions/checkout@v3
