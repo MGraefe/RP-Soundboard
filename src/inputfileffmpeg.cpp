@@ -67,7 +67,6 @@ extern "C"
 
 void InitFFmpegLibrary()
 {
-	av_register_all();
 }
 
 
