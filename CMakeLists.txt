@@ -43,10 +43,13 @@ if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 find_path(ffmpegIncludeDir libavcodec/avcodec.h PATHS ${ffmpegIncHint} NO_DEFAULT_PATH)
-find_library(avcodec avcodec PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
-find_library(avformat avformat PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
-find_library(avutil avutil PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
-find_library(swresample swresample PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+
+if(WIN32 OR APPLE)
+  find_library(avcodec avcodec PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+  find_library(avformat avformat PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+  find_library(avutil avutil PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+  find_library(swresample swresample PATHS ${ffmpegLibHint} NO_DEFAULT_PATH)
+endif()
 
 find_package(Qt5 COMPONENTS Core Widgets Gui Network REQUIRED)
 
@@ -75,6 +78,14 @@ set_property(SOURCE "src/version/version.h" PROPERTY SKIP_AUTOGEN ON)
 # actual library definition
 add_library(rp_soundboard SHARED ${sources} "src/version/version.h")
 target_link_libraries(rp_soundboard Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Network)
+
+if (LINUX)
+  target_link_libraries(rp_soundboard avcodec)
+  target_link_libraries(rp_soundboard avformat)
+  target_link_libraries(rp_soundboard avutil)
+  target_link_libraries(rp_soundboard swresample)
+endif()
+
 if (WIN32)
 	# only link this way on Windows. Linux requires VERY special linker commands, see below
 	target_link_libraries(rp_soundboard ${avcodec} ${avformat} ${avutil} ${swresample})
@@ -95,16 +106,16 @@ if (MSVC)
 else()
 	if(APPLE)
 		target_compile_definitions(rp_soundboard PRIVATE "MACOS")
+		set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
+			"-Wl,-Bsymbolic -Wl,--whole-archive \
+			${avcodec} ${avformat} ${avutil} ${swresample} \
+			-Wl,--no-whole-archive"
+		)
 	else()
 		target_compile_definitions(rp_soundboard PRIVATE "LINUX")
 	endif()
 	# Compile options that are required to NOT get the "recompile with -fPIC"
 	# error when linking the ffmpeg libs. Took me many hours to find this out...
-	set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
-		"-Wl,-Bsymbolic -Wl,--whole-archive \
-		${avcodec} ${avformat} ${avutil} ${swresample} \
-		-Wl,--no-whole-archive"
-	)
 endif()
 
 install(TARGETS rp_soundboard LIBRARY RUNTIME DESTINATION "plugins")
