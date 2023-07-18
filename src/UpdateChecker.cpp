@@ -36,11 +36,7 @@
 #include "updater_qt.h"
 #include "ConfigModel.h"
 
-#if defined(_WIN32)
 #define CHECK_URL "https://mgraefe.de/rpsb/version/version.xml"
-#elif defined(LINUX)
-#define CHECK_URL "https://mgraefe.de/rpsb/version/version_linux_amd64.xml"
-#endif
 
 
 //---------------------------------------------------------------

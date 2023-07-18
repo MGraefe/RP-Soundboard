@@ -34,7 +34,7 @@ def main():
 	except:
 		print('Unable to create git check file, write protected?')
 
-	pattern = 'v?([0-9]+)\\.([0-9]+)\\.([0-9]+)\\.([0-9]+)'
+	pattern = 'v?([0-9]+)\\.([0-9]+)\\.([0-9]+)'
 
 	reObj = re.search(pattern, versionStr)
 	if reObj == None:
@@ -50,12 +50,12 @@ def main():
 	'//CHANGES WILL BE OVERWRITTEN BY version.py\n\n' \
 	'#ifndef ' + productName + '_all__version_H__\n' \
 	'#define ' + productName + '_all__version_H__\n\n' \
-	'#define ' + productNameCap + '_VERSION ' + ','.join(groups) + '\n' + \
+	'#define ' + productNameCap + '_VERSION ' + ','.join(groups) + ',0\n' + \
 	'#define ' + productNameCap + '_VERSION_S "' + versionStr + '"\n' + \
 	'#define ' + productNameCap + '_VERSION_MAJOR ' + groups[0] + '\n' + \
 	'#define ' + productNameCap + '_VERSION_MINOR ' + groups[1] + '\n' + \
 	'#define ' + productNameCap + '_VERSION_REVISION ' + groups[2] + '\n' + \
-	'#define ' + productNameCap + '_VERSION_BUILD ' + groups[3] + '\n' + \
+	'#define ' + productNameCap + '_VERSION_BUILD ' + '1833' + '\n' + \
 	'\n#endif\n'
 	
 	os.makedirs(os.path.dirname(outFileVersion), exist_ok=True)
