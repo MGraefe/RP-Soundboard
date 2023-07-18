@@ -1,4 +1,4 @@
-name: CMake
+name: Build Plugin Windows/Linux
 
 on:
   push:
@@ -12,7 +12,7 @@ env:
   BUILD_TYPE: Release
 
 jobs:
-  #### x86 build ####
+  #### x86 WINDOWS build ####
   build-win32:
     # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
     # You can convert this to a matrix build if you need cross-platform coverage.
@@ -53,8 +53,9 @@ jobs:
         name: windows-x86
         path: ${{github.workspace}}/install/
         if-no-files-found: error
-  
-  #### x64 build ####
+
+
+  #### x64 WINDOWS build ####
   build-win64:
     runs-on: windows-latest
 
@@ -93,28 +94,102 @@ jobs:
         path: ${{github.workspace}}/install/
         if-no-files-found: error
 
+
+  #### x64 LINUX build ####
+  build-linux64:
+    # The CMake configure and build commands are platform agnostic and should work equally well on Windows or Mac.
+    # You can convert this to a matrix build if you need cross-platform coverage.
+    # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: create submodule status file
+      run: git submodule status > submodule_status
+
+    - name: Restore ffmpeg cache
+      id: cache-ffmpeg
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-ffmpeg-build
+      with:
+        path: ${{github.workspace}}/ffmpeg/lib_lin_x64
+        key: ${{runner.os}}-build-${{env.cache-name}}-${{hashFiles('submodule_status,ffmpeg/build-scripts/**')}}
+
+    - if: ${{ steps.cache-ffmpeg.outputs.cache-hit != 'true' }}
+      name: Build ffmpeg
+      run: |
+        git submodule init
+        git submodule update
+        sudo apt-get update
+        sudo apt-get install -y yasm
+        pushd ffmpeg/build-scripts
+        ./build_ffmpeg.sh
+        popd
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'linux'
+        target: 'desktop'
+        arch: 'gcc_64'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action-x64-linux'
+
+    - name: Configure CMake
+      run: >
+        cmake
+        -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install
+        -DRPSB_MAKE_PLUGIN_FILE=OFF
+
+    - name: Build
+      # Build your program with the given configuration
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target install
+
+    - name: Archive raw files
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-x64
+        path: ${{github.workspace}}/install/
+        if-no-files-found: error
+
+
   #### PACKAGE JOB ####
   package:
     runs-on: windows-latest
     needs:
       - build-win32
       - build-win64
+      - build-linux64
     steps:
   
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
-    - name: Download x86 artifacts
+    - name: Download Windows x86 artifacts
       uses: actions/download-artifact@v3
       with:
         name: windows-x86
         path: ${{github.workspace}}/install
 
-    - name: Download x64 artifacts
+    - name: Download Windows x64 artifacts
       uses: actions/download-artifact@v3
       with:
         name: windows-x64
+        path: ${{github.workspace}}/install
+
+    - name: Download Linux x64 artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: linux-x64
         path: ${{github.workspace}}/install
 
     - name: package final plugin file
@@ -123,7 +198,7 @@ jobs:
     - name: Archive
       uses: actions/upload-artifact@v3
       with:
-        name: plugin-windows
+        name: plugin-windows-linux
         path: ${{github.workspace}}/release/*.ts3_plugin
         if-no-files-found: error
 

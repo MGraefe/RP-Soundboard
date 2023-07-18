@@ -107,7 +107,10 @@ else()
 	)
 endif()
 
-install(TARGETS rp_soundboard LIBRARY RUNTIME DESTINATION "plugins")
+install(TARGETS rp_soundboard
+	LIBRARY DESTINATION "plugins"
+	RUNTIME DESTINATION "plugins"
+)
 install(DIRECTORY "deploy/" DESTINATION ".")
 
 set(RPSB_MAKE_PLUGIN_FILE OFF CACHE BOOL "Create the ts3_plugin file using 7zip")

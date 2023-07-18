@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# exit on error
+set -ex
+
 # expected to be executed in ffmpeg/build-scripts
 
 unameOut="$(uname -s)"
