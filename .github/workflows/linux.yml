@@ -20,18 +20,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: install yasm
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y yasm
-
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
-        submodules: true
-    
-    - name: Build ffmpeg
+
+    - name: create submodule status file
+      run: git submodule status > submodule_status
+
+    - name: Restore ffmpeg cache
+      id: cache-ffmpeg
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-ffmpeg-build
+      with:
+        path: ${{github.workspace}}/ffmpeg/lib_lin_x64
+        key: ${{runner.os}}-build-${{env.cache-name}}-${{hashFiles('submodule_status,ffmpeg/build-scripts/**')}}
+
+    - if: ${{ steps.cache-ffmpeg.outputs.cache-hit != 'true' }}
+      name: Build ffmpeg
       run: |
+        git submodule init
+        git submodule update
+        sudo apt-get update
+        sudo apt-get install -y yasm
         pushd ffmpeg/build-scripts
         ./build_ffmpeg.sh
         popd
@@ -57,7 +68,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target INSTALL
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target install
 
     - name: Archive raw files
       uses: actions/upload-artifact@v3
