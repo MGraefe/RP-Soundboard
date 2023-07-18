@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -ex
+
 # expected to be executed in ffmpeg/build-scripts
 
 os="$(uname -s)"

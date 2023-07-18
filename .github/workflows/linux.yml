@@ -1,4 +1,4 @@
-name: CMake
+name: Linux Test
 
 on:
   push:
@@ -20,6 +20,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: install yasm
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y yasm
+
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
