@@ -117,7 +117,7 @@ jobs:
         cache-name: cache-ffmpeg-build
       with:
         path: ${{github.workspace}}/ffmpeg/lib_lin_x64
-        key: ${{runner.os}}-build-${{env.cache-name}}-${{hashFiles('submodule_status,ffmpeg/build-scripts/**')}}
+        key: ${{runner.os}}-build-${{env.cache-name}}-${{hashFiles('submodule_status', 'ffmpeg/build-scripts/**')}}
 
     - if: ${{ steps.cache-ffmpeg.outputs.cache-hit != 'true' }}
       name: Build ffmpeg
