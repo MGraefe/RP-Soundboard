@@ -394,7 +394,7 @@ CAPI void sb_onHotkeyPressed(const char * keyword)
 	else if (strcmp(keyword, HOTKEY_VOLUME_DECREASE) == 0)
 	{
 		configModel->setVolumeRemote(std::max(configModel->getVolumeRemote() - 20, 0));
-		configModel->setVolumeLocal(std::min(configModel->getVolumeLocal() - 20, 0));
+		configModel->setVolumeLocal(std::max(configModel->getVolumeLocal() - 20, 0));
 	}
 }
 
