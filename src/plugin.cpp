@@ -359,8 +359,8 @@ void ts3plugin_initHotkeys(struct PluginHotkey*** hotkeys)
 std::map<uint64, int> clientInputHardwareStateMap;
 void ts3plugin_onUpdateClientEvent(uint64 serverConnectionHandlerID, anyID clientID, anyID invokerID, const char * invokerName, const char * invokerUniqueIdentifier)
 {
-	logDebug("onUpdateClientEvent: serverId = %i, clientId = %i, invokerID = %i, invokerName = \"%s\", invokerUID = \"%s\"",
-		(int)serverConnectionHandlerID, (int)clientID, (int)invokerID, invokerName ? invokerName : "NULL", invokerUniqueIdentifier ? invokerUniqueIdentifier : "NULL");
+	//logDebug("onUpdateClientEvent: serverId = %i, clientId = %i, invokerID = %i, invokerName = \"%s\", invokerUID = \"%s\"",
+	//	(int)serverConnectionHandlerID, (int)clientID, (int)invokerID, invokerName ? invokerName : "NULL", invokerUniqueIdentifier ? invokerUniqueIdentifier : "NULL");
 	anyID myId = 0;
 	if (checkError(ts3Functions.getClientID(serverConnectionHandlerID, &myId), "getClientID error"))
 		return;
