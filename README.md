@@ -25,3 +25,4 @@ It comes with a set of predefined sounds but of course you can choose your own.
   LD_LIBRARY_PATH=.:$LD_LIBRARY_PATH ./package_inst <path-to-download>
   ```
 * alternatively you can open the download with any archive manager (it's just a renamed zip file) and extract the contents of the `plugins` folder to `~/.ts3client/plugins/`
+ 
