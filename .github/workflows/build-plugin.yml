@@ -20,7 +20,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -48,7 +48,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target INSTALL
 
     - name: Archive raw files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: windows-x86
         path: ${{github.workspace}}/install/
@@ -60,7 +60,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
   
@@ -88,7 +88,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target INSTALL
       
     - name: Archive raw files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: windows-x64
         path: ${{github.workspace}}/install/
@@ -103,7 +103,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
@@ -112,7 +112,7 @@ jobs:
 
     - name: Restore ffmpeg cache
       id: cache-ffmpeg
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
         cache-name: cache-ffmpeg-build
       with:
@@ -154,7 +154,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target install
 
     - name: Archive raw files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: linux-x64
         path: ${{github.workspace}}/install/
@@ -170,24 +170,24 @@ jobs:
       - build-linux64
     steps:
   
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
     - name: Download Windows x86 artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: windows-x86
         path: ${{github.workspace}}/install
 
     - name: Download Windows x64 artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: windows-x64
         path: ${{github.workspace}}/install
 
     - name: Download Linux x64 artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: linux-x64
         path: ${{github.workspace}}/install
@@ -196,7 +196,7 @@ jobs:
       run: cmake -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install -DRPSB_PLUGINFILE_OUTPUT_DIR=${{github.workspace}}/release -P create-pluginfile.cmake
     
     - name: Archive
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: plugin-windows-linux
         path: ${{github.workspace}}/release/*.ts3_plugin
