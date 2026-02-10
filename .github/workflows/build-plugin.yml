@@ -6,6 +6,7 @@ on:
       - v1.**
   pull_request:
     branches: [ "master" ]
+  workflow_dispatch:
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -161,6 +162,68 @@ jobs:
         if-no-files-found: error
 
 
+  #### x64 macOS build ####
+  build-macos64:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: create submodule status file
+      run: git submodule status > submodule_status
+
+    - name: Restore ffmpeg cache
+      id: cache-ffmpeg
+      uses: actions/cache@v4
+      env:
+        cache-name: cache-ffmpeg-build
+      with:
+        path: ${{github.workspace}}/ffmpeg/lib_mac_x64
+        key: ${{runner.os}}-build-${{env.cache-name}}-${{hashFiles('submodule_status', 'ffmpeg/build-scripts/**')}}
+
+    - if: ${{ steps.cache-ffmpeg.outputs.cache-hit != 'true' }}
+      name: Build ffmpeg
+      run: |
+        git submodule init
+        git submodule update
+        brew update
+        brew install yasm pkg-config
+        pushd ffmpeg/build-scripts
+        ./build_ffmpeg.sh x64
+        popd
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'mac'
+        target: 'desktop'
+        arch: 'clang_64'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action-macos'
+
+    - name: Configure CMake
+      run: >
+        cmake
+        -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install
+        -DRPSB_MAKE_PLUGIN_FILE=OFF
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target install
+
+    - name: Archive raw files
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-x64
+        path: ${{github.workspace}}/install/
+        if-no-files-found: error
+
+
   #### PACKAGE JOB ####
   package:
     runs-on: windows-latest
@@ -168,6 +231,7 @@ jobs:
       - build-win32
       - build-win64
       - build-linux64
+      - build-macos64
     steps:
   
     - uses: actions/checkout@v4
@@ -190,6 +254,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: linux-x64
+        path: ${{github.workspace}}/install
+
+    - name: Download macOS x64 artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: macos-x64
         path: ${{github.workspace}}/install
 
     - name: package final plugin file

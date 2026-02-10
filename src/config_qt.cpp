@@ -44,6 +44,9 @@ static QString formatTimeSeconds(double seconds)
 #include <QComboBox>
 #include <QCheckBox>
 #include <QDirIterator>
+#include <QToolButton>
+#include <QDateTime>
+#include <functional>
 
 #include "PlaylistController.h"
 
@@ -111,10 +114,24 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
     QPushButton* btnAddFolder = new QPushButton("Add folder", this);
     QPushButton* btnRemove = new QPushButton("Remove", this);
     QPushButton* btnClear = new QPushButton("Clear", this);
+    QToolButton* btnSort = new QToolButton(this);
+    btnSort->setText("Sort");
+    btnSort->setPopupMode(QToolButton::InstantPopup);
+    QMenu* sortMenu = new QMenu(btnSort);
+    QAction* actSortModifiedDesc = sortMenu->addAction("Modified: Newest");
+    QAction* actSortModifiedAsc = sortMenu->addAction("Modified: Oldest");
+    sortMenu->addSeparator();
+    QAction* actSortNameAsc = sortMenu->addAction("Name: A-Z");
+    QAction* actSortNameDesc = sortMenu->addAction("Name: Z-A");
+    QAction* actSortPathAsc = sortMenu->addAction("Path: A-Z");
+    QAction* actSortCreatedDesc = sortMenu->addAction("Created: Newest");
+    QAction* actSortCreatedAsc = sortMenu->addAction("Created: Oldest");
+    btnSort->setMenu(sortMenu);
     row1->addWidget(btnAddFiles);
     row1->addWidget(btnAddFolder);
     row1->addWidget(btnRemove);
     row1->addWidget(btnClear);
+    row1->addWidget(btnSort);
     row1->addStretch(1);
 
     // Playback row
@@ -189,6 +206,31 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
             });
     }
 
+    auto applySort = [this, plc, playlistList, refreshPlaylistView](std::function<bool(const SoundInfo&, const SoundInfo&)> comp) {
+        if (!plc) return;
+        QString selectedPath;
+        if (playlistList->currentRow() >= 0 && playlistList->currentItem())
+            selectedPath = playlistList->currentItem()->data(Qt::UserRole).toString();
+
+        auto items = m_model->getPlaylist();
+        std::sort(items.begin(), items.end(), comp);
+        m_model->setPlaylist(items);
+        plc->notifyPlaylistChanged();
+        refreshPlaylistView();
+
+        if (!selectedPath.isEmpty())
+        {
+            for (int i = 0; i < playlistList->count(); ++i)
+            {
+                if (playlistList->item(i)->data(Qt::UserRole).toString() == selectedPath)
+                {
+                    playlistList->setCurrentRow(i);
+                    break;
+                }
+            }
+        }
+    };
+
     // Add files (bulk)
     connect(btnAddFiles, &QPushButton::clicked, this, [this, plc]() {
         if (!plc) return;
@@ -234,6 +276,51 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
         if (!plc) return;
         m_model->setPlaylist(QVector<SoundInfo>());
     	plc->notifyPlaylistChanged();
+    });
+
+    // Sort menu actions
+    connect(actSortModifiedDesc, &QAction::triggered, this, [applySort](bool) {
+        applySort([](const SoundInfo& a, const SoundInfo& b) {
+            return QFileInfo(a.filename).lastModified() > QFileInfo(b.filename).lastModified();
+        });
+    });
+    connect(actSortModifiedAsc, &QAction::triggered, this, [applySort](bool) {
+        applySort([](const SoundInfo& a, const SoundInfo& b) {
+            return QFileInfo(a.filename).lastModified() < QFileInfo(b.filename).lastModified();
+        });
+    });
+    connect(actSortNameAsc, &QAction::triggered, this, [applySort](bool) {
+        applySort([](const SoundInfo& a, const SoundInfo& b) {
+            return QFileInfo(a.filename).fileName().toLower() < QFileInfo(b.filename).fileName().toLower();
+        });
+    });
+    connect(actSortNameDesc, &QAction::triggered, this, [applySort](bool) {
+        applySort([](const SoundInfo& a, const SoundInfo& b) {
+            return QFileInfo(a.filename).fileName().toLower() > QFileInfo(b.filename).fileName().toLower();
+        });
+    });
+    connect(actSortPathAsc, &QAction::triggered, this, [applySort](bool) {
+        applySort([](const SoundInfo& a, const SoundInfo& b) {
+            return a.filename.toLower() < b.filename.toLower();
+        });
+    });
+    connect(actSortCreatedDesc, &QAction::triggered, this, [applySort](bool) {
+        applySort([](const SoundInfo& a, const SoundInfo& b) {
+            QFileInfo fa(a.filename);
+            QFileInfo fb(b.filename);
+            QDateTime da = fa.birthTime().isValid() ? fa.birthTime() : fa.lastModified();
+            QDateTime db = fb.birthTime().isValid() ? fb.birthTime() : fb.lastModified();
+            return da > db;
+        });
+    });
+    connect(actSortCreatedAsc, &QAction::triggered, this, [applySort](bool) {
+        applySort([](const SoundInfo& a, const SoundInfo& b) {
+            QFileInfo fa(a.filename);
+            QFileInfo fb(b.filename);
+            QDateTime da = fa.birthTime().isValid() ? fa.birthTime() : fa.lastModified();
+            QDateTime db = fb.birthTime().isValid() ? fb.birthTime() : fb.lastModified();
+            return da < db;
+        });
     });
 
     // Shuffle / Repeat
