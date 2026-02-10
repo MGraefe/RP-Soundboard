@@ -96,16 +96,20 @@ if (MSVC)
 else()
 	if(APPLE)
 		target_compile_definitions(rp_soundboard PRIVATE "MACOS")
+		set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
+			"-Wl,-force_load,${avcodec} \
+			-Wl,-force_load,${avformat} \
+			-Wl,-force_load,${avutil} \
+			-Wl,-force_load,${swresample}"
+		)
 	else()
 		target_compile_definitions(rp_soundboard PRIVATE "LINUX")
+		set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
+			"-Wl,-Bsymbolic -Wl,--whole-archive \
+			${avcodec} ${avformat} ${avutil} ${swresample} \
+			-Wl,--no-whole-archive"
+		)
 	endif()
-	# Compile options that are required to NOT get the "recompile with -fPIC"
-	# error when linking the ffmpeg libs. Took me many hours to find this out...
-	set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
-		"-Wl,-Bsymbolic -Wl,--whole-archive \
-		${avcodec} ${avformat} ${avutil} ${swresample} \
-		-Wl,--no-whole-archive"
-	)
 endif()
 
 install(TARGETS rp_soundboard
