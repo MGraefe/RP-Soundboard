@@ -16,7 +16,19 @@ outFileVersion = 'src/version/version.h'
 outFilePackage = 'deploy/package.ini'
 
 def main():
-	versionStr = subprocess.check_output(['git', 'describe', '--tags']).decode().strip()
+	versionStr = None
+	try:
+		versionStr = subprocess.check_output(
+			['git', 'describe', '--tags', '--dirty', '--always'],
+			stderr=subprocess.STDOUT
+		).decode().strip()
+	except Exception:
+		try:
+			sha = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'],
+				stderr=subprocess.STDOUT).decode().strip()
+			versionStr = 'v0.0.0+' + sha
+		except Exception:
+			versionStr = 'v0.0.0'
 
 	checkFile = 'release/git-state.txt'
 	if os.path.isfile(checkFile):
