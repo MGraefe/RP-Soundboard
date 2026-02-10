@@ -1,3 +1,9 @@
+// src/PlaylistController.h
+//----------------------------------
+// RP Soundboard Playlist Feature
+// Copyright (c) 2025 SaeedPakniat
+//----------------------------------
+
 #pragma once
 
 #include <QObject>

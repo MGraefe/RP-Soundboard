@@ -1,3 +1,9 @@
+// src/PlaylistController.cpp
+//----------------------------------
+// RP Soundboard Playlist Feature
+// Copyright (c) 2025 SaeedPakniat
+//----------------------------------
+
 #include "PlaylistController.h"
 
 #include <QRandomGenerator>
