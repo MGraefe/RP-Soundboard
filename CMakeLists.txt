@@ -4,6 +4,8 @@ project(rp_soundboard)
 
 include(files.cmake)
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
 # Get prebuilt ffmpeg folders for windows builds
 set(ffmpegIncHint "ffmpeg/include")
 
@@ -17,11 +19,12 @@ if (WIN32)
 		set(defLibSuffix "_win32.dll")
 	endif()
 	set(defPluginDir "%appdata%/TS3Client/plugins")
-elseif(APPLE) # untested thanks to MacOS being a pain in the ass to set up in VM
-	# mac has no 32 bit variant
-	set(defFFmpegLibHint "ffmpeg/lib_mac_x64")
-	set(defLibSuffix "_mac.so")
-	set(defPluginDir "~/.ts3client/plugins")
+elseif(APPLE)
+	# Build for native arch by default. Override with -DCMAKE_OSX_ARCHITECTURES="arm64;x86_64"
+	# for universal binary (requires universal Qt libs).
+	set(defFFmpegLibHint "ffmpeg/lib_mac_universal")
+	set(defLibSuffix "_mac.dylib")
+	set(defPluginDir "$ENV{HOME}/Library/Application Support/TeamSpeak 3/plugins")
 else()
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(defFFmpegLibHint "ffmpeg/lib_lin_x64")
@@ -65,7 +68,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_custom_target(autogenFiles ALL
 	BYPRODUCTS "src/version/version.h" "deploy/package.ini"
 	COMMENT "running autogen file script"
-	COMMAND python version.py
+	COMMAND ${Python3_EXECUTABLE} version.py
 	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
@@ -78,6 +81,21 @@ target_link_libraries(rp_soundboard Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Network
 if (WIN32)
 	# only link this way on Windows. Linux requires VERY special linker commands, see below
 	target_link_libraries(rp_soundboard ${avcodec} ${avformat} ${avutil} ${swresample})
+elseif(APPLE)
+	target_link_libraries(rp_soundboard ${avcodec} ${avformat} ${avutil} ${swresample})
+	# System frameworks required by FFmpeg on macOS
+	find_library(AUDIOTOOLBOX AudioToolbox)
+	find_library(COREAUDIO CoreAudio)
+	find_library(COREFOUNDATION CoreFoundation)
+	find_library(COREMEDIA CoreMedia)
+	find_library(COREVIDEO CoreVideo)
+	find_library(VIDEOTOOLBOX VideoToolbox)
+	find_library(SECURITY Security)
+	target_link_libraries(rp_soundboard
+		${AUDIOTOOLBOX} ${COREAUDIO} ${COREFOUNDATION}
+		${COREMEDIA} ${COREVIDEO} ${VIDEOTOOLBOX} ${SECURITY}
+		bz2 z iconv
+	)
 endif()
 
 target_include_directories(rp_soundboard PUBLIC "pluginsdk/include" ${ffmpegIncludeDir})
@@ -95,16 +113,20 @@ if (MSVC)
 else()
 	if(APPLE)
 		target_compile_definitions(rp_soundboard PRIVATE "MACOS")
+		# macOS uses ld64 which has different flags than GNU ld
+		set_target_properties(rp_soundboard PROPERTIES
+			LINK_FLAGS "-Wl,-all_load"
+		)
 	else()
 		target_compile_definitions(rp_soundboard PRIVATE "LINUX")
+		# GNU ld flags required to NOT get the "recompile with -fPIC"
+		# error when linking the ffmpeg libs. Took me many hours to find this out...
+		set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
+			"-Wl,-Bsymbolic -Wl,--whole-archive \
+			${avcodec} ${avformat} ${avutil} ${swresample} \
+			-Wl,--no-whole-archive"
+		)
 	endif()
-	# Compile options that are required to NOT get the "recompile with -fPIC"
-	# error when linking the ffmpeg libs. Took me many hours to find this out...
-	set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
-		"-Wl,-Bsymbolic -Wl,--whole-archive \
-		${avcodec} ${avformat} ${avutil} ${swresample} \
-		-Wl,--no-whole-archive"
-	)
 endif()
 
 install(TARGETS rp_soundboard

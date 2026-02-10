@@ -18,19 +18,31 @@ else
 	toolchainopt=""
 fi
 
-
-if [[ "$1" == "x86" ]]; then
+# On macOS, build universal binary (arm64 + x86_64) by default
+if [[ "$machine" == "Mac" && "$1" == "" ]]; then
+	echo "Machine = Mac (Universal Binary: arm64 + x86_64)"
+	build_universal=true
+elif [[ "$1" == "x86" ]]; then
 	archprefix="x86"
 	arch="x86"
+	build_universal=false
+elif [[ "$1" == "arm64" || "$1" == "aarch64" ]]; then
+	archprefix="arm64"
+	arch="aarch64"
+	build_universal=false
 elif [[ "$1" == "x64" || "$1" == "x86_64" || "$1" == "amd64" || "$(uname -m)" == "x86_64" ]]; then
 	archprefix="x64"
 	arch="x86_64"
+	build_universal=false
 else
 	archprefix="x86"
 	arch="x86"
+	build_universal=false
 fi
 
-echo "Machine =" $machine $arch
+if [[ "$build_universal" != "true" ]]; then
+	echo "Machine =" $machine $arch
+fi
 
 opts="\
 --enable-pic \
@@ -320,13 +332,55 @@ disabled_decs="\
 --disable-decoder=webvtt \
 --disable-decoder=xsub"
 
-cmd="./configure --arch=$arch --prefix=$archprefix $toolchainopt $opts $disabled_decs"
+njobs=$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 8)
 
-pushd ../ffmpeg
-echo "Command: $cmd"
-$cmd
-make clean && make -j8 && make install
+build_single_arch() {
+	local build_arch="$1"
+	local prefix="$2"
+	local cc_override="$3"
+	local extra_configure="$4"
 
-popd
+	pushd ../ffmpeg
+	echo "=== Configuring FFmpeg for $build_arch ==="
+	./configure --arch=$build_arch --prefix=$prefix \
+		--cc="$cc_override" \
+		--extra-cflags="-Wno-incompatible-function-pointer-types" \
+		$extra_configure $toolchainopt $opts $disabled_decs
+	make clean && make -j$njobs && make install
+	popd
+}
 
-./copy_binaries.sh
+if [[ "$build_universal" == "true" ]]; then
+	# Build arm64 (native on Apple Silicon)
+	echo "=== Building FFmpeg for arm64 ==="
+	build_single_arch "aarch64" "arm64" "clang -arch arm64" ""
+
+	# Build x86_64 (cross-compile on Apple Silicon)
+	echo "=== Building FFmpeg for x86_64 ==="
+	build_single_arch "x86_64" "x64" "clang -arch x86_64" "--enable-cross-compile --target-os=darwin"
+
+	# Combine into universal binaries using lipo
+	echo "=== Creating universal binaries with lipo ==="
+	mkdir -p ../ffmpeg/universal/lib
+	cp -R ../ffmpeg/x64/include ../ffmpeg/universal/include
+
+	for lib in libavcodec.a libavformat.a libavutil.a libswresample.a; do
+		lipo -create \
+			"../ffmpeg/arm64/lib/$lib" \
+			"../ffmpeg/x64/lib/$lib" \
+			-output "../ffmpeg/universal/lib/$lib"
+		echo "Created universal $lib"
+	done
+
+	./copy_binaries.sh
+else
+	cmd="./configure --arch=$arch --prefix=$archprefix $toolchainopt $opts $disabled_decs"
+
+	pushd ../ffmpeg
+	echo "Command: $cmd"
+	$cmd
+	make clean && make -j$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 8) && make install
+	popd
+
+	./copy_binaries.sh
+fi

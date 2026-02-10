@@ -25,6 +25,16 @@ esac
 
 pushd ..
 
+# Universal binary (macOS only)
+if [ -d "ffmpeg/universal" ]; then
+	mkdir -p "${prefix}_universal"
+	cp ffmpeg/universal/lib/${infix}avcodec.$postfix ${prefix}_universal/${infix}avcodec.$postfix
+	cp ffmpeg/universal/lib/${infix}avformat.$postfix ${prefix}_universal/${infix}avformat.$postfix
+	cp ffmpeg/universal/lib/${infix}avutil.$postfix ${prefix}_universal/${infix}avutil.$postfix
+	cp ffmpeg/universal/lib/${infix}swresample.$postfix ${prefix}_universal/${infix}swresample.$postfix
+	cp -R ffmpeg/universal/include ${prefix}_universal/include
+fi
+
 if [ -d "ffmpeg/x64" ]; then
 	mkdir -p "${prefix}_x64"
 	cp ffmpeg/x64/lib/libavcodec.a ${prefix}_x64/${infix}avcodec.$postfix
