@@ -50,8 +50,17 @@ def main():
 
 	reObj = re.search(pattern, versionStr)
 	if reObj == None:
-		print('Pattern not found')
-		return 1
+		# If git describe returned a hash (no tags), force a safe fallback.
+		try:
+			sha = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'],
+				stderr=subprocess.STDOUT).decode().strip()
+			versionStr = 'v0.0.0+' + sha
+		except Exception:
+			versionStr = 'v0.0.0'
+		reObj = re.search(pattern, versionStr)
+		if reObj == None:
+			print('Pattern not found')
+			return 1
 
 	groups = list(reObj.groups())
 
