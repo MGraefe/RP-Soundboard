@@ -27,6 +27,26 @@
 #include "samples.h"
 #include "SoundButton.h"
 
+#include <QListWidget>
+#include <QSlider>
+#include <QLabel>
+
+static QString formatTimeSeconds(double seconds)
+{
+	if (seconds < 0.0)
+		seconds = 0.0;
+	int total = (int)(seconds + 0.5);
+	int mins = total / 60;
+	int secs = total % 60;
+	return QString("%1:%2").arg(mins).arg(secs, 2, 10, QLatin1Char('0'));
+}
+#include <QHBoxLayout>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QDirIterator>
+
+#include "PlaylistController.h"
+
 #ifdef _WIN32
 #include "Windows.h"
 #endif
@@ -48,7 +68,11 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	ui(new Ui::ConfigQt),
 	m_model(model),
 	m_modelObserver(*this),
-	m_buttonBubble(nullptr)
+	m_buttonBubble(nullptr),
+	playlistProgressTimer(nullptr),
+	playlistProgressSlider(nullptr),
+	playlistProgressLabel(nullptr),
+	playlistProgressDragging(false)
 {
     /* Ensure resources are loaded */
     Q_INIT_RESOURCE(qtres);
@@ -68,6 +92,247 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
     configsSection = new ExpandableSection("Configurations", 200, this);
     configsSection->setContentLayout(*ui->configsWidget->layout());
     layout()->addWidget(configsSection);
+
+	    // -------------------- Playlist UI --------------------
+    ExpandableSection* playlistSection = new ExpandableSection("Playlist", 200, this);
+
+    QWidget* playlistWidget = new QWidget(this);
+    QVBoxLayout* playlistLayout = new QVBoxLayout(playlistWidget);
+    playlistLayout->setContentsMargins(0, 0, 0, 0);
+
+    QListWidget* playlistList = new QListWidget(this);
+    playlistList->setSelectionMode(QAbstractItemView::SingleSelection);
+    playlistList->setDragDropMode(QAbstractItemView::InternalMove);
+    playlistList->setDefaultDropAction(Qt::MoveAction);
+
+    // Controls row
+    QHBoxLayout* row1 = new QHBoxLayout();
+    QPushButton* btnAddFiles = new QPushButton("Add files", this);
+    QPushButton* btnAddFolder = new QPushButton("Add folder", this);
+    QPushButton* btnRemove = new QPushButton("Remove", this);
+    QPushButton* btnClear = new QPushButton("Clear", this);
+    row1->addWidget(btnAddFiles);
+    row1->addWidget(btnAddFolder);
+    row1->addWidget(btnRemove);
+    row1->addWidget(btnClear);
+    row1->addStretch(1);
+
+    // Playback row
+    QHBoxLayout* row2 = new QHBoxLayout();
+    QPushButton* btnPlay = new QPushButton("Play", this);
+    QPushButton* btnStop = new QPushButton("Stop", this);
+    QPushButton* btnPrev = new QPushButton("Prev", this);
+    QPushButton* btnNext = new QPushButton("Next", this);
+
+    QCheckBox* cbShuffle = new QCheckBox("Shuffle", this);
+    QComboBox* cmbRepeat = new QComboBox(this);
+    cmbRepeat->addItem("Repeat: None", 0);
+    cmbRepeat->addItem("Repeat: All", 1);
+    cmbRepeat->addItem("Repeat: One", 2);
+
+    row2->addWidget(btnPlay);
+    row2->addWidget(btnStop);
+    row2->addWidget(btnPrev);
+    row2->addWidget(btnNext);
+    row2->addSpacing(12);
+    row2->addWidget(cbShuffle);
+    row2->addWidget(cmbRepeat);
+    row2->addStretch(1);
+
+    // Progress row
+    QHBoxLayout* row3 = new QHBoxLayout();
+    playlistProgressSlider = new QSlider(Qt::Horizontal, this);
+    playlistProgressSlider->setRange(0, 1000);
+    playlistProgressSlider->setSingleStep(1);
+    playlistProgressSlider->setEnabled(false);
+    playlistProgressLabel = new QLabel("0:00 / 0:00", this);
+    row3->addWidget(playlistProgressSlider, 1);
+    row3->addWidget(playlistProgressLabel);
+
+    playlistLayout->addWidget(playlistList);
+    playlistLayout->addLayout(row1);
+    playlistLayout->addLayout(row2);
+    playlistLayout->addLayout(row3);
+
+    playlistSection->setContentLayout(*playlistLayout);
+    layout()->addWidget(playlistSection);
+
+    // Hook up controller
+    PlaylistController* plc = sb_getPlaylistController();
+
+    auto refreshPlaylistView = [this, playlistList, plc]() {
+        playlistList->clear();
+        if (!plc) return;
+        const auto items = m_model->getPlaylist();
+        for (const auto& s : items)
+        {
+            QFileInfo fi(s.filename);
+            QListWidgetItem* item = new QListWidgetItem(fi.fileName());
+            item->setData(Qt::UserRole, s.filename);
+            playlistList->addItem(item);
+        }
+    };
+
+    if (plc)
+    {
+        cbShuffle->setChecked(m_model->getPlaylistShuffle());
+        cmbRepeat->setCurrentIndex(cmbRepeat->findData(m_model->getPlaylistRepeatMode()));
+
+        refreshPlaylistView();
+
+        connect(plc, &PlaylistController::playlistChanged, this, refreshPlaylistView);
+
+        connect(plc, &PlaylistController::nowPlayingChanged, this,
+            [playlistList](int index) {
+                if (index >= 0 && index < playlistList->count())
+                    playlistList->setCurrentRow(index);
+            });
+    }
+
+    // Add files (bulk)
+    connect(btnAddFiles, &QPushButton::clicked, this, [this, plc]() {
+        if (!plc) return;
+        QStringList fns = QFileDialog::getOpenFileNames(this, tr("Select audio/video files"), QString(), tr("Files (*.*)"));
+        if (!fns.isEmpty())
+            plc->addFiles(fns);
+    });
+
+    // Add folder (recursive)
+    connect(btnAddFolder, &QPushButton::clicked, this, [this, plc]() {
+        if (!plc) return;
+        QString dir = QFileDialog::getExistingDirectory(this, tr("Select folder"));
+        if (dir.isEmpty()) return;
+
+        QStringList files;
+        QDirIterator it(dir, QDir::Files, QDirIterator::Subdirectories);
+        while (it.hasNext())
+            files << it.next();
+
+        files.sort(Qt::CaseInsensitive);
+
+        if (!files.isEmpty())
+            plc->addFiles(files);
+    });
+
+    // Remove selected
+    connect(btnRemove, &QPushButton::clicked, this, [this, plc, playlistList]() {
+        if (!plc) return;
+        int row = playlistList->currentRow();
+        if (row < 0) return;
+
+        auto items = m_model->getPlaylist();
+        if (row >= 0 && row < items.size())
+        {
+            items.removeAt(row);
+            m_model->setPlaylist(items);
+        	plc->notifyPlaylistChanged();
+        }
+    });
+
+    // Clear
+    connect(btnClear, &QPushButton::clicked, this, [this, plc]() {
+        if (!plc) return;
+        m_model->setPlaylist(QVector<SoundInfo>());
+    	plc->notifyPlaylistChanged();
+    });
+
+    // Shuffle / Repeat
+    connect(cbShuffle, &QCheckBox::clicked, this, [plc](bool v) {
+        if (!plc) return;
+        plc->setShuffle(v);
+    });
+
+    connect(cmbRepeat, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [plc, cmbRepeat](int idx) {
+        if (!plc) return;
+        int mode = cmbRepeat->itemData(idx).toInt();
+        plc->setRepeatMode((PlaylistController::RepeatMode)mode);
+    });
+
+    // Play selected or start
+    connect(btnPlay, &QPushButton::clicked, this, [plc, playlistList]() {
+        if (!plc) return;
+        int row = playlistList->currentRow();
+        if (row < 0) row = 0;
+        plc->play(row);
+    });
+
+    connect(btnStop, &QPushButton::clicked, this, [plc]() {
+        if (!plc) return;
+        plc->stop();
+    });
+
+    connect(btnNext, &QPushButton::clicked, this, [plc]() {
+        if (!plc) return;
+        plc->next();
+    });
+
+    connect(btnPrev, &QPushButton::clicked, this, [plc]() {
+        if (!plc) return;
+        plc->prev();
+    });
+
+    connect(playlistProgressSlider, &QSlider::sliderPressed, this, [this]() {
+        playlistProgressDragging = true;
+    });
+
+    connect(playlistProgressSlider, &QSlider::sliderReleased, this, [this]() {
+        playlistProgressDragging = false;
+        Sampler *sampler = sb_getSampler();
+        if (!sampler) return;
+        double duration = sampler->getPlaybackDurationSeconds();
+        if (duration <= 0.0) return;
+        double target = duration * (double)playlistProgressSlider->value() / 1000.0;
+        sampler->seekPlayback(target);
+    });
+
+    // Double click to play that item
+    connect(playlistList, &QListWidget::itemDoubleClicked, this, [plc, playlistList](QListWidgetItem*) {
+        if (!plc) return;
+        int row = playlistList->currentRow();
+        if (row >= 0) plc->playSelected(row);
+    });
+
+    // Persist reorder when user drags items
+    connect(playlistList->model(), &QAbstractItemModel::rowsMoved, this, [this, plc, playlistList]() {
+        if (!plc) return;
+
+        auto items = m_model->getPlaylist();
+        QVector<SoundInfo> newItems;
+        newItems.reserve(playlistList->count());
+
+        // Rebuild playlist in new UI order
+        // We only have filenames in UI, so re-map by filename.
+        // For safety, use the old list and match by base name + full filename.
+        for (int i = 0; i < playlistList->count(); ++i)
+        {
+            QString path = playlistList->item(i)->data(Qt::UserRole).toString();
+            bool found = false;
+            for (int k = 0; k < items.size(); ++k)
+            {
+                if (items[k].filename == path)
+                {
+                    newItems.push_back(items[k]);
+                    items.removeAt(k);
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                // If duplicates exist, fallback will be imperfect; keep going
+            }
+        }
+
+        // Append anything unmatched (e.g., duplicates)
+        for (const auto& s : items)
+            newItems.push_back(s);
+
+        m_model->setPlaylist(newItems);
+    	plc->notifyPlaylistChanged();
+    });
+    // ------------------ End Playlist UI ------------------
+
+
 
     QAction *actChooseFile = new QAction("Choose File", this);
 	actChooseFile->setData((int)BC_CHOOSE);
@@ -124,11 +389,15 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
     connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
     connect(ui->pushSave, SIGNAL(released()), this, SLOT(onSaveModel()));
     
-    ui->playingIconLabel->hide();
+	ui->playingIconLabel->hide();
 	ui->playingLabel->setText("");
 	playingIconTimer = new QTimer(this);
 	playingIconTimer->setInterval(150);
 	connect(playingIconTimer, SIGNAL(timeout()), this, SLOT(onPlayingIconTimer()));
+
+	playlistProgressTimer = new QTimer(this);
+	playlistProgressTimer->setInterval(200);
+	connect(playlistProgressTimer, SIGNAL(timeout()), this, SLOT(onPlaylistProgressTimer()));
 
 	Sampler *sampler = sb_getSampler();
 	connect(sampler, SIGNAL(onStartPlaying(bool, QString)), this, SLOT(onStartPlayingSound(bool, QString)), Qt::QueuedConnection);
@@ -477,6 +746,10 @@ void ConfigQt::setPlayingLabelIcon(int index)
 //---------------------------------------------------------------
 void ConfigQt::playSound( size_t buttonId )
 {
+	PlaylistController* plc = sb_getPlaylistController();
+	if (plc && plc->isPlayingPlaylist())
+		plc->stop();
+
 	const SoundInfo *info = m_model->getSoundInfo(buttonId);
 	if(info)
 		sb_playFile(*info);
@@ -637,6 +910,16 @@ void ConfigQt::onStartPlayingSound(bool preview, QString filename)
 	ui->b_stop->setEnabled(true);
 	ui->b_pause->setEnabled(true);
 	ui->b_pause->setIcon(m_pauseIcon);
+
+	if (playlistProgressSlider)
+	{
+		playlistProgressSlider->setEnabled(true);
+		playlistProgressSlider->setValue(0);
+	}
+	if (playlistProgressLabel)
+		playlistProgressLabel->setText("0:00 / 0:00");
+	if (playlistProgressTimer)
+		playlistProgressTimer->start();
 }
 
 
@@ -652,6 +935,16 @@ void ConfigQt::onStopPlayingSound()
 	//ui->b_stop->setEnabled(false);
 	//ui->b_pause->setEnabled(false);
 	ui->b_pause->setIcon(m_pauseIcon);
+
+	if (playlistProgressTimer)
+		playlistProgressTimer->stop();
+	if (playlistProgressSlider)
+	{
+		playlistProgressSlider->setEnabled(false);
+		playlistProgressSlider->setValue(0);
+	}
+	if (playlistProgressLabel)
+		playlistProgressLabel->setText("0:00 / 0:00");
 }
 
 
@@ -662,6 +955,8 @@ void ConfigQt::onPausePlayingSound()
 {
 	playingIconTimer->stop();
 	ui->b_pause->setIcon(m_playIcon);
+	if (playlistProgressTimer)
+		playlistProgressTimer->stop();
 }
 
 
@@ -672,6 +967,8 @@ void ConfigQt::onUnpausePlayingSound()
 {
 	playingIconTimer->start();
 	ui->b_pause->setIcon(m_pauseIcon);
+	if (playlistProgressTimer)
+		playlistProgressTimer->start();
 }
 
 
@@ -682,6 +979,37 @@ void ConfigQt::onPlayingIconTimer()
 {
 	setPlayingLabelIcon(playingIconIndex);
 	++playingIconIndex %= 4;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onPlaylistProgressTimer()
+{
+	if (!playlistProgressSlider || !playlistProgressLabel)
+		return;
+	if (playlistProgressDragging)
+		return;
+
+	Sampler *sampler = sb_getSampler();
+	if (!sampler)
+		return;
+
+	double pos = sampler->getPlaybackPositionSeconds();
+	double dur = sampler->getPlaybackDurationSeconds();
+	if (dur <= 0.0)
+	{
+		playlistProgressSlider->setValue(0);
+		playlistProgressLabel->setText("0:00 / 0:00");
+		return;
+	}
+
+	int value = (int)(pos / dur * 1000.0);
+	if (value < 0) value = 0;
+	if (value > 1000) value = 1000;
+	playlistProgressSlider->setValue(value);
+	playlistProgressLabel->setText(formatTimeSeconds(pos) + " / " + formatTimeSeconds(dur));
 }
 
 

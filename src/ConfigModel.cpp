@@ -41,6 +41,9 @@ ConfigModel::ConfigModel()
 
     m_activeConfig = 0;
 	m_nextUpdateCheck = 0;
+
+	m_playlistShuffle = false;
+	m_playlistRepeatMode = 0;
 }
 
 
@@ -78,6 +81,17 @@ void ConfigModel::readConfig(const QString &file)
 	m_showHotkeysOnButtons = settings.value("show_hotkeys_on_buttons", false).toBool();
 	m_hotkeysEnabled = settings.value("hotkeys_enabled", true).toBool();
 	m_nextUpdateCheck = settings.value("next_update_check", 0).toUInt();
+	m_playlistShuffle = settings.value("playlist_shuffle", false).toBool();
+	m_playlistRepeatMode = settings.value("playlist_repeat_mode", 0).toInt();
+
+	// Read playlist array using existing SoundInfo serialization
+	{
+    	std::vector<SoundInfo> tmp = readConfiguration(settings, "playlist");
+    	m_playlist.clear();
+    	for (const auto& s : tmp)
+    		m_playlist.push_back(s);
+	}
+
 
 	notifyAllEvents();
 }
@@ -108,6 +122,18 @@ void ConfigModel::writeConfig(const QString &file)
     settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
 	settings.setValue("hotkeys_enabled", m_hotkeysEnabled);
 	settings.setValue("next_update_check", m_nextUpdateCheck);
+	settings.setValue("playlist_shuffle", m_playlistShuffle);
+	settings.setValue("playlist_repeat_mode", m_playlistRepeatMode);
+
+	// Write playlist array (convert QVector -> std::vector)
+	{
+    	std::vector<SoundInfo> tmp;
+    	tmp.reserve(m_playlist.size());
+    	for (const auto& s : m_playlist)
+    		tmp.push_back(s);
+    	writeConfiguration(settings, "playlist", tmp);
+	}
+
 
 	for (int i = 0; i < NUM_CONFIGS; i++)
 		writeConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i + 1), m_sounds[i]);
@@ -493,4 +519,28 @@ void ConfigModel::setShowHotkeysOnButtons(bool show)
 	writeConfig();
 	notify(NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS, show ? 1 : 0);
 }
+
+QVector<SoundInfo> ConfigModel::getPlaylist() const
+{
+	return m_playlist;
+}
+
+void ConfigModel::setPlaylist(const QVector<SoundInfo>& items)
+{
+	m_playlist = items;
+	writeConfig();
+}
+
+void ConfigModel::setPlaylistShuffle(bool v)
+{
+	m_playlistShuffle = v;
+	writeConfig();
+}
+
+void ConfigModel::setPlaylistRepeatMode(int v)
+{
+	m_playlistRepeatMode = v;
+	writeConfig();
+}
+
 

@@ -1,6 +1,6 @@
 // src/UpdateChecker.cpp
 //----------------------------------
-// RP Soundboard Source Code
+// RP-Soundboard-With-Playlist Source Code
 // Copyright (c) 2015 Marius Graefe
 // All rights reserved
 // Contact: rp_soundboard@mgraefe.de
@@ -149,7 +149,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 
 			if (m_explicitCheck)
 			{
-				QMessageBox::information(NULL, "Update Check", "Your version of RP Soundboard is up to date.");
+				QMessageBox::information(NULL, "Update Check", "Your version of RP-Soundboard-With-Playlist is up to date.");
 			}
 		}
 	}
@@ -260,10 +260,10 @@ void UpdateChecker::askUserForUpdate()
 {
 	QMessageBox msgBox0;
 	msgBox0.setTextFormat(Qt::RichText);
-	msgBox0.setText(QString("A new version of RP Soundboard is available (%1).<br /><br />"\
+	msgBox0.setText(QString("A new version of RP-Soundboard-With-Playlist is available (%1).<br /><br />"\
 		"Would you like to download and install it?").arg(m_verInfo.version));
 	msgBox0.setIcon(QMessageBox::Information);
-	msgBox0.setWindowTitle("New version of RP Soundboard!");
+	msgBox0.setWindowTitle("New version of RP-Soundboard-With-Playlist!");
 	msgBox0.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 	msgBox0.setDefaultButton(QMessageBox::Yes);
 	if (m_verInfo.features.length() > 0)
@@ -297,7 +297,7 @@ void UpdateChecker::onFinishedUpdate()
 	if(m_updater->getSuccess())
 	{
 		QApplication::closeAllWindows();
-		//QMessageBox::information(NULL, "Update finished", QString("RP Soundboard was successfully updated to build %1").arg(m_verInfo.build));
+		//QMessageBox::information(NULL, "Update finished", QString("RP-Soundboard-With-Playlist was successfully updated to build %1").arg(m_verInfo.build));
 	}
 	else
 	{
@@ -349,7 +349,7 @@ bool UpdateChecker::version_info_t::valid()
 //---------------------------------------------------------------
 QByteArray UpdateChecker::getUserAgent() // static
 {
-	return QByteArray("RP Soundboard Update Checker, ") + buildinfo_getPluginVersion();
+	return QByteArray("RP-Soundboard-With-Playlist Update Checker, ") + buildinfo_getPluginVersion();
 }
 
 

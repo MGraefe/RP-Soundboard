@@ -28,6 +28,7 @@ extern "C"
 {
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavformat/version.h>
 #include <libavutil/avutil.h>
 #include <libswresample/swresample.h>
 }
@@ -67,7 +68,9 @@ extern "C"
 
 void InitFFmpegLibrary()
 {
+#if LIBAVFORMAT_VERSION_MAJOR < 59
 	av_register_all();
+#endif
 }
 
 
@@ -100,6 +103,9 @@ public:
 	bool done() const override;
 	int seek(double seconds) override;
 	int64_t outputSamplesEstimation() const override;
+	int64_t currentOutputSamples() const override;
+	int64_t totalOutputSamples() const override;
+	int outputSampleRate() const override;
 
 private:
 	int _close();
@@ -122,7 +128,7 @@ private:
 	uint8_t *m_outBuf;
 	bool m_opened;
 	bool m_done;
-	std::mutex m_mutex;
+	mutable std::mutex m_mutex;
 	int64_t m_decodedSamples;
 	int64_t m_convertedSamples;
 	int64_t m_decodedSamplesTargetSR;
@@ -295,6 +301,7 @@ int InputFileFFmpeg::seek( double seconds )
 		return -1;
 	avcodec_flush_buffers(m_codecCtx);
 	m_nextSeekTimestamp = ts;
+	m_convertedSamples = (int64_t)(seconds * (double)m_outputSamplerate + 0.5);
 	return 0;
 }
 
@@ -519,6 +526,37 @@ int64_t InputFileFFmpeg::outputSamplesEstimation() const
 			(int64_t)m_outputSamplerate / (int64_t)stream->time_base.den;
 	else
 		return m_fmtCtx->duration * m_outputSamplerate / AV_TIME_BASE;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+int64_t InputFileFFmpeg::currentOutputSamples() const
+{
+	Lock lock(m_mutex);
+	return m_convertedSamples;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+int64_t InputFileFFmpeg::totalOutputSamples() const
+{
+	Lock lock(m_mutex);
+	if (m_maxConvertedSamples > 0)
+		return m_maxConvertedSamples;
+	return outputSamplesEstimation();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+int InputFileFFmpeg::outputSampleRate() const
+{
+	return m_outputSamplerate;
 }
 
 

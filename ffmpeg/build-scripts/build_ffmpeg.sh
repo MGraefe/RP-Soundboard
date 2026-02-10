@@ -34,6 +34,9 @@ echo "Machine =" $machine $arch
 
 opts="\
 --enable-pic \
+--disable-asm \
+--disable-x86asm \
+--disable-inline-asm \
 --disable-programs \
 --disable-doc \
 --disable-avdevice \

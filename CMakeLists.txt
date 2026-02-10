@@ -73,7 +73,8 @@ add_custom_target(autogenFiles ALL
 set_property(SOURCE "src/version/version.h" PROPERTY SKIP_AUTOGEN ON)
 
 # actual library definition
-add_library(rp_soundboard SHARED ${sources} "src/version/version.h")
+add_library(rp_soundboard SHARED ${sources} "src/version/version.h"
+		src/PlaylistController.cpp)
 target_link_libraries(rp_soundboard Qt5::Core Qt5::Widgets Qt5::Gui Qt5::Network)
 if (WIN32)
 	# only link this way on Windows. Linux requires VERY special linker commands, see below

@@ -1,4 +1,4 @@
-# RP Soundboard
+# RP-Soundboard-With-Playlist
 Easy to use soundboard for Teamspeak 3
 
 A simple yet powerful soundboard that requires no complicated setup! Just install and it's ready to use. No extra tools, no fiddling with push-to-talk settings etc.

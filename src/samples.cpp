@@ -72,6 +72,8 @@ Sampler::Sampler() :
 }
 
 
+
+
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
@@ -384,6 +386,60 @@ void Sampler::stopPlayback()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 	stopSoundInternal();
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+double Sampler::getPlaybackPositionSeconds() const
+{
+	std::lock_guard<std::mutex> Lock(m_mutex);
+	if (!m_inputFile)
+		return 0.0;
+	int rate = m_inputFile->outputSampleRate();
+	if (rate <= 0)
+		return 0.0;
+	return (double)m_inputFile->currentOutputSamples() / (double)rate;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+double Sampler::getPlaybackDurationSeconds() const
+{
+	std::lock_guard<std::mutex> Lock(m_mutex);
+	if (!m_inputFile)
+		return 0.0;
+	int rate = m_inputFile->outputSampleRate();
+	if (rate <= 0)
+		return 0.0;
+	int64_t total = m_inputFile->totalOutputSamples();
+	if (total <= 0)
+		return 0.0;
+	return (double)total / (double)rate;
+}
+
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+bool Sampler::seekPlayback(double seconds)
+{
+	std::lock_guard<std::mutex> Lock(m_mutex);
+	if (!m_inputFile)
+		return false;
+	if (seconds < 0.0)
+		seconds = 0.0;
+
+	// Clear buffers so we don't play stale audio after seek
+	SampleBuffer::Lock sblc(m_sbCapture.getMutex());
+	SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
+	m_sbCapture.consume(NULL, m_sbCapture.avail());
+	m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+
+	return m_inputFile->seek(seconds) == 0;
 }
 
 #define VOLUMESCALER_EXPONENT 1.0

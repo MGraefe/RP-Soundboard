@@ -1,6 +1,6 @@
 // src/updater_qt.cpp
 //----------------------------------
-// RP Soundboard Source Code
+// RP-Soundboard-With-Playlist Source Code
 // Copyright (c) 2015 Marius Graefe
 // All rights reserved
 // Contact: rp_soundboard@mgraefe.de
@@ -73,7 +73,7 @@ void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bo
 void UpdaterWindow::startRequest(const QUrl &url)
 {
 	QNetworkRequest request(url);
-	request.setRawHeader("User-Agent", QByteArray("RP Soundboard Updater, ") + buildinfo_getPluginVersion());
+	request.setRawHeader("User-Agent", QByteArray("RP-Soundboard-With-Playlist Updater, ") + buildinfo_getPluginVersion());
 	m_reply = m_manager->get(QNetworkRequest(url));
 	connect(m_reply, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
 	connect(m_reply, SIGNAL(downloadProgress(qint64,qint64)), this, 

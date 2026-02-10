@@ -1,6 +1,6 @@
 // src/main.cpp
 //----------------------------------
-// RP Soundboard Source Code
+// RP-Soundboard-With-Playlist Source Code
 // Copyright (c) 2015 Marius Graefe
 // All rights reserved
 // Contact: rp_soundboard@mgraefe.de
@@ -34,6 +34,8 @@
 #include "SoundInfo.h"
 #include "TalkStateManager.h"
 #include "SpeechBubble.h"
+#include "PlaylistController.h"
+
 
 class ModelObserver_Prog : public ConfigModel::Observer
 {
@@ -50,6 +52,11 @@ ConfigQt *configDialog = NULL;
 AboutQt *aboutDialog = NULL;
 Sampler *sampler = NULL;
 TalkStateManager *tsMgr = NULL;
+
+PlaylistController *playlistCtl = NULL;
+
+
+
 
 bool hotkeysTemporarilyDisabled = false;
 
@@ -114,6 +121,12 @@ Sampler *sb_getSampler()
 	return sampler;
 }
 
+PlaylistController* sb_getPlaylistController()
+{
+	return playlistCtl;
+}
+
+
 
 void sb_enableInterface(bool enabled) 
 {
@@ -128,7 +141,7 @@ void sb_enableInterface(bool enabled)
 			notConnectedBubble->setBubbleStyle(false);
 			notConnectedBubble->setClosable(false);
 			notConnectedBubble->setText("You are not connected to a server.\n"
-				"RP Soundboard is disabled until you are connected properly.");
+				"RP-Soundboard-With-Playlist is disabled until you are connected properly.");
 			notConnectedBubble->attachTo(configDialog);
 			if (configDialog->isVisible())
 				notConnectedBubble->show();
@@ -158,6 +171,10 @@ CAPI void sb_init()
 		/* This if first QObject instantiated, it will load the resources */
 		sampler = new Sampler();
 		sampler->init();
+
+
+		playlistCtl = new PlaylistController(sampler, configModel);
+
 
 		tsMgr = new TalkStateManager();
 		QObject::connect(sampler, &Sampler::onStartPlaying, tsMgr, &TalkStateManager::onStartPlaying, Qt::QueuedConnection);
@@ -191,6 +208,9 @@ CAPI void sb_kill()
 	configModel->remObserver(modelObserver);
 	delete modelObserver; 
 	modelObserver = NULL;
+
+	delete playlistCtl;
+	playlistCtl = NULL;
 
 	sampler->shutdown();
 	delete sampler;

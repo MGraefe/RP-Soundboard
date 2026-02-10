@@ -52,6 +52,9 @@ public:
 	virtual bool done() const = 0;
 	virtual int seek(double seconds) = 0;
 	virtual int64_t outputSamplesEstimation() const = 0;
+	virtual int64_t currentOutputSamples() const = 0;
+	virtual int64_t totalOutputSamples() const = 0;
+	virtual int outputSampleRate() const = 0;
 };
 
 extern InputFile *CreateInputFileFFmpeg(InputFileOptions options = InputFileOptions());

@@ -29,6 +29,8 @@
 class SpeechBubble;
 class ExpandableSection;
 class SoundButton;
+class QSlider;
+class QLabel;
 
 namespace Ui {
 	class ConfigQt;
@@ -78,6 +80,7 @@ private slots:
 	void onPausePlayingSound();
 	void onUnpausePlayingSound();
 	void onPlayingIconTimer();
+	void onPlaylistProgressTimer();
 	void onUpdateShowHotkeysOnButtons(bool val);
 	void onUpdateHotkeysDisabled(bool val);
 	void onButtonFileDropped(const QList<QUrl> &urls);
@@ -134,6 +137,10 @@ private:
     ExpandableSection *settingsSection;
     ExpandableSection *configsSection;
     QTimer *playingIconTimer;
+    QTimer *playlistProgressTimer;
+    QSlider *playlistProgressSlider;
+    QLabel *playlistProgressLabel;
+    bool playlistProgressDragging;
 	int playingIconIndex;
 	QIcon m_pauseIcon;
 	QIcon m_playIcon;

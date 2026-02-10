@@ -18,6 +18,10 @@
 class SoundInfo;
 int sb_playFile(const SoundInfo &sound);
 
+class PlaylistController;
+PlaylistController* sb_getPlaylistController();
+
+
 class Sampler;
 Sampler *sb_getSampler();
 #endif

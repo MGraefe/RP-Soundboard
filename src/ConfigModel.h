@@ -18,6 +18,8 @@
 #include <memory>
 #include <set>
 #include "common.h"
+#include <QVector>
+
 
 class ConfigModel
 {
@@ -49,6 +51,16 @@ public:
 
 public:
 	ConfigModel();
+
+	// Playlist (independent from button grid)
+	QVector<SoundInfo> getPlaylist() const;
+	void setPlaylist(const QVector<SoundInfo>& items);
+
+	bool getPlaylistShuffle() const { return m_playlistShuffle; }
+	void setPlaylistShuffle(bool v);
+
+	int getPlaylistRepeatMode() const { return m_playlistRepeatMode; } // 0=None,1=All,2=One
+	void setPlaylistRepeatMode(int v);
 
 	void readConfig(const QString &file = QString());
     void writeConfig(const QString &file = QString());
@@ -140,6 +152,13 @@ private:
 	bool m_hotkeysEnabled;
 
 	uint m_nextUpdateCheck;
+	QVector<SoundInfo> m_playlist;
+	bool m_playlistShuffle = false;
+	int m_playlistRepeatMode = 0;
+
+
 };
+
+
 
 #endif // rpsbsrc__ConfigModel_H__

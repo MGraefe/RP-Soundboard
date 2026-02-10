@@ -46,6 +46,9 @@ public:
 	bool playFile(const SoundInfo &sound);
 	bool playPreview(const SoundInfo &sound);
 	void stopPlayback();
+	double getPlaybackPositionSeconds() const;
+	double getPlaybackDurationSeconds() const;
+	bool seekPlayback(double seconds);
 	void setVolumeLocal(int vol);
 	void setVolumeRemote(int vol);
 	void setLocalPlayback(bool enabled);
@@ -83,7 +86,7 @@ private:
 	double m_globalDbSettingLocal;
 	double m_globalDbSettingRemote;
 	double m_soundDbSetting;
-	std::mutex m_mutex;
+	mutable std::mutex m_mutex;
 	std::atomic<state_e> m_state;
 	bool m_localPlayback;
 	bool m_muteMyself;

@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>RP Soundboard Updater</string>
+   <string>RP-Soundboard-With-Playlist Updater</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>

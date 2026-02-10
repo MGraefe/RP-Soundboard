@@ -23,7 +23,7 @@
 #define BUILD_NAME "Unknown Build"
 #endif
 
-#define PLUGIN_NAME "RP Soundboard"
+#define PLUGIN_NAME "RP-Soundboard-With-Playlist"
 
 #define PLUGIN_VERSION (TS3SB_VERSION_S " " BUILD_TARGET " " BUILD_NAME)
 #define PLUGIN_AUTHOR ("Marius Gr\xC3\xA4" "fe")

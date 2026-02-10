@@ -29,7 +29,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>About RP Soundboard</string>
+   <string>About RP-Soundboard-With-Playlist</string>
   </property>
   <property name="windowIcon">
    <iconset resource="qtres.qrc">
@@ -58,7 +58,7 @@
           </font>
          </property>
          <property name="text">
-          <string>RP Soundboard</string>
+          <string>RP-Soundboard-With-Playlist</string>
          </property>
         </widget>
        </item>
