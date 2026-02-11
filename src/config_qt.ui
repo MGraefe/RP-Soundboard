@@ -310,6 +310,13 @@
          </widget>
         </item>
         <item>
+         <widget class="QCheckBox" name="cb_play_for_others">
+          <property name="text">
+           <string>Play for others</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QCheckBox" name="cb_mute_myself">
           <property name="text">
            <string>Mute myself during playback</string>

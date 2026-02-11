@@ -52,6 +52,7 @@ public:
 	void setVolumeLocal(int vol);
 	void setVolumeRemote(int vol);
 	void setLocalPlayback(bool enabled);
+	void setRemotePlayback(bool enabled);
 	void setMuteMyself(bool enabled);
 	void pausePlayback();
 	void unpausePlayback();
@@ -89,6 +90,7 @@ private:
 	mutable std::mutex m_mutex;
 	std::atomic<state_e> m_state;
 	bool m_localPlayback;
+	bool m_remotePlayback;
 	bool m_muteMyself;
 };
 

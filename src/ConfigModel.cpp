@@ -28,6 +28,7 @@ ConfigModel::ConfigModel()
 	m_volumeLocal = 80;
 	m_volumeRemote = 80;
 	m_playbackLocal = true;
+	m_playbackRemote = true;
 	m_muteMyselfDuringPb = false;
 	m_windowWidth = 600;
 	m_windowHeight = 240;
@@ -72,6 +73,7 @@ void ConfigModel::readConfig(const QString &file)
 	m_volumeLocal = settings.value("volumeLocal", volume_old).toInt();
 	m_volumeRemote = settings.value("volumeRemote", volume_old).toInt();
 	m_playbackLocal = settings.value("playback_local", true).toBool();
+	m_playbackRemote = settings.value("playback_remote", true).toBool();
 	m_muteMyselfDuringPb = settings.value("mute_myself_during_pb", false).toBool();
 	m_windowWidth = settings.value("window_width", 600).toInt();
 	m_windowHeight = settings.value("window_height", 240).toInt();
@@ -113,6 +115,7 @@ void ConfigModel::writeConfig(const QString &file)
     settings.setValue("volumeLocal", m_volumeLocal);
     settings.setValue("volumeRemote", m_volumeRemote);
     settings.setValue("playback_local", m_playbackLocal);
+    settings.setValue("playback_remote", m_playbackRemote);
     settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
     settings.setValue("window_width", m_windowWidth);
     settings.setValue("window_height", m_windowHeight);
@@ -337,6 +340,16 @@ void ConfigModel::setPlaybackLocal( bool val )
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, val ? 1 : 0);
 }
 
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigModel::setPlaybackRemote(bool val)
+{
+	m_playbackRemote = val;
+	writeConfig();
+	notify(NOTIFY_SET_PLAYBACK_REMOTE, val ? 1 : 0);
+}
+
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -500,6 +513,7 @@ void ConfigModel::notifyAllEvents()
 	notify(NOTIFY_SET_VOLUME_LOCAL, m_volumeLocal);
 	notify(NOTIFY_SET_VOLUME_REMOTE, m_volumeRemote);
 	notify(NOTIFY_SET_PLAYBACK_LOCAL, m_playbackLocal);
+	notify(NOTIFY_SET_PLAYBACK_REMOTE, m_playbackRemote);
 	notify(NOTIFY_SET_MUTE_MYSELF_DURING_PB, m_muteMyselfDuringPb);
 	notify(NOTIFY_SET_WINDOW_SIZE, 0);
 	notify(NOTIFY_SET_BUBBLE_BUTTONS_BUILD, m_bubbleButtonsBuild);

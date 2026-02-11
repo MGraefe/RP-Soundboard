@@ -29,10 +29,11 @@ public:
 		NOTIFY_SET_SOUND,
 		NOTIFY_SET_ROWS,
 		NOTIFY_SET_COLS,
-		NOTIFY_SET_VOLUME_LOCAL,
-		NOTIFY_SET_VOLUME_REMOTE,
-		NOTIFY_SET_PLAYBACK_LOCAL,
-		NOTIFY_SET_MUTE_MYSELF_DURING_PB,
+	NOTIFY_SET_VOLUME_LOCAL,
+	NOTIFY_SET_VOLUME_REMOTE,
+	NOTIFY_SET_PLAYBACK_LOCAL,
+	NOTIFY_SET_PLAYBACK_REMOTE,
+	NOTIFY_SET_MUTE_MYSELF_DURING_PB,
 		NOTIFY_SET_WINDOW_SIZE,
 		NOTIFY_SET_BUBBLE_BUTTONS_BUILD,
 		NOTIFY_SET_BUBBLE_STOP_BUILD,
@@ -90,6 +91,9 @@ public:
 
 	inline bool getPlaybackLocal() const { return m_playbackLocal; }
 	void setPlaybackLocal(bool val);
+
+	inline bool getPlaybackRemote() const { return m_playbackRemote; }
+	void setPlaybackRemote(bool val);
 	
 	inline bool getMuteMyselfDuringPb() const { return m_muteMyselfDuringPb; }
 	void setMuteMyselfDuringPb(bool val);
@@ -140,6 +144,7 @@ private:
 	int m_volumeLocal;
 	int m_volumeRemote;
 	bool m_playbackLocal;
+	bool m_playbackRemote;
 	bool m_muteMyselfDuringPb;
 	int m_windowWidth;
 	int m_windowHeight;

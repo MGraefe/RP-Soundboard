@@ -5,6 +5,7 @@
 //----------------------------------
 
 #include "PlaylistController.h"
+// Playlist feature implementation by Saeed Pakniat (2026).
 
 #include <QRandomGenerator>
 #include <algorithm>

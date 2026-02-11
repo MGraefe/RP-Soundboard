@@ -66,6 +66,7 @@ private slots:
 	void onUpdateVolumeLocal(int val);
 	void onUpdateVolumeRemote(int val);
 	void onUpdateMuteLocally(bool val);
+	void onUpdatePlayForOthers(bool val);
 	void onUpdateCols(int val);
 	void onUpdateRows(int val);
 	void onUpdateMuteMyself(bool val);

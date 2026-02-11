@@ -96,7 +96,8 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
     configsSection->setContentLayout(*ui->configsWidget->layout());
     layout()->addWidget(configsSection);
 
-	    // -------------------- Playlist UI --------------------
+    // -------------------- Playlist UI --------------------
+    // Playlist UI implementation by Saeed Pakniat (2026).
     ExpandableSection* playlistSection = new ExpandableSection("Playlist", 200, this);
 
     QWidget* playlistWidget = new QWidget(this);
@@ -459,6 +460,7 @@ ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->sl_volumeLocal, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolumeLocal(int)));
 	connect(ui->sl_volumeRemote, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolumeRemote(int)));
 	connect(ui->cb_mute_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteLocally(bool)));
+	connect(ui->cb_play_for_others, SIGNAL(clicked(bool)), this, SLOT(onUpdatePlayForOthers(bool)));
 	connect(ui->sb_rows, SIGNAL(valueChanged(int)), this, SLOT(onUpdateRows(int)));
 	connect(ui->sb_cols, SIGNAL(valueChanged(int)), this, SLOT(onUpdateCols(int)));
 	connect(ui->cb_mute_myself, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteMyself(bool)));
@@ -630,6 +632,14 @@ void ConfigQt::onUpdateVolumeRemote(int val)
 void ConfigQt::onUpdateMuteLocally(bool val)
 {
 	m_model->setPlaybackLocal(!val);
+}
+
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void ConfigQt::onUpdatePlayForOthers(bool val)
+{
+	m_model->setPlaybackRemote(val);
 }
 
 
@@ -1450,6 +1460,10 @@ void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notificati
 	case ConfigModel::NOTIFY_SET_PLAYBACK_LOCAL:
 		if (p.ui->cb_mute_locally->isChecked() != !model.getPlaybackLocal())
 			p.ui->cb_mute_locally->setChecked(!model.getPlaybackLocal());
+		break;
+	case ConfigModel::NOTIFY_SET_PLAYBACK_REMOTE:
+		if (p.ui->cb_play_for_others->isChecked() != model.getPlaybackRemote())
+			p.ui->cb_play_for_others->setChecked(model.getPlaybackRemote());
 		break;
 	case ConfigModel::NOTIFY_SET_SOUND:
 		p.updateButtonText(data);

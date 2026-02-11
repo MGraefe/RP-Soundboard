@@ -15,7 +15,8 @@ class ConfigModel;
 
 class PlaylistController : public QObject
 {
-    Q_OBJECT
+	Q_OBJECT
+	// Playlist feature implementation by Saeed Pakniat (2026).
 public:
     enum class RepeatMode { None = 0, All = 1, One = 2 };
 

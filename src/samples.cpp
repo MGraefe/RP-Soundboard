@@ -63,7 +63,8 @@ Sampler::Sampler() :
 	m_globalDbSettingRemote(-1.0),
     m_soundDbSetting(0.0),
     m_state(eSILENT),
-    m_localPlayback(true)
+    m_localPlayback(true),
+	m_remotePlayback(true)
 {
     /* Ensure resources are loaded */
     Q_INIT_RESOURCE(qtres);
@@ -477,6 +478,20 @@ void Sampler::setLocalPlayback( bool enabled )
 	m_sampleProducerThread.setBufferEnabled(&m_sbPlayback, enabled);
 }
 
+//---------------------------------------------------------------
+// Purpose: 
+//---------------------------------------------------------------
+void Sampler::setRemotePlayback(bool enabled)
+{
+	m_remotePlayback = enabled;
+	m_sampleProducerThread.setBufferEnabled(&m_sbCapture, enabled);
+	if (!enabled)
+	{
+		SampleBuffer::Lock sblc(m_sbCapture.getMutex());
+		m_sbCapture.consume(NULL, m_sbCapture.avail());
+	}
+}
+
 
 //---------------------------------------------------------------
 // Purpose: 
@@ -559,7 +574,7 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	else
 	{
 		m_state = ePLAYING;
-		m_sampleProducerThread.setBufferEnabled(&m_sbCapture, true);
+		m_sampleProducerThread.setBufferEnabled(&m_sbCapture, m_remotePlayback);
 	}
 
 	m_sampleProducerThread.setSource(m_inputFile);
