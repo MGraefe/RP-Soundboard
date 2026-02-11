@@ -200,7 +200,7 @@ jobs:
         version: '5.15.2'
         host: 'linux'
         target: 'desktop'
-        arch: 'gcc'
+        arch: 'gcc_32'
         install-deps: 'true'
         cache: 'true'
         cache-key-prefix: 'install-qt-action-x86-linux'
@@ -214,6 +214,9 @@ jobs:
         -DRPSB_MAKE_PLUGIN_FILE=OFF
         -DCMAKE_C_FLAGS=-m32
         -DCMAKE_CXX_FLAGS=-m32
+        -DCMAKE_SHARED_LINKER_FLAGS=-m32
+        -DCMAKE_MODULE_LINKER_FLAGS=-m32
+        -DCMAKE_EXE_LINKER_FLAGS=-m32
 
     - name: Build
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target install
