@@ -162,9 +162,73 @@ jobs:
         if-no-files-found: error
 
 
+  #### x86 LINUX build ####
+  build-linux32:
+    runs-on: ubuntu-20.04
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: create submodule status file
+      run: git submodule status > submodule_status
+
+    - name: Restore ffmpeg cache
+      id: cache-ffmpeg
+      uses: actions/cache@v4
+      env:
+        cache-name: cache-ffmpeg-build-linux32
+      with:
+        path: ${{github.workspace}}/ffmpeg/lib_lin_x86
+        key: ${{runner.os}}-build-${{env.cache-name}}-${{hashFiles('submodule_status', 'ffmpeg/build-scripts/**')}}
+
+    - if: ${{ steps.cache-ffmpeg.outputs.cache-hit != 'true' }}
+      name: Build ffmpeg
+      run: |
+        git submodule init
+        git submodule update
+        sudo apt-get update
+        sudo apt-get install -y yasm gcc-multilib g++-multilib
+        pushd ffmpeg/build-scripts
+        ./build_ffmpeg.sh x86
+        popd
+
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: '5.15.2'
+        host: 'linux'
+        target: 'desktop'
+        arch: 'gcc'
+        install-deps: 'true'
+        cache: 'true'
+        cache-key-prefix: 'install-qt-action-x86-linux'
+
+    - name: Configure CMake
+      run: >
+        cmake
+        -B ${{github.workspace}}/build
+        -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/install
+        -DRPSB_MAKE_PLUGIN_FILE=OFF
+        -DCMAKE_C_FLAGS=-m32
+        -DCMAKE_CXX_FLAGS=-m32
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target install
+
+    - name: Archive raw files
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-x86
+        path: ${{github.workspace}}/install/
+        if-no-files-found: error
+
+
   #### x64 macOS build ####
   build-macos64:
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
     - uses: actions/checkout@v4
@@ -231,6 +295,7 @@ jobs:
       - build-win32
       - build-win64
       - build-linux64
+      - build-linux32
       - build-macos64
     steps:
   
@@ -254,6 +319,12 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: linux-x64
+        path: ${{github.workspace}}/install
+
+    - name: Download Linux x86 artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-x86
         path: ${{github.workspace}}/install
 
     - name: Download macOS x64 artifacts
