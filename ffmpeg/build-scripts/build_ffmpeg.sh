@@ -47,6 +47,10 @@ opts="\
 --disable-filters \
 --disable-debug"
 
+if [[ "$(uname -s)" == "Linux" ]]; then
+	opts="$opts --disable-asm"
+fi
+
 # we need no video or subtitle decoders
 # obtain list of video and subtitle decoders via:
 # ffmpeg -decoders | egrep '^ [VS][\.A-Z]{5} [^=]' | sed -E 's/^ [VS][\.A-Z]{5} +([[:graph:]]+) .*$/--disable-decoder=\1 \\/g'
