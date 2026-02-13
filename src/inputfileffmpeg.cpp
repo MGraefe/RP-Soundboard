@@ -69,11 +69,12 @@ public:
 
 private:
 	bool openInternal(const char *filename, double startPosSeconds, double playTimeSeconds);
-	int _close();
+	int closeNoLock();
 	void reset();
 	int getAudioStreamNum() const;
 	int64_t handleDecoded(AVFrame *frame, SampleProducer *sb);
     int receiveSamples(SampleProducer *sampleBuffer, int& producedSamples);
+	int seekNoLock(double seconds);
 
     typedef std::lock_guard<std::mutex> Lock;
 private:
@@ -100,9 +101,7 @@ private:
 };
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 InputFileFFmpeg::InputFileFFmpeg(const InputFileOptions &options) :
 	m_inputFileOptions(options),
 	m_outputChannels(options.getNumChannels()),
@@ -119,9 +118,7 @@ InputFileFFmpeg::InputFileFFmpeg(const InputFileOptions &options) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 void InputFileFFmpeg::reset()
 {
 	m_fmtCtx = NULL;
@@ -138,21 +135,16 @@ void InputFileFFmpeg::reset()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 InputFileFFmpeg::~InputFileFFmpeg()
 {
-	_close();
+	closeNoLock();
 	av_freep(&m_outBuf);
 
 	av_channel_layout_uninit(&m_outputChannelLayout);
 }
 
 
-//---------------------------------------------------------------
-// Purpose:  
-//---------------------------------------------------------------
 bool InputFileFFmpeg::openInternal(const char *filename, double startPosSeconds, double playTimeSeconds)
 {	
 	if(checkFFmpegErr(avformat_open_input(&m_fmtCtx, filename, NULL, NULL), "Cannot open file") != 0)
@@ -188,6 +180,10 @@ bool InputFileFFmpeg::openInternal(const char *filename, double startPosSeconds,
 
 	if (checkFFmpegErr(avcodec_parameters_to_context(m_codecCtx, codecParams), "Failed to copy codec parameters") < 0)
 		return false;
+
+	// Decoder needs to know the timebase to calculate correct timestamps during decoding,
+	// but it's not always set by the demuxer, so set it manually from the stream info
+	m_codecCtx->pkt_timebase = m_fmtCtx->streams[m_streamIndex]->time_base;
 
 	if(checkFFmpegErr(avcodec_open2(m_codecCtx, decoder, NULL), "Cannot open codec") < 0)
 		return false; //Cannot open codec
@@ -233,7 +229,7 @@ bool InputFileFFmpeg::openInternal(const char *filename, double startPosSeconds,
 	m_opened = true;
 
 	if(startPosSeconds > 0.0)
-		seek(startPosSeconds);
+		seekNoLock(startPosSeconds);
 
 	if(playTimeSeconds > 0.0)
 		m_maxConvertedSamples = uint64_t(playTimeSeconds * (double)m_outputSamplerate + 0.5);
@@ -242,22 +238,20 @@ bool InputFileFFmpeg::openInternal(const char *filename, double startPosSeconds,
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/, double playTimeSeconds /*= -1.0*/)
 {
 	Lock lock(m_mutex);
 
 	if(m_opened)
 	{
-		_close();
+		closeNoLock();
 		reset();
 	}
 
 	if (!openInternal(filename, startPosSeconds, playTimeSeconds))
 	{
-		_close();
+		closeNoLock();
 		return -1;
 	}
 
@@ -265,13 +259,9 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-int InputFileFFmpeg::seek( double seconds )
-{
-	Lock lock(m_mutex);
 
+int InputFileFFmpeg::seekNoLock( double seconds )
+{
 	AVRational time_base = m_fmtCtx->streams[m_streamIndex]->time_base;
 	int64_t ts = (int64_t)(seconds / av_q2d(time_base));
 	if(checkFFmpegErr(avformat_seek_file(m_fmtCtx, m_streamIndex, INT64_MIN, ts, ts, 0), "Seeking failed") < 0)
@@ -282,19 +272,23 @@ int InputFileFFmpeg::seek( double seconds )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-int InputFileFFmpeg::close()
+int InputFileFFmpeg::seek( double seconds )
 {
 	Lock lock(m_mutex);
-	return _close();
+	if(!m_opened)
+		return -1;
+
+	return seekNoLock(seconds);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+int InputFileFFmpeg::close()
+{
+	Lock lock(m_mutex);
+	return closeNoLock();
+}
+
+
 int64_t InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 {
 	// Need to skip some samples? We currently can't do this while flushing, so do it here before the first conversion
@@ -346,9 +340,7 @@ int64_t InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: Returns the number of generated samples, or a negative error code
-//---------------------------------------------------------------
+// Returns the number of generated samples, or a negative error code
 int InputFileFFmpeg::receiveSamples(SampleProducer *sampleBuffer, int& producedSamples)
 {
 	int result = avcodec_receive_frame(m_codecCtx, m_frame);
@@ -372,10 +364,8 @@ int InputFileFFmpeg::receiveSamples(SampleProducer *sampleBuffer, int& producedS
 }
 
 
-//---------------------------------------------------------------
 // Purpose: Read a bunch of samples and push them into sampleBuffer.
 // Returns the number of read samples, or a negative error code
-//---------------------------------------------------------------
 int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 {
 	Lock lock(m_mutex);
@@ -388,21 +378,27 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 	{
 		int readRet = av_read_frame(m_fmtCtx, m_packet);
 		bool eofFlush = false;
-		if (readRet < 0 && readRet != AVERROR(EOF))
+		if (readRet < 0)
 		{
-			checkFFmpegErr(readRet, "Error while reading frame");
-			av_packet_unref(m_packet);
-			return readRet;
-		}
-		else if (readRet == AVERROR(EOF))
-		{
+			if (readRet != AVERROR_EOF) // not just EOF? Return real error.
+			{
+				checkFFmpegErr(readRet, "Error while reading frame");
+				av_packet_unref(m_packet);
+				return readRet;
+			}
+			// File is EOF, but we still have data in the decoder.
 			eofFlush = true;
+			m_done = true;
 		}
 		else if (m_packet->stream_index != m_streamIndex)
 		{
 			av_packet_unref(m_packet);
 			continue;
 		}
+
+		// Patch missing PTS (can happen with some formats/codecs, e.g. MP3) by using DTS, which is usually set if PTS is not.
+		if (m_packet->pts == AV_NOPTS_VALUE && m_packet->dts != AV_NOPTS_VALUE)
+			m_packet->pts = m_packet->dts;
 
 		int sendRet = avcodec_send_packet(m_codecCtx, eofFlush ? NULL : m_packet);
 		av_packet_unref(m_packet); // Unref immediately after sending
@@ -415,7 +411,7 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 		{
 			int producedSamples = 0;
 			int receiveRet = receiveSamples(sampleBuffer, producedSamples);
-			if (receiveRet == AVERROR(EAGAIN) || receiveRet == AVERROR(EOF))
+			if (receiveRet == AVERROR(EAGAIN) || receiveRet == AVERROR_EOF)
 				break; // Break inner loop, try to read next packet
 			else if (receiveRet < 0) // decoding error :(
 				return receiveRet; // Fatal error, return it
@@ -429,7 +425,6 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 			if (flushedSamples > 0)
 				written += flushedSamples;
 
-			m_done = true;
 			break; // break outer loop, return what we got so far
 		}
 	}
@@ -438,28 +433,22 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 bool InputFileFFmpeg::done() const 
 {
 	return m_done;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 int InputFileFFmpeg::getAudioStreamNum() const
 {
 	return av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-int InputFileFFmpeg::_close()
+
+int InputFileFFmpeg::closeNoLock()
 {
 	if (m_frame)
 		av_frame_free(&m_frame);
@@ -482,9 +471,7 @@ int InputFileFFmpeg::_close()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 int64_t InputFileFFmpeg::outputSamplesEstimation() const
 {
 	AVStream *stream = m_fmtCtx->streams[m_streamIndex];
@@ -496,9 +483,7 @@ int64_t InputFileFFmpeg::outputSamplesEstimation() const
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
+
 InputFile *CreateInputFileFFmpeg(InputFileOptions options /*= InputFileOptions()*/)
 {
 	return new InputFileFFmpeg(options);
