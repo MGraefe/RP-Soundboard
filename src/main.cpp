@@ -149,8 +149,6 @@ CAPI void sb_init()
 	QMessageBox::information(NULL, "", "rp soundboard plugin init, attach debugger now");
 #endif
 
-	InitFFmpegLibrary();
-
 	QTimer::singleShot(10, []{
 		configModel = new ConfigModel();
 		configModel->readConfig();

@@ -65,11 +65,6 @@ extern "C"
 //}
 //#endif
 
-void InitFFmpegLibrary()
-{
-	av_register_all();
-}
-
 
 int LogFFmpegError(int code, const char *msg = NULL)
 {
@@ -113,7 +108,7 @@ private:
 	const InputFileOptions m_inputFileOptions;
 	const int m_outputChannels;
 	const int m_outputSamplerate;
-	const int64_t m_outputChannelLayout;
+	AVChannelLayout* m_outputChannelLayout;
 
 	AVFormatContext *m_fmtCtx;
 	AVCodecContext *m_codecCtx;
@@ -134,17 +129,16 @@ private:
 //---------------------------------------------------------------
 // Purpose: 
 //---------------------------------------------------------------
-inline int64_t getChannelLayoutFromOptions(const InputFileOptions &options)
+AVChannelLayout* createChannelLayoutFromOptions(const InputFileOptions &options)
 {
-	switch(options.outputChannelLayout)
-	{
-	case InputFileOptions::MONO:
-		return AV_CH_LAYOUT_MONO;
-	case InputFileOptions::STEREO:
-		return AV_CH_LAYOUT_STEREO;
-	default:
-		return AV_CH_LAYOUT_STEREO;
-	}
+	AVChannelLayout* layout = new AVChannelLayout();
+	av_channel_layout_from_mask(layout, 
+		options.outputChannelLayout == InputFileOptions::MONO
+		? AV_CH_LAYOUT_MONO
+		: AV_CH_LAYOUT_STEREO
+	);
+
+	return layout;
 }
 
 
@@ -155,7 +149,7 @@ InputFileFFmpeg::InputFileFFmpeg(const InputFileOptions &options) :
 	m_inputFileOptions(options),
 	m_outputChannels(options.getNumChannels()),
 	m_outputSamplerate(options.outputSampleRate),
-	m_outputChannelLayout(getChannelLayoutFromOptions(options))
+	m_outputChannelLayout(createChannelLayoutFromOptions(options))
 {
 	reset();
 	av_samples_alloc(&m_outBuf, NULL, m_outputChannels, OUTPUT_BUFFER_COUNT, OUTPUT_FORMAT, 0);
@@ -189,6 +183,13 @@ InputFileFFmpeg::~InputFileFFmpeg()
 {
 	_close();
 	av_freep(&m_outBuf);
+
+	if (m_outputChannelLayout)
+	{
+		av_channel_layout_uninit(m_outputChannelLayout);
+		delete m_outputChannelLayout;
+		m_outputChannelLayout = NULL;
+	}
 }
 
 
@@ -225,31 +226,45 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 		return -1;
 	}
 
-	
-	m_codecCtx = m_fmtCtx->streams[m_streamIndex]->codec;
-	AVCodec *codec = avcodec_find_decoder(m_codecCtx->codec_id);
-	if(!codec)
+	AVCodecParameters *codecParams = m_fmtCtx->streams[m_streamIndex]->codecpar;
+
+	// 2. Find the appropriate decoder
+	const AVCodec *decoder = avcodec_find_decoder(codecParams->codec_id);
+	if (!decoder)
+	{
+		logError("Cannot find suitable decoder");
+		_close();
+		return -1;
+	}
+
+	// 3. Allocate a new codec context
+	m_codecCtx = avcodec_alloc_context3(decoder);
+	if (!m_codecCtx)
 	{
 		logError("Unsupported codec");
 		_close();
 		return -1;
 	}
 
-	m_codecCtx->codec = codec;
-	m_codecCtx->channel_layout = av_get_default_channel_layout(m_codecCtx->channels);
-	if(LogFFmpegError(avcodec_open2(m_codecCtx, m_codecCtx->codec, NULL), "Cannot open codec") < 0)
+	if (avcodec_parameters_to_context(m_codecCtx, codecParams) < 0)
+	{
+		logError("Failed to copy codec parameters");
+		_close();
+		return -1;
+	}
+
+	if(LogFFmpegError(avcodec_open2(m_codecCtx, decoder, NULL), "Cannot open codec") < 0)
 	{
 		_close();
 		return -1; //Cannot open codec
 	}
 
-
 	//Open Resample context
-	m_swrCtx = swr_alloc_set_opts(NULL,
+	int result = swr_alloc_set_opts2(&m_swrCtx,
 		m_outputChannelLayout,		//Output layout (stereo)
 		OUTPUT_FORMAT,				//Output format (signed 16bit int)
 		m_outputSamplerate,			//Output Sample Rate
-		m_codecCtx->channel_layout, //Input layout
+		&m_codecCtx->ch_layout, 	//Input layout
 		m_codecCtx->sample_fmt,		//Input format
 		m_codecCtx->sample_rate,	//Input Sample Rate
 		0, NULL);
@@ -268,7 +283,7 @@ int InputFileFFmpeg::open(const char *filename, double startPosSeconds /*= 0.0*/
 	}
 
 	logInfo("Opened file: %s; Codec: %s, Channels: %i, Rate: %i, Format: %s, Timebase: %i/%i, Sample-Estimation: %ll",
-		filename, codec->long_name, m_codecCtx->channels, m_codecCtx->sample_rate,
+		filename, m_codecCtx->codec->long_name, m_codecCtx->ch_layout.nb_channels, m_codecCtx->sample_rate,
 		av_get_sample_fmt_name(m_codecCtx->sample_fmt), m_codecCtx->time_base.num, m_codecCtx->time_base.den,
 		outputSamplesEstimation());
 
@@ -316,7 +331,7 @@ int64_t InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 {
 	if (m_nextSeekTimestamp > 0) // Need to skip some samples?
 	{
-		int64_t curTs = av_frame_get_best_effort_timestamp(frame);
+		int64_t curTs = frame->pts;
 		int64_t tsToSkip = m_nextSeekTimestamp - curTs;
 		if (tsToSkip > 0)
 		{
@@ -361,27 +376,26 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 		return -1;
 
 	AVFrame *frame = av_frame_alloc();
-	AVPacket packet;
-	av_init_packet(&packet);
+	AVPacket* packet = av_packet_alloc();
 	int written = 0; //samples read
 
 	int properFrames = 0;
-	while(properFrames == 0 && av_read_frame(m_fmtCtx, &packet) == 0)
+	while(properFrames == 0 && av_read_frame(m_fmtCtx, packet) == 0)
 	{
-		if(packet.stream_index == m_streamIndex)
+		if(packet->stream_index == m_streamIndex)
 		{
-			AVPacket decodePacket = packet;
-			while(decodePacket.size > 0)
+			AVPacket* decodePacket = av_packet_clone(packet);
+			while(decodePacket && decodePacket->size > 0)
 			{
 				// Try to decode the packet into a frame
 				// Some frames rely on multiple packets, so we have to make sure the frame is finished before
 				// we can use it
 				int gotFrame = 0;
-				int consumed = avcodec_decode_audio4(m_codecCtx, frame, &gotFrame, &decodePacket);
+				int consumed = avcodec_decode_audio4(m_codecCtx, frame, &gotFrame, decodePacket);
 				if(consumed >= 0)
 				{
-					decodePacket.size -= consumed;
-					decodePacket.data += consumed;
+					decodePacket->size -= consumed;
+					decodePacket->data += consumed;
 					if (gotFrame)
 					{
 						m_decodedSamples += frame->nb_samples;
@@ -391,7 +405,8 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 						int res = handleDecoded(frame, sampleBuffer);
 						if (LogFFmpegError(res, "Unable to resample") < 0)
 						{
-							av_free_packet(&packet);
+							av_packet_free(&decodePacket);
+							av_packet_free(&packet);
 							av_frame_free(&frame);
 							return -1;
 						}
@@ -404,14 +419,13 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 				}
 				else
 				{
-					decodePacket.size = 0;
-					decodePacket.data = NULL;
+					av_packet_free(&decodePacket);
 				}
 			}
 		}
 
 		// You *must* call av_free_packet() after each call to av_read_frame() or else you'll leak memory
-		av_free_packet(&packet);
+		av_packet_free(&packet);
 	}
 
 	if(properFrames == 0)

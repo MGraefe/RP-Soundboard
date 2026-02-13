@@ -55,7 +55,6 @@ public:
 };
 
 extern InputFile *CreateInputFileFFmpeg(InputFileOptions options = InputFileOptions());
-extern void InitFFmpegLibrary();
 
 
 #endif // rpsbsrc__inputfile_H__

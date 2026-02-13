@@ -4,11 +4,17 @@ project(rp_soundboard)
 
 include(files.cmake)
 
-# Get prebuilt ffmpeg folders for windows builds
-set(ffmpegIncHint "ffmpeg/include")
+if (WIN32)
+	# Get prebuilt ffmpeg folders for windows builds
+	
+else()
+	# Use the ffmpeg folder inside official sources
+	
+endif()
 
 # figure out platform defaults for certain things
 if (WIN32)
+	set(ffmpegIncHint "ffmpeg/include")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(defFFmpegLibHint "ffmpeg/lib_win_x64")
 		set(defLibSuffix "_win64.dll")
@@ -16,21 +22,22 @@ if (WIN32)
 		set(defFFmpegLibHint "ffmpeg/lib_win_x86")
 		set(defLibSuffix "_win32.dll")
 	endif()
-	set(defPluginDir "%appdata%/TS3Client/plugins")
+	set(defPluginDir "%appdata%/TS3Client")
 elseif(APPLE) # untested thanks to MacOS being a pain in the ass to set up in VM
 	# mac has no 32 bit variant
 	set(defFFmpegLibHint "ffmpeg/lib_mac_x64")
 	set(defLibSuffix "_mac.so")
-	set(defPluginDir "~/.ts3client/plugins")
+	set(defPluginDir "~/.ts3client")
 else()
+	set(ffmpegIncHint "ffmpeg/ffmpeg/x64/include")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(defFFmpegLibHint "ffmpeg/lib_lin_x64")
+		set(defFFmpegLibHint "ffmpeg/ffmpeg/x64/lib")
 		set(defLibSuffix "_linux_amd64.so")
 	else()
-		set(defFFmpegLibHint "ffmpeg/lib_lin_x86")
+		set(defFFmpegLibHint "ffmpeg/ffmpeg/x86/lib")
 		set(defLibSuffix "_linux_x86.so")
 	endif()
-	set(defPluginDir "~/.ts3client/plugins")
+	set(defPluginDir "~/.ts3client")
 endif()
 
 
@@ -39,7 +46,7 @@ set(libSuffix ${defLibSuffix} CACHE STRING "output library suffix")
 
 
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX "${pluginDir}" CACHE PATH "..." FORCE)
+  set(CMAKE_INSTALL_PREFIX "${defPluginDir}" CACHE PATH "..." FORCE)
 endif()
 
 find_path(ffmpegIncludeDir libavcodec/avcodec.h PATHS ${ffmpegIncHint} NO_DEFAULT_PATH)
