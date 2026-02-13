@@ -364,7 +364,7 @@ int InputFileFFmpeg::receiveSamples(SampleProducer *sampleBuffer, int& producedS
 
 		// Resample
 		producedSamples = handleDecoded(m_frame, sampleBuffer);
-		checkFFmpegErr(result, "Unable to resample");
+		checkFFmpegErr(producedSamples, "Unable to resample");
 	}
 
 	av_frame_unref(m_frame);
