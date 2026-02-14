@@ -3,33 +3,35 @@ cmake_minimum_required(VERSION 3.19.0)
 project(rp_soundboard)
 
 # figure out platform defaults for certain things
+if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set(ffmpegIncHint "ffmpeg/build/x86_64/include")
+	set(defFFmpegLibHint "ffmpeg/build/x86_64/lib")
+else()
+	set(ffmpegIncHint "ffmpeg/build/x86/include")
+	set(defFFmpegLibHint "ffmpeg/build/x86/lib")
+endif()
+
 if (WIN32)
-	set(ffmpegIncHint "ffmpeg/include")
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(defFFmpegLibHint "ffmpeg/build/x86_64/lib")
 		set(defLibSuffix "_win64.dll")
 	else()
-		set(defFFmpegLibHint "ffmpeg/build/x86/lib")
 		set(defLibSuffix "_win32.dll")
 	endif()
 	set(defPluginDir "%appdata%/TS3Client")
 elseif(APPLE) # untested thanks to MacOS being a pain in the ass to set up in VM
 	# mac has no 32 bit variant
-	set(defFFmpegLibHint "ffmpeg/build/x86_64")
 	set(defLibSuffix "_mac.so")
 	set(defPluginDir "~/.ts3client")
-else()
-	set(ffmpegIncHint "ffmpeg/build/x86_64/include")
+elseif(LINUX)
 	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-		set(defFFmpegLibHint "ffmpeg/build/x86_64/lib")
 		set(defLibSuffix "_linux_amd64.so")
 	else()
-		set(defFFmpegLibHint "ffmpeg/build/x86/lib")
 		set(defLibSuffix "_linux_x86.so")
 	endif()
 	set(defPluginDir "~/.ts3client")
+else()
+	message(FATAL_ERROR "Unsupported platform")
 endif()
-
 
 set(ffmpegLibHint "${CMAKE_CURRENT_SOURCE_DIR}/${defFFmpegLibHint}" CACHE PATH "directory with static ffmpeg libs")
 set(libSuffix ${defLibSuffix} CACHE STRING "output library suffix")
@@ -89,7 +91,7 @@ set_target_properties(rp_soundboard PROPERTIES
 if (MSVC)
 	target_sources(rp_soundboard PRIVATE "src/windows/resource.h" "src/windows/Resource.rc")
 	target_link_libraries(rp_soundboard ${avcodec} ${avformat} ${avutil} ${swresample})
-	target_link_libraries(rp_soundboard wsock32 ws2_32 secur32) # some windows stuff
+	target_link_libraries(rp_soundboard wsock32 ws2_32 secur32 Crypt32 Ncrypt Bcrypt) # some windows stuff
 	target_compile_options(rp_soundboard PRIVATE /MP) # multiprocessor compiling
 else()
 	if(APPLE)
