@@ -360,13 +360,24 @@ build_single_arch() {
 }
 
 if [[ "$build_mac_universal" == "true" ]]; then
-	# Build arm64 (native on Apple Silicon)
-	echo "=== Building FFmpeg for arm64 ==="
-	build_single_arch "aarch64" "arm64" "clang -arch arm64" ""
+	host_arch="$(uname -m)"
+	cross_compile_flags="--enable-cross-compile --target-os=darwin"
 
-	# Build x86_64 (cross-compile on Apple Silicon)
+	# Build arm64 (cross-compile on Intel, native on Apple Silicon)
+	echo "=== Building FFmpeg for arm64 ==="
+	if [[ "$host_arch" == "x86_64" ]]; then
+		build_single_arch "aarch64" "arm64" "clang -arch arm64" "$cross_compile_flags"
+	else
+		build_single_arch "aarch64" "arm64" "clang -arch arm64" ""
+	fi
+
+	# Build x86_64 (native on Intel, cross-compile on Apple Silicon)
 	echo "=== Building FFmpeg for x86_64 ==="
-	build_single_arch "x86_64" "x64" "clang -arch x86_64" "--enable-cross-compile --target-os=darwin"
+	if [[ "$host_arch" == "arm64" ]]; then
+		build_single_arch "x86_64" "x64" "clang -arch x86_64" "$cross_compile_flags"
+	else
+		build_single_arch "x86_64" "x64" "clang -arch x86_64" ""
+	fi
 
 	# Combine into universal binaries using lipo
 	echo "=== Creating universal binaries with lipo ==="
@@ -383,6 +394,9 @@ if [[ "$build_mac_universal" == "true" ]]; then
 
 	./copy_binaries.sh
 else
+	# Remove stale universal artifacts to prevent copy_binaries.sh from
+	# copying outdated libs into lib_mac_universal
+	rm -rf ../ffmpeg/universal
 	build_single_arch "$arch" "$archprefix" "" ""
 	./copy_binaries.sh
 fi

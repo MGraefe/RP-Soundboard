@@ -15,11 +15,17 @@ if(WIN32)
     execute_process(
         COMMAND "C:/Program Files/7-Zip/7z.exe" a "${PLUGIN_OUTPUT}" -tzip -mx=9 -mm=Deflate "*"
         WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+        RESULT_VARIABLE zip_result
     )
 else()
     # Use zip on Linux/macOS
     execute_process(
         COMMAND zip -r -9 "${PLUGIN_OUTPUT}" .
         WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+        RESULT_VARIABLE zip_result
     )
+endif()
+
+if(NOT zip_result EQUAL 0)
+    message(FATAL_ERROR "Failed to create plugin package (exit code: ${zip_result})")
 endif()
