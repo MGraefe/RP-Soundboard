@@ -21,26 +21,26 @@ fi
 # On macOS, build universal binary (arm64 + x86_64) by default
 if [[ "$machine" == "Mac" && "$1" == "" ]]; then
 	echo "Machine = Mac (Universal Binary: arm64 + x86_64)"
-	build_universal=true
+	build_mac_universal=true
 elif [[ "$1" == "x86" ]]; then
 	archprefix="x86"
 	arch="x86"
-	build_universal=false
+	build_mac_universal=false
 elif [[ "$1" == "arm64" || "$1" == "aarch64" ]]; then
 	archprefix="arm64"
 	arch="aarch64"
-	build_universal=false
+	build_mac_universal=false
 elif [[ "$1" == "x64" || "$1" == "x86_64" || "$1" == "amd64" || "$(uname -m)" == "x86_64" ]]; then
 	archprefix="x64"
 	arch="x86_64"
-	build_universal=false
+	build_mac_universal=false
 else
 	archprefix="x86"
 	arch="x86"
-	build_universal=false
+	build_mac_universal=false
 fi
 
-if [[ "$build_universal" != "true" ]]; then
+if [[ "$build_mac_universal" != "true" ]]; then
 	echo "Machine =" $machine $arch
 fi
 
@@ -333,6 +333,9 @@ disabled_decs="\
 --disable-decoder=xsub"
 
 njobs=$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 8)
+if [ "$njobs" -gt 16 ]; then
+	njobs=16
+fi
 
 build_single_arch() {
 	local build_arch="$1"
@@ -340,17 +343,23 @@ build_single_arch() {
 	local cc_override="$3"
 	local extra_configure="$4"
 
+	local -a configure_args=(--arch=$build_arch --prefix=$prefix)
+	if [[ -n "$cc_override" ]]; then
+		configure_args+=(--cc="$cc_override")
+	fi
+	if [[ "$machine" == "Mac" ]]; then
+		configure_args+=(--extra-cflags="-Wno-incompatible-function-pointer-types")
+	fi
+
 	pushd ../ffmpeg
 	echo "=== Configuring FFmpeg for $build_arch ==="
-	./configure --arch=$build_arch --prefix=$prefix \
-		--cc="$cc_override" \
-		--extra-cflags="-Wno-incompatible-function-pointer-types" \
+	./configure "${configure_args[@]}" \
 		$extra_configure $toolchainopt $opts $disabled_decs
 	make clean && make -j$njobs && make install
 	popd
 }
 
-if [[ "$build_universal" == "true" ]]; then
+if [[ "$build_mac_universal" == "true" ]]; then
 	# Build arm64 (native on Apple Silicon)
 	echo "=== Building FFmpeg for arm64 ==="
 	build_single_arch "aarch64" "arm64" "clang -arch arm64" ""
@@ -374,13 +383,6 @@ if [[ "$build_universal" == "true" ]]; then
 
 	./copy_binaries.sh
 else
-	cmd="./configure --arch=$arch --prefix=$archprefix $toolchainopt $opts $disabled_decs"
-
-	pushd ../ffmpeg
-	echo "Command: $cmd"
-	$cmd
-	make clean && make -j$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 8) && make install
-	popd
-
+	build_single_arch "$arch" "$archprefix" "" ""
 	./copy_binaries.sh
 fi

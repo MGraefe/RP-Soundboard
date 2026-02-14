@@ -84,6 +84,8 @@ if (WIN32)
 elseif(APPLE)
 	target_link_libraries(rp_soundboard ${avcodec} ${avformat} ${avutil} ${swresample})
 	# System frameworks required by FFmpeg on macOS
+	# All are needed because the pre-built static libs contain symbols from these
+	# frameworks, and -Wl,-all_load pulls in all object files.
 	find_library(AUDIOTOOLBOX AudioToolbox)
 	find_library(COREAUDIO CoreAudio)
 	find_library(COREFOUNDATION CoreFoundation)
@@ -110,23 +112,21 @@ if (MSVC)
 	target_sources(rp_soundboard PRIVATE "src/windows/resource.h" "src/windows/Resource.rc")
 	target_link_libraries(rp_soundboard wsock32 ws2_32 secur32) # some windows stuff
 	target_compile_options(rp_soundboard PRIVATE /MP) # multiprocessor compiling
+elseif(APPLE)
+	target_compile_definitions(rp_soundboard PRIVATE "MACOS")
+	# macOS uses ld64 which has different flags than GNU ld
+	set_target_properties(rp_soundboard PROPERTIES
+		LINK_FLAGS "-Wl,-all_load"
+	)
 else()
-	if(APPLE)
-		target_compile_definitions(rp_soundboard PRIVATE "MACOS")
-		# macOS uses ld64 which has different flags than GNU ld
-		set_target_properties(rp_soundboard PROPERTIES
-			LINK_FLAGS "-Wl,-all_load"
-		)
-	else()
-		target_compile_definitions(rp_soundboard PRIVATE "LINUX")
-		# GNU ld flags required to NOT get the "recompile with -fPIC"
-		# error when linking the ffmpeg libs. Took me many hours to find this out...
-		set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
-			"-Wl,-Bsymbolic -Wl,--whole-archive \
-			${avcodec} ${avformat} ${avutil} ${swresample} \
-			-Wl,--no-whole-archive"
-		)
-	endif()
+	target_compile_definitions(rp_soundboard PRIVATE "LINUX")
+	# GNU ld flags required to NOT get the "recompile with -fPIC"
+	# error when linking the ffmpeg libs. Took me many hours to find this out...
+	set_target_properties(rp_soundboard PROPERTIES LINK_FLAGS
+		"-Wl,-Bsymbolic -Wl,--whole-archive \
+		${avcodec} ${avformat} ${avutil} ${swresample} \
+		-Wl,--no-whole-archive"
+	)
 endif()
 
 install(TARGETS rp_soundboard
