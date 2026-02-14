@@ -6,8 +6,26 @@ execute_process(
 )
 string(STRIP "${gitVersionRaw}" gitVersion)
 
-message("Running 7zip to create final plugin package in ${RPSB_PLUGINFILE_OUTPUT_DIR}")
-execute_process(
-    COMMAND "C:/Program Files/7-Zip/7z.exe" a "${RPSB_PLUGINFILE_OUTPUT_DIR}/rp_soundboard_${gitVersion}.ts3_plugin" -tzip -mx=9 -mm=Deflate "*"
-    WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
-)
+set(PLUGIN_FILENAME "rp_soundboard_${gitVersion}.ts3_plugin")
+set(PLUGIN_OUTPUT "${RPSB_PLUGINFILE_OUTPUT_DIR}/${PLUGIN_FILENAME}")
+
+message("Creating final plugin package in ${RPSB_PLUGINFILE_OUTPUT_DIR}")
+
+if(WIN32)
+    execute_process(
+        COMMAND "C:/Program Files/7-Zip/7z.exe" a "${PLUGIN_OUTPUT}" -tzip -mx=9 -mm=Deflate "*"
+        WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+        RESULT_VARIABLE zip_result
+    )
+else()
+    # Use zip on Linux/macOS
+    execute_process(
+        COMMAND zip -r -9 "${PLUGIN_OUTPUT}" .
+        WORKING_DIRECTORY "${CMAKE_INSTALL_PREFIX}"
+        RESULT_VARIABLE zip_result
+    )
+endif()
+
+if(NOT zip_result EQUAL 0)
+    message(FATAL_ERROR "Failed to create plugin package (exit code: ${zip_result})")
+endif()

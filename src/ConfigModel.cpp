@@ -221,7 +221,7 @@ void ConfigModel::setSoundInfo( int itemId, const SoundInfo &info )
 QString ConfigModel::GetConfigPath()
 {
 	// Find config path for config class
-	char* configPath = (char*)malloc(PATH_BUFSIZE);
+	char configPath[PATH_BUFSIZE];
 	ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
 	return QString::fromUtf8(configPath);
 }
@@ -433,7 +433,7 @@ void ConfigModel::setBubbleColsBuild(int build)
 //---------------------------------------------------------------
 std::vector<SoundInfo> ConfigModel::getInitialSounds()
 {
-	char* pluginPath = (char*)malloc(PATH_BUFSIZE);
+	char pluginPath[PATH_BUFSIZE];
 	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, getPluginID());
 	QString fullPath = QString::fromUtf8(pluginPath);
 	QChar last = fullPath[fullPath.count() - 1];

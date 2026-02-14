@@ -17,8 +17,10 @@
 #define BUILD_NAME "Linux 64-bit"
 #elif defined(LINUX) && defined(__i386__)
 #define BUILD_NAME "Linux 32-bit"
+#elif defined(MACOS) && defined(__aarch64__)
+#define BUILD_NAME "MacOS arm64"
 #elif defined(MACOS)
-#define BUILD_NAME "MacOS 64-bit"
+#define BUILD_NAME "MacOS x86_64"
 #else
 #define BUILD_NAME "Unknown Build"
 #endif

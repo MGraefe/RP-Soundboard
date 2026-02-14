@@ -18,19 +18,31 @@ else
 	toolchainopt=""
 fi
 
-
-if [[ "$1" == "x86" ]]; then
+# On macOS, build universal binary (arm64 + x86_64) by default
+if [[ "$machine" == "Mac" && "$1" == "" ]]; then
+	echo "Machine = Mac (Universal Binary: arm64 + x86_64)"
+	build_mac_universal=true
+elif [[ "$1" == "x86" ]]; then
 	archprefix="x86"
 	arch="x86"
+	build_mac_universal=false
+elif [[ "$1" == "arm64" || "$1" == "aarch64" ]]; then
+	archprefix="arm64"
+	arch="aarch64"
+	build_mac_universal=false
 elif [[ "$1" == "x64" || "$1" == "x86_64" || "$1" == "amd64" || "$(uname -m)" == "x86_64" ]]; then
 	archprefix="x64"
 	arch="x86_64"
+	build_mac_universal=false
 else
 	archprefix="x86"
 	arch="x86"
+	build_mac_universal=false
 fi
 
-echo "Machine =" $machine $arch
+if [[ "$build_mac_universal" != "true" ]]; then
+	echo "Machine =" $machine $arch
+fi
 
 opts="\
 --enable-pic \
@@ -320,13 +332,71 @@ disabled_decs="\
 --disable-decoder=webvtt \
 --disable-decoder=xsub"
 
-cmd="./configure --arch=$arch --prefix=$archprefix $toolchainopt $opts $disabled_decs"
+njobs=$(sysctl -n hw.ncpu 2>/dev/null || nproc 2>/dev/null || echo 8)
+if [ "$njobs" -gt 16 ]; then
+	njobs=16
+fi
 
-pushd ../ffmpeg
-echo "Command: $cmd"
-$cmd
-make clean && make -j8 && make install
+build_single_arch() {
+	local build_arch="$1"
+	local prefix="$2"
+	local cc_override="$3"
+	local extra_configure="$4"
 
-popd
+	local -a configure_args=(--arch=$build_arch --prefix=$prefix)
+	if [[ -n "$cc_override" ]]; then
+		configure_args+=(--cc="$cc_override")
+	fi
+	if [[ "$machine" == "Mac" ]]; then
+		configure_args+=(--extra-cflags="-Wno-incompatible-function-pointer-types")
+	fi
 
-./copy_binaries.sh
+	pushd ../ffmpeg
+	echo "=== Configuring FFmpeg for $build_arch ==="
+	./configure "${configure_args[@]}" \
+		$extra_configure $toolchainopt $opts $disabled_decs
+	make clean && make -j$njobs && make install
+	popd
+}
+
+if [[ "$build_mac_universal" == "true" ]]; then
+	host_arch="$(uname -m)"
+	cross_compile_flags="--enable-cross-compile --target-os=darwin"
+
+	# Build arm64 (cross-compile on Intel, native on Apple Silicon)
+	echo "=== Building FFmpeg for arm64 ==="
+	if [[ "$host_arch" == "x86_64" ]]; then
+		build_single_arch "aarch64" "arm64" "clang -arch arm64" "$cross_compile_flags"
+	else
+		build_single_arch "aarch64" "arm64" "clang -arch arm64" ""
+	fi
+
+	# Build x86_64 (native on Intel, cross-compile on Apple Silicon)
+	echo "=== Building FFmpeg for x86_64 ==="
+	if [[ "$host_arch" == "arm64" ]]; then
+		build_single_arch "x86_64" "x64" "clang -arch x86_64" "$cross_compile_flags"
+	else
+		build_single_arch "x86_64" "x64" "clang -arch x86_64" ""
+	fi
+
+	# Combine into universal binaries using lipo
+	echo "=== Creating universal binaries with lipo ==="
+	mkdir -p ../ffmpeg/universal/lib
+	cp -R ../ffmpeg/x64/include ../ffmpeg/universal/include
+
+	for lib in libavcodec.a libavformat.a libavutil.a libswresample.a; do
+		lipo -create \
+			"../ffmpeg/arm64/lib/$lib" \
+			"../ffmpeg/x64/lib/$lib" \
+			-output "../ffmpeg/universal/lib/$lib"
+		echo "Created universal $lib"
+	done
+
+	./copy_binaries.sh
+else
+	# Remove stale universal artifacts to prevent copy_binaries.sh from
+	# copying outdated libs into lib_mac_universal
+	rm -rf ../ffmpeg/universal
+	build_single_arch "$arch" "$archprefix" "" ""
+	./copy_binaries.sh
+fi
