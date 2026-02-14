@@ -9,6 +9,4 @@ screenshots/
 src/version/version.h
 deploy/package.ini
 
-# we don't commit pre-compiled linux libraries since it's way easier to compile
-# ffmpeg on linux compared to windows
-ffmpeg/lib_lin*/
+ffmpeg/build/

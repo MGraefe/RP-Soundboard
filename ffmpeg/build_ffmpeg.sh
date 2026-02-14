@@ -3,31 +3,24 @@
 # exit on error
 set -ex
 
-# expected to be executed in ffmpeg/build-scripts
+# expected to be executed in ffmpeg/
 
-unameOut="$(uname -s)"
-case "${unameOut}" in
+case "$(uname -s)" in
 	Linux*) 	machine=Linux;;
 	Darwin*) 	machine=Mac;;
 	*) 		machine=Windows
 esac
 
 if [[ "$machine" == "Windows" ]]; then
-	toolchainopt="--toolchain=msvc"
+	toolchain="--toolchain=msvc"
 else
-	toolchainopt=""
+	toolchain="" # not needed for Linux and Mac
 fi
 
-
 if [[ "$1" == "x86" ]]; then
-	archprefix="x86"
 	arch="x86"
-elif [[ "$1" == "x64" || "$1" == "x86_64" || "$1" == "amd64" || "$(uname -m)" == "x86_64" ]]; then
-	archprefix="x64"
-	arch="x86_64"
 else
-	archprefix="x86"
-	arch="x86"
+	arch="x86_64"
 fi
 
 echo "Machine =" $machine $arch
@@ -46,9 +39,9 @@ opts="\
 --disable-filters \
 --disable-debug"
 
-if [[ "$(uname -s)" == "Linux" ]]; then
-	opts="$opts --disable-asm"
-fi
+# if [[ "$(uname -s)" == "Linux" ]]; then
+# 	opts="$opts --disable-asm"
+# fi
 
 # we need no video or subtitle decoders
 # obtain list of video and subtitle decoders via:
@@ -385,13 +378,8 @@ disabled_decs="\
 --disable-decoder=webvtt \
 --disable-decoder=xsub"
 
-cmd="./configure --arch=$arch --prefix=$archprefix $toolchainopt $opts $disabled_decs"
 
-pushd ../ffmpeg
-echo "Command: $cmd"
-$cmd
-make clean && make -j8 && make install
-
+pushd ffmpeg
+./configure --arch=$arch --prefix=../build/$arch $toolchain $opts $disabled_decs
+make clean && make -j && make install
 popd
-
-./copy_binaries.sh
