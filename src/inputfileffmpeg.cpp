@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <algorithm>
+#include <atomic>
 
 #include "ts3log.h"
 #include "inputfile.h"
@@ -72,7 +73,7 @@ private:
 	int closeNoLock();
 	void reset();
 	int getAudioStreamNum() const;
-	int64_t handleDecoded(AVFrame *frame, SampleProducer *sb);
+	int handleDecoded(AVFrame *frame, SampleProducer *sb);
     int receiveSamples(SampleProducer *sampleBuffer, int& producedSamples);
 	int seekNoLock(double seconds);
 
@@ -91,7 +92,7 @@ private:
 	int m_streamIndex;
 	uint8_t *m_outBuf;
 	bool m_opened;
-	bool m_done;
+	std::atomic<bool> m_done;
 	std::mutex m_mutex;
 	int64_t m_decodedSamples;
 	int64_t m_convertedSamples;
@@ -289,7 +290,7 @@ int InputFileFFmpeg::close()
 }
 
 
-int64_t InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
+int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 {
 	// Need to skip some samples? We currently can't do this while flushing, so do it here before the first conversion
 	if (frame && m_nextSeekTimestamp > 0) 
@@ -312,13 +313,13 @@ int64_t InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 		m_nextSeekTimestamp = 0;
 	}
 
-	int64_t res;
+	int res;
 	int generatedSamples = 0;
 	do {
 		res = swr_convert(m_swrCtx, &m_outBuf, OUTPUT_BUFFER_COUNT,
 			frame ? (const uint8_t **)frame->extended_data : NULL,
 			frame ? frame->nb_samples : 0);
-		if(res <= 0)
+		if(res < 0)
 			return res;
 		int64_t outSamples = std::max(int64_t(0), res - m_skipSamples);
 		int64_t skippedSamples = res - outSamples;
@@ -355,8 +356,13 @@ int InputFileFFmpeg::receiveSamples(SampleProducer *sampleBuffer, int& producedS
 		m_decodedSamples += m_frame->nb_samples;
 
 		// Resample
-		producedSamples = handleDecoded(m_frame, sampleBuffer);
-		checkFFmpegErr(producedSamples, "Unable to resample");
+		auto decodeRes = handleDecoded(m_frame, sampleBuffer);
+		if (checkFFmpegErr(decodeRes, "Unable to resample") < 0)
+		{
+			av_frame_unref(m_frame);
+			return decodeRes;
+		}
+		producedSamples = decodeRes;
 	}
 
 	av_frame_unref(m_frame);
