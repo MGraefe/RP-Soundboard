@@ -80,7 +80,7 @@ void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e
 }
 
 
-CAPI void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
+void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
 	int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask)
 {
 	if (serverConnectionHandlerID != activeServerId)
@@ -90,7 +90,7 @@ CAPI void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples
 }
 
 
-CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited)
+void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited)
 {
 	if (serverConnectionHandlerID != activeServerId)
 		return; //Ignore other servers
@@ -143,7 +143,7 @@ void sb_enableInterface(bool enabled)
 	configDialog->setEnabled(enabled);
 }
 
-CAPI void sb_init()
+void sb_init()
 {
 #ifdef _DEBUG
 	QMessageBox::information(NULL, "", "rp soundboard plugin init, attach debugger now");
@@ -178,13 +178,13 @@ CAPI void sb_init()
 }
 
 
-CAPI void sb_saveConfig()
+void sb_saveConfig()
 {
 	configModel->writeConfig();
 }
 
 
-CAPI void sb_kill()
+void sb_kill()
 {
 	configModel->remObserver(modelObserver);
 	delete modelObserver; 
@@ -214,7 +214,7 @@ CAPI void sb_kill()
 }
 
 
-CAPI void sb_onServerChange(uint64 serverID)
+void sb_onServerChange(uint64 serverID)
 {
 	if (connectionStatusMap.find(serverID) == connectionStatusMap.end())
 		connectionStatusMap[serverID] = STATUS_DISCONNECTED;
@@ -227,7 +227,7 @@ CAPI void sb_onServerChange(uint64 serverID)
 }
 
 
-CAPI void sb_openDialog()
+void sb_openDialog()
 {
 	if(!configDialog)
 		configDialog = new ConfigQt(configModel);
@@ -239,25 +239,25 @@ CAPI void sb_openDialog()
 }
 
 
-CAPI void sb_stopPlayback()
+void sb_stopPlayback()
 {
 	sampler->stopPlayback();
 }
 
 
-CAPI void sb_pauseSound()
+void sb_pauseSound()
 {
 	sampler->pausePlayback();
 }
 
 
-CAPI void sb_unpauseSound()
+void sb_unpauseSound()
 {
 	sampler->unpausePlayback();
 }
 
 
-CAPI void sb_pauseButtonPressed()
+void sb_pauseButtonPressed()
 {
 	if (sampler->getState() == Sampler::ePLAYING)
 		sb_pauseSound();
@@ -266,7 +266,7 @@ CAPI void sb_pauseButtonPressed()
 }
 
 /** play button by name or index(strtol), return 0 on success */
-CAPI int sb_playButtonEx(const char* button)
+int sb_playButtonEx(const char* button)
 {
 	long arg1 = strtol(button, NULL, 10);
 
@@ -288,7 +288,7 @@ CAPI int sb_playButtonEx(const char* button)
 	return 0;
 }
 
-CAPI void sb_playButton(int btn)
+void sb_playButton(int btn)
 {
     if ((NULL != configDialog) && (configDialog->hotkeysEnabled()))
     {
@@ -298,13 +298,13 @@ CAPI void sb_playButton(int btn)
     }
 }
 
-CAPI void sb_setConfig(int cfg)
+void sb_setConfig(int cfg)
 {
     if (configDialog)
         configDialog->setConfiguration(cfg);
 }
 
-CAPI void sb_openAbout()
+void sb_openAbout()
 {
 	if(!aboutDialog)
 		aboutDialog = new AboutQt();
@@ -312,7 +312,7 @@ CAPI void sb_openAbout()
 }
 
 
-CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) 
+void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) 
 {
     Q_UNUSED(errorNumber)
 
@@ -330,31 +330,31 @@ CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStat
 }
 
 
-CAPI void sb_getInternalHotkeyName(int buttonId, char *buf)
+void sb_getInternalHotkeyName(int buttonId, char *buf)
 {
 	sprintf(buf, "button_%i", buttonId + 1);
 }
 
 
-CAPI void sb_getInternalConfigHotkeyName(int configId, char *buf)
+void sb_getInternalConfigHotkeyName(int configId, char *buf)
 {
 	sprintf(buf, "config_%i", configId);
 }
 
 
-CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key)
+void sb_onHotkeyRecordedEvent(const char *keyword, const char *key)
 {
 	if (configDialog)
 		configDialog->onHotkeyRecordedEvent(keyword, key);
 }
 
 
-CAPI void sb_onStopTalking()
+void sb_onStopTalking()
 {
 	tsMgr->onClientStopsTalking();
 }
 
-CAPI void sb_onHotkeyPressed(const char * keyword)
+void sb_onHotkeyPressed(const char * keyword)
 {
 	if (hotkeysTemporarilyDisabled)
 		return;
@@ -397,7 +397,7 @@ CAPI void sb_onHotkeyPressed(const char * keyword)
 }
 
 
-CAPI void sb_checkForUpdates()
+void sb_checkForUpdates()
 {
 	if (!updateChecker)
 		updateChecker = new UpdateChecker();
@@ -405,7 +405,7 @@ CAPI void sb_checkForUpdates()
 }
 
 /** return 0 if the command was handled, 1 otherwise */
-CAPI int sb_parseCommand(char** args, int argc)
+int sb_parseCommand(char** args, int argc)
 {
 	if (argc >= 3)
 		ts3Functions.printMessageToCurrentTab("Too many arguments");
@@ -437,7 +437,7 @@ CAPI int sb_parseCommand(char** args, int argc)
 }
 
 
-CAPI void sb_disableHotkeysTemporarily(bool disable)
+void sb_disableHotkeysTemporarily(bool disable)
 {
 	hotkeysTemporarilyDisabled = disable;
 }
