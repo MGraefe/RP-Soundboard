@@ -2,3 +2,4 @@ include/ linguist-vendored
 ffmpeg/ linguist-vendored
 *.h linguist-language=c++
 
+* text=auto
