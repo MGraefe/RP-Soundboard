@@ -1,4 +1,4 @@
-// src/soundsettings_qt.cpp
+// src/SoundSettings.cpp
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -8,16 +8,16 @@
 
 
 
-#include "ui_soundsettings_qt.h"
-#include "soundsettings_qt.h"
+#include "ui_SoundSettings.h"
+#include "SoundSettings.h"
 #include "ConfigModel.h"
 #include "main.h"
 #include "samples.h"
-#include "soundview_qt.h"
+#include "SoundView.h"
 #include <QFileDialog>
 #include <QPainter>
 #include <QFileInfo>
-#include "config_qt.h"
+#include "Config.h"
 #include <QColorDialog>
 
 

@@ -1,4 +1,4 @@
-// src/soundview_qt.cpp
+// src/SoundView.cpp
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -10,7 +10,7 @@
 
 #include <QPainter>
 #include <QTimer>
-#include "soundview_qt.h"
+#include "SoundView.h"
 #include "SampleVisualizerThread.h"
 
 

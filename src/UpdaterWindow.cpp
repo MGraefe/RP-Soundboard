@@ -1,4 +1,4 @@
-// src/updater_qt.cpp
+// src/UpdaterWindow.cpp
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -8,7 +8,7 @@
 
 
 #include "buildinfo.h"
-#include "updater_qt.h"
+#include "UpdaterWindow.h"
 #include "ts3log.h"
 #include <QMessageBox>
 #include <QProcess>

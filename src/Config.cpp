@@ -1,4 +1,4 @@
-// src/config_qt.cpp
+// src/Config.cpp
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -15,10 +15,10 @@
 #include <QPropertyAnimation>
 #include <QColorDialog>
 
-#include "config_qt.h"
+#include "Config.h"
 #include "ConfigModel.h"
 #include "main.h"
-#include "soundsettings_qt.h"
+#include "SoundSettings.h"
 #include "ts3log.h"
 #include "SpeechBubble.h"
 #include "buildinfo.h"

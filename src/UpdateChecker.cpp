@@ -33,7 +33,7 @@
 
 #include "UpdateChecker.h"
 #include "ts3log.h"
-#include "updater_qt.h"
+#include "UpdaterWindow.h"
 #include "ConfigModel.h"
 
 #define CHECK_URL "https://mgraefe.de/rpsb/version/version.xml"

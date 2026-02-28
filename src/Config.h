@@ -1,4 +1,4 @@
-// src/config_qt.h
+// src/Config.h
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -21,7 +21,7 @@
 #include <QRadioButton>
 
 
-#include "ui_config_qt.h"
+#include "ui_Config.h"
 #include "ConfigModel.h"
 
 class SpeechBubble;
