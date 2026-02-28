@@ -8,8 +8,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__ConfigModel_H__
-#define rpsbsrc__ConfigModel_H__
 
 #include <vector>
 #include <array>
@@ -142,4 +140,3 @@ private:
 	uint m_nextUpdateCheck;
 };
 
-#endif // rpsbsrc__ConfigModel_H__

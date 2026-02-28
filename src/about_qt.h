@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__about_qt_H__
-#define rpsbsrc__about_qt_H__
 
 #include <QWidget>
 
@@ -31,5 +29,3 @@ private:
 	Ui::AboutQt *ui;
 };
 
-
-#endif

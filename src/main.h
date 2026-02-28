@@ -9,8 +9,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__device_H__
-#define rpsbsrc__device_H__
 
 #include "common.h"
 
@@ -59,4 +57,3 @@ CAPI void sb_disableHotkeysTemporarily(bool disable);
 #define HOTKEY_VOLUME_INCREASE "volume_increase"
 #define HOTKEY_VOLUME_DECREASE "volume_decrease"
 
-#endif

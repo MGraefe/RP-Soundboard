@@ -7,9 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__soundsettings_qt_H__
-#define rpsbsrc__soundsettings_qt_H__
-
 
 #include <QDialog>
 #include <QCloseEvent>
@@ -63,5 +60,3 @@ private:
 	QColor customColor;
 };
 
-
-#endif

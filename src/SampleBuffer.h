@@ -8,8 +8,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__SampleBuffer_H__
-#define rpsbsrc__SampleBuffer_H__
 
 #include <vector>
 #include <mutex>
@@ -128,4 +126,3 @@ private:
 	ConsumeCallback *m_cbCons;
 };
 
-#endif // rpsbsrc__SampleBuffer_H__

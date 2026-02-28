@@ -1,5 +1,4 @@
-#ifndef SOUNDBUTTON_H
-#define SOUNDBUTTON_H
+#pragma once
 
 #include <QPushButton>
 #include <QList>
@@ -39,4 +38,3 @@ private:
 	
 };
 
-#endif // SOUNDBUTTON_H

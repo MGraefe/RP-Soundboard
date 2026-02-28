@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__SampleProducer_H__
-#define rpsbsrc__SampleProducer_H__
 
 class SampleProducer
 {
@@ -16,4 +14,3 @@ public:
 	virtual void produce(const short *samples, int count) = 0;
 };
 
-#endif // rpsbsrc__SampleProducer_H__

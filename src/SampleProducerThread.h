@@ -9,8 +9,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__SampleProducerThread_H__
-#define rpsbsrc__SampleProducerThread_H__
 
 #include <thread>
 #include <vector>
@@ -55,4 +53,3 @@ private:
 	std::mutex m_mutex;	
 };
 
-#endif // rpsbsrc__SampleProducerThread_H__

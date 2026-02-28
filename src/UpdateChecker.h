@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__UpdateChecker_H__
-#define rpsbsrc__UpdateChecker_H__
 
 #include <QObject>
 #include <QXmlStreamReader>
@@ -69,4 +67,3 @@ private:
 	bool m_explicitCheck;
 };
 
-#endif // rpsbsrc__UpdateChecker_H__

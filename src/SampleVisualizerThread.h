@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__SampleVisualizerThread_H__
-#define rpsbsrc__SampleVisualizerThread_H__
 
 #include <thread>
 #include <mutex>
@@ -77,5 +75,3 @@ private:
 	volatile bool m_stop;
 };
 
-
-#endif // rpsbsrc__SampleVisualizerThread_H__

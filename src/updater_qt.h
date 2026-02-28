@@ -7,9 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__updater_qt_H__
-#define rpsbsrc__updater_qt_H__
-
 
 #include <QDialog>
 #include <QUrl>
@@ -60,5 +57,3 @@ private:
 	bool m_success;
 };
 
-
-#endif // rpsbsrc__updater_qt_H__

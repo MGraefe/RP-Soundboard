@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__soundview_qt_H__
-#define rpsbsrc__soundview_qt_H__
 
 #include <QWidget>
 #include <QPainterPath>
@@ -44,4 +42,3 @@ private:
 	QPainterPath m_path[2];
 };
 
-#endif // rpsbsrc__soundview_qt_H__

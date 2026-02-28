@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__peakmeter_H__
-#define rpsbsrc__peakmeter_H__
 #include <math.h>
 
 class PeakMeter
@@ -65,4 +63,3 @@ private:
 	int timer;
 };
 
-#endif

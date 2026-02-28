@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__config_qt_H__
-#define rpsbsrc__config_qt_H__
 
 #include <QDialog>
 #include <QWidget>
@@ -141,4 +139,3 @@ private:
 	std::array<QPushButton*, NUM_CONFIGS> m_configHotkeyButtons;
 };
 
-#endif // rpsbsrc__config_qt_H__

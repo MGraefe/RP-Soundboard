@@ -8,8 +8,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__SpeechBubble_H__
-#define rpsbsrc__SpeechBubble_H__
 
 #include <QDialog>
 #include <QColor>
@@ -54,4 +52,3 @@ private:
 	QColor m_backgroundColor;
 };
 
-#endif // rpsbsrc__SpeechBubble_H__
