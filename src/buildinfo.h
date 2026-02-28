@@ -8,8 +8,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__buildinfo_H__
-#define rpsbsrc__buildinfo_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -35,4 +33,3 @@ int buildinfo_getBuildNumber();
 } // extern "C"
 #endif
 
-#endif

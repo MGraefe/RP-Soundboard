@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__samples_H__
-#define rpsbsrc__samples_H__
 
 #include <QObject>
 
@@ -89,5 +87,3 @@ private:
 	bool m_muteMyself;
 };
 
-
-#endif // rpsbsrc__samples_H__

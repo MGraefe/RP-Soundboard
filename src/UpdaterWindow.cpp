@@ -1,4 +1,4 @@
-// src/updater_qt.cpp
+// src/UpdaterWindow.cpp
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -8,22 +8,19 @@
 
 
 #include "buildinfo.h"
-#include "updater_qt.h"
+#include "UpdaterWindow.h"
 #include "ts3log.h"
 #include <QMessageBox>
 #include <QProcess>
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 UpdaterWindow::UpdaterWindow( QWidget *parent /*= 0*/ ) :
 	QDialog(parent),
 	ui(new Ui::updaterWindow),
-	m_file(NULL),
-	m_manager(NULL),
-	m_reply(NULL),
+	m_file(nullptr),
+	m_manager(nullptr),
+	m_reply(nullptr),
 	m_redirects(0),
 	m_execute(false),
 	m_canceled(false),
@@ -34,9 +31,6 @@ UpdaterWindow::UpdaterWindow( QWidget *parent /*= 0*/ ) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bool execute /*= false*/)
 {
 	m_url = url;
@@ -57,7 +51,7 @@ void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bo
 		logError("Unable to write to file %s", m_fileinfo.absoluteFilePath().toUtf8().data());
 		QMessageBox::information(this, "Error", "Unable to save the file.");
 		delete m_file;
-		m_file = NULL;
+		m_file = nullptr;
 		return;
 	}
 
@@ -67,9 +61,6 @@ void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bo
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::startRequest(const QUrl &url)
 {
 	QNetworkRequest request(url);
@@ -82,9 +73,6 @@ void UpdaterWindow::startRequest(const QUrl &url)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onReadyRead()
 {
 	if(m_file)
@@ -92,9 +80,6 @@ void UpdaterWindow::onReadyRead()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onDownloadProgress(qint64 bytes, qint64 total)
 {
 	if(m_canceled)
@@ -105,9 +90,6 @@ void UpdaterWindow::onDownloadProgress(qint64 bytes, qint64 total)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onFinished()
 {
 	if(m_canceled)
@@ -119,10 +101,10 @@ void UpdaterWindow::onFinished()
 			m_file->close();
 			m_file->remove();
 			delete m_file;
-			m_file = NULL;
+			m_file = nullptr;
 		}
 		m_reply->deleteLater();
-		m_reply = NULL;
+		m_reply = nullptr;
 		this->hide();
 	}
 	else
@@ -145,7 +127,7 @@ void UpdaterWindow::onFinished()
 				logInfo("Download of update redirected to %s", url.toString().toUtf8().data());
 				m_url = url;
 				m_reply->deleteLater();
-				m_reply = NULL;
+				m_reply = nullptr;
 				m_file->open(QIODevice::WriteOnly);
 				m_file->resize(0);
 				startRequest(url);
@@ -166,10 +148,10 @@ void UpdaterWindow::onFinished()
 		}
 
 		m_reply->deleteLater();
-		m_reply = NULL;
+		m_reply = nullptr;
 		delete m_file;
-		m_file = NULL;
-		m_manager = NULL;
+		m_file = nullptr;
+		m_manager = nullptr;
 		m_redirects = 0;
 	}
 
@@ -177,9 +159,6 @@ void UpdaterWindow::onFinished()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool UpdaterWindow::executeFile()
 {
 	bool status = QProcess::startDetached("package_inst.exe",
@@ -191,9 +170,6 @@ bool UpdaterWindow::executeFile()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onClickedCancel(QAbstractButton*)
 {
 	if(!m_canceled)

@@ -18,9 +18,6 @@
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 ConfigModel::ConfigModel()
 {
 	m_rows.fill(2);
@@ -44,9 +41,6 @@ ConfigModel::ConfigModel()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::readConfig(const QString &file)
 {
     QString path;
@@ -82,9 +76,6 @@ void ConfigModel::readConfig(const QString &file)
 	notifyAllEvents();
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::writeConfig(const QString &file)
 {
     QString path;
@@ -164,9 +155,6 @@ int ConfigModel::getConfiguration()
 	return m_activeConfig;
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QString ConfigModel::getFileName( int itemId ) const
 {
     if(itemId >= 0 && itemId < numSounds())
@@ -175,9 +163,6 @@ QString ConfigModel::getFileName( int itemId ) const
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setFileName( int itemId, const QString &fn )
 {
 	if(itemId >= 0)
@@ -191,20 +176,14 @@ void ConfigModel::setFileName( int itemId, const QString &fn )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
 {
     if(itemId >= 0 && itemId < numSounds())
 		return &sounds()[itemId];
-	return NULL;
+	return nullptr;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setSoundInfo( int itemId, const SoundInfo &info )
 {
     if(itemId < 1000 && itemId >= numSounds())
@@ -215,21 +194,15 @@ void ConfigModel::setSoundInfo( int itemId, const SoundInfo &info )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QString ConfigModel::GetConfigPath()
 {
 	// Find config path for config class
-	char* configPath = (char*)malloc(PATH_BUFSIZE);
+	char configPath[PATH_BUFSIZE];
 	ts3Functions.getConfigPath(configPath, PATH_BUFSIZE);
 	return QString::fromUtf8(configPath);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QString ConfigModel::GetFullConfigPath()
 {
 	QString fullPath = GetConfigPath();
@@ -241,9 +214,6 @@ QString ConfigModel::GetFullConfigPath()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setRows( int n )
 {
 	m_rows[m_activeConfig] = n;
@@ -252,58 +222,26 @@ void ConfigModel::setRows( int n )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setCols( int n )
 {
-    //if (n > m_cols)
-    //{
-    //    for (int i = m_rows - 1; i >= 1; i--)
-    //        for (int k = m_cols - 1; k >= 0; k--)
-    //            if (m_sounds->size() > (i * m_cols + k))
-    //            {
-    //                int index = i * n + k;
-    //                if (m_sounds->size() <= index)
-    //                    m_sounds->resize(index + 1);
-    //                (*m_sounds)[index] = (*m_sounds)[i * m_cols + k];
-    //            }
-    //}
-    //else if (n < m_cols)
-    //{
-    //    for (int i = 1; i < m_rows; i++)
-    //        for (int k = 0; k < m_cols; k++)
-    //            if (m_sounds->size() > (i * m_cols + k))
-    //                (*m_sounds)[i * n + k] = (*m_sounds)[i * m_cols + k];
-    //}
-
 	m_cols[m_activeConfig] = n;
 	writeConfig();
 	notify(NOTIFY_SET_COLS, n);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setVolumeLocal( int val )
 {
 	m_volumeLocal = val;
 	notify(NOTIFY_SET_VOLUME_LOCAL, val);
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setVolumeRemote( int val )
 {
 	m_volumeRemote = val;
 	notify(NOTIFY_SET_VOLUME_REMOTE, val);
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setPlaybackLocal( bool val )
 {
 	m_playbackLocal = val;
@@ -312,9 +250,6 @@ void ConfigModel::setPlaybackLocal( bool val )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setMuteMyselfDuringPb(bool val)
 {
 	m_muteMyselfDuringPb = val;
@@ -323,9 +258,6 @@ void ConfigModel::setMuteMyselfDuringPb(bool val)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::getWindowSize(int *width, int *height) const
 {
 	if(width)
@@ -335,9 +267,6 @@ void ConfigModel::getWindowSize(int *width, int *height) const
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setWindowSize(int width, int height)
 {
 	m_windowWidth = width;
@@ -346,9 +275,6 @@ void ConfigModel::setWindowSize(int width, int height)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setNextUpdateCheck(uint time)
 {
 	m_nextUpdateCheck = time;
@@ -356,9 +282,6 @@ void ConfigModel::setNextUpdateCheck(uint time)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::notify(notifications_e what, int data)
 {
 	for(Observer *obs : m_obs)
@@ -366,9 +289,6 @@ void ConfigModel::notify(notifications_e what, int data)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setHotkeysEnabled(bool enabled)
 {
 	m_hotkeysEnabled = enabled;
@@ -377,27 +297,18 @@ void ConfigModel::setHotkeysEnabled(bool enabled)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::addObserver(Observer *obs)
 {
 	m_obs.push_back(obs);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::remObserver(Observer *obs)
 {
 	m_obs.erase(std::remove(m_obs.begin(), m_obs.end(), obs), m_obs.end());
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setBubbleButtonsBuild(int build)
 {
 	m_bubbleButtonsBuild = build;
@@ -406,9 +317,6 @@ void ConfigModel::setBubbleButtonsBuild(int build)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setBubbleStopBuild(int build)
 {
 	m_bubbleStopBuild = build;
@@ -417,9 +325,6 @@ void ConfigModel::setBubbleStopBuild(int build)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setBubbleColsBuild(int build)
 {
 	m_bubbleColsBuild = build;
@@ -428,12 +333,9 @@ void ConfigModel::setBubbleColsBuild(int build)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 std::vector<SoundInfo> ConfigModel::getInitialSounds()
 {
-	char* pluginPath = (char*)malloc(PATH_BUFSIZE);
+	char pluginPath[PATH_BUFSIZE];
 	ts3Functions.getPluginPath(pluginPath, PATH_BUFSIZE, getPluginID());
 	QString fullPath = QString::fromUtf8(pluginPath);
 	QChar last = fullPath[fullPath.count() - 1];
@@ -447,11 +349,11 @@ std::vector<SoundInfo> ConfigModel::getInitialSounds()
 		"Airporn.mp3",
 		"Peter Griffin Laugh.mp3",
 		"Spooky.mp3",
-		NULL,
+		nullptr,
 	};
 
 	std::vector<SoundInfo> sounds;
-	for (int i = 0; files[i] != NULL; i++)
+	for (int i = 0; files[i] != nullptr; i++)
 	{
 		SoundInfo info;
 		info.filename = fullPath + files[i];
@@ -461,9 +363,6 @@ std::vector<SoundInfo> ConfigModel::getInitialSounds()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::notifyAllEvents()
 {
 	//Notify all changes
@@ -484,9 +383,6 @@ void ConfigModel::notifyAllEvents()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigModel::setShowHotkeysOnButtons(bool show)
 {
 	m_showHotkeysOnButtons = show;

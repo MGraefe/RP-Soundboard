@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__inputfile_H__
-#define rpsbsrc__inputfile_H__
 
 #include <stdint.h>
 #include "SampleSource.h"
@@ -56,5 +54,3 @@ public:
 
 extern InputFile *CreateInputFileFFmpeg(InputFileOptions options = InputFileOptions());
 
-
-#endif // rpsbsrc__inputfile_H__

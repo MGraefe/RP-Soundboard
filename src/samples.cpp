@@ -20,13 +20,7 @@
 #include <cassert>
 #include <math.h>
 
-//#define USE_SSE2
 //#define MEASURE_PERFORMANCE
-
-#ifdef USE_SSE2
-#include <emmintrin.h>
-#endif
-
 
 using std::vector;
 using std::queue;
@@ -48,14 +42,11 @@ static_assert(sizeof(short) == 2, "Short is weird size");
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 Sampler::Sampler() :
 	m_sbCapture(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sbPlayback(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sampleProducerThread(),
-	m_inputFile(NULL),
+	m_inputFile(nullptr),
 	m_peakMeterCapture(0.01f, 0.00005f, 24000),
 	m_peakMeterPlayback(0.01f, 0.00005f, 24000),
 	m_volumeDivider(1),
@@ -72,18 +63,12 @@ Sampler::Sampler() :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 Sampler::~Sampler()
 {
 	
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::init()
 {
 	m_sampleProducerThread.addBuffer(&m_sbCapture);
@@ -92,9 +77,6 @@ void Sampler::init()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::shutdown()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -103,58 +85,20 @@ void Sampler::shutdown()
 	{
 		m_inputFile->close();
 		delete m_inputFile;
-		m_inputFile = NULL;
+		m_inputFile = nullptr;
 	}
 
 	m_sampleProducerThread.stop();
 }
 
-#ifdef USE_SSE2
-inline void loadStridedChannels(short *v, __m128i &l, __m128i &r)
-{
-	__m128i a, b;
-	a = _mm_loadu_si128(reinterpret_cast<__m128i*>(v));
-	b = _mm_loadu_si128(reinterpret_cast<__m128i*>(v + 8));
-	l = _mm_unpacklo_epi16(a, b);
-	r = _mm_unpackhi_epi16(a, b);
-	a = _mm_unpacklo_epi16(l, r);
-	b = _mm_unpackhi_epi16(l, r);
-	l = _mm_unpacklo_epi16(a, b);
-	r = _mm_unpackhi_epi16(a, b);
-}
-
-
-inline void scaleSSE(__m128i &v, int factor)
-{
-	//widen values to 32 bit
-	__m128i v0 = _mm_srai_epi32(_mm_unpacklo_epi16(v, v), 16);
-	__m128i v1 = _mm_srai_epi32(_mm_unpackhi_epi16(v, v), 16);
-
-	//TODO: Finish
-	
-}
-
-static inline __m128i muly(const __m128i &a, const __m128i &b)
-{
-	__m128i tmp1 = _mm_mul_epu32(a, b); /* mul 2,0*/
-	__m128i tmp2 = _mm_mul_epu32(_mm_srli_si128(a, 4), _mm_srli_si128(b, 4)); /* mul 3,1 */
-	return _mm_unpacklo_epi32(_mm_shuffle_epi32(tmp1, _MM_SHUFFLE (0,0,2,0)), _mm_shuffle_epi32(tmp2, _MM_SHUFFLE (0,0,2,0))); /* shuffle results to [63..0] and pack */
-}
-
-#endif
 
 #ifdef MEASURE_PERFORMANCE
 size_t g_perfMeasureCount = 0;
 double g_perfMeasurement = 0.0;
 #endif
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight )
 {
-	//printf("fetchSamples: samples = %p, count = %i, channels = %i, ciLeft = %i, ciRight = %i\n", samples, count, channels, ciLeft, ciRight);
-
 	if (m_state == ePAUSED)
 		return 0;
 
@@ -186,7 +130,6 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 	start = HighResClock::now();
 #endif
 
-#ifndef USE_SSE2
 	if(channels == 1)
 	{
 		for (int i = 0; i < write; i++)
@@ -207,82 +150,8 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 			out[i * channels + ciRight] = pm.limit(sample1, AMP_THRESH);
 		}
 	}
-#else // SSE implementation is currently not feature complete (and not really beneficial performance wise either)
-	if(channels == 1)
-	{
-		__m128i ones = _mm_set1_epi16(1);
-		__m128i volumeDivider = _mm_set1_epi32(m_volumeDivider);
-        int i;
-        for(i = 0; i < (write - 7); i += 8)
-		{
-			__m128i a, b;
-			a = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2));
-			b = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2 + 8));
 
-			// merge channels via mad
-			// mad returns the following: (x0 * y0 + x1 * y1, x2 * y2 + x3 * y3, ... )
-			// If we set y to only ones we just add every second member
-			// madd also returns the result as 32 bit integers
-			a = _mm_madd_epi16(a, ones); // = (a0 + a1, a2 + a3, a4 + a5, a6 + a7)
-			b = _mm_madd_epi16(b, ones); // = (b0 + b1, b2 + b3, b4 + b5, b6 + b7)
-
-			// scale, multiply with volume divider and divide by 8192
-			// normally we would divide by 4096 but we haven't divided our samples
-			// by two in the channel merge stage.
-			// The resulting operation is essentially a = (a * volumeDivider) / 4096 / 2
-			a = _mm_srai_epi32(muly(a, volumeDivider), 13);
-			b = _mm_srai_epi32(muly(b, volumeDivider), 13);
-
-			//Now convert 4*32 bits from a and 4*32 bits from b to 8*16 bits output
-			a = _mm_packs_epi32(a, b);
-
-			b = _mm_loadu_si128(reinterpret_cast<__m128i*>(out + i)); //b = out[i]
-			b = _mm_adds_epi16(a, b); // b = sat(a + b)
-			_mm_storeu_si128(reinterpret_cast<__m128i*>(out + i), b);
-		}
-        // Remaining samples (remainder of div by 8)
-        for (; i < write; i++)
-            out[i] += scale(in[i*2] / 2 + in[i*2+1] / 2);
-	}
-	else
-	{
-		__m128i volumeDivider = _mm_set1_epi32(m_volumeDivider);
-		// Align outbuf to 16 bytes
-		char outbufBuf[8*sizeof(short)+16];
-		short *outbuf = (short*)(outbufBuf + (16 - (size_t)outbufBuf % 16));
-		assert(reinterpret_cast<size_t>(outbuf) % 16 == 0);
-        int i;
-        for(i = 0; i < (write - 3); i += 4)
-		{
-			__m128i v = _mm_loadu_si128(reinterpret_cast<const __m128i*>(in + i*2));
-			//widen to 32 bits
-			__m128i a = _mm_srai_epi32(_mm_unpacklo_epi16(v, v), 16);
-			__m128i b = _mm_srai_epi32(_mm_unpackhi_epi16(v, v), 16);
-
-			// scale, multiply with volume divider and divide by 4096
-			a = _mm_srai_epi32(muly(a, volumeDivider), 12);
-			b = _mm_srai_epi32(muly(b, volumeDivider), 12);
-
-			//store into aligned memory
-			_mm_store_si128(reinterpret_cast<__m128i*>(outbuf), _mm_packs_epi32(a, b));
-
-			for(int k = 0; k < 4; ++k)
-			{
-				int id = (i + k) * channels;
-				out[id + ciLeft] += outbuf[k*2];
-				out[id + ciRight] += outbuf[k*2+1];
-			}
-		}
-        // Remaining samples (remainder of div by 4)
-        for (; i < write; i++)
-        {
-            out[i * channels + ciLeft] += scale(in[i*2]);
-            out[i * channels + ciRight] += scale(in[i*2+1]);
-        }
-	}
-#endif
-
-	sb.consume(NULL, write, true);
+	sb.consume(nullptr, write, true);
 
 #ifdef MEASURE_PERFORMANCE
 	end = HighResClock::now();
@@ -368,18 +237,12 @@ bool Sampler::playFile(const SoundInfo &sound)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool Sampler::playPreview(const SoundInfo &sound)
 {
 	return playSoundInternal(sound, true);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::stopPlayback()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -388,9 +251,6 @@ void Sampler::stopPlayback()
 
 #define VOLUMESCALER_EXPONENT 1.0
 #define VOLUMESCALER_DB_MIN -28.0
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setVolumeRemote( int vol )
 {
 	double v = (double)vol / 100.0;
@@ -400,9 +260,6 @@ void Sampler::setVolumeRemote( int vol )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setVolumeLocal( int vol )
 {
 	double v = (double)vol / 100.0;
@@ -412,9 +269,6 @@ void Sampler::setVolumeLocal( int vol )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setLocalPlayback( bool enabled )
 {
 	m_localPlayback = enabled;
@@ -422,18 +276,12 @@ void Sampler::setLocalPlayback( bool enabled )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setMuteMyself(bool enabled)
 {
 	m_muteMyself = enabled;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setVolumeDb( double decibel )
 {
 	double factor = pow(10.0, decibel/10.0);
@@ -442,33 +290,27 @@ void Sampler::setVolumeDb( double decibel )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::stopSoundInternal()
 {
 	if (m_inputFile)
 	{
 		m_state = eSILENT;
-		m_sampleProducerThread.setSource(NULL);
+		m_sampleProducerThread.setSource(nullptr);
 		m_inputFile->close();
 		delete m_inputFile;
-		m_inputFile = NULL;
+		m_inputFile = nullptr;
 
 		//Clear buffers
 		SampleBuffer::Lock sblc(m_sbCapture.getMutex());
 		SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
-		m_sbCapture.consume(NULL, m_sbCapture.avail());
-		m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+		m_sbCapture.consume(nullptr, m_sbCapture.avail());
+		m_sbPlayback.consume(nullptr, m_sbPlayback.avail());
 
 		emit onStopPlaying();
 	}
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -480,7 +322,7 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	if(m_inputFile->open(sound.filename.toUtf8(), sound.getStartTime(), sound.getPlayTime()) != 0)
 	{
 		delete m_inputFile;
-		m_inputFile = NULL;
+		m_inputFile = nullptr;
 		return false;
 	}
 
@@ -491,8 +333,8 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
 
 	//Clear buffers
-	m_sbCapture.consume(NULL, m_sbCapture.avail());
-	m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+	m_sbCapture.consume(nullptr, m_sbCapture.avail());
+	m_sbPlayback.consume(nullptr, m_sbPlayback.avail());
 
 	if(preview)
 	{
@@ -514,9 +356,6 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::pausePlayback()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -528,9 +367,6 @@ void Sampler::pausePlayback()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::unpausePlayback()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);

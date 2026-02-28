@@ -13,8 +13,6 @@
  */
 
 #pragma once
-#ifndef rpsbsrc__plugin_H__
-#define rpsbsrc__plugin_H__
 
 #ifdef WIN32
 #define PLUGINS_EXPORTDLL __declspec(dllexport)
@@ -65,4 +63,3 @@ PLUGINS_EXPORTDLL void ts3plugin_onTalkStatusChangeEvent(uint64 serverConnection
 }
 #endif
 
-#endif

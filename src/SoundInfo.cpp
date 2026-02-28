@@ -45,9 +45,6 @@ QString colorToString(const QColor &col)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SoundInfo::SoundInfo() :
 	filename(DEFAULT_PATH),
 	customText(DEFAULT_CUSTOM_TEXT),
@@ -64,9 +61,6 @@ SoundInfo::SoundInfo() :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundInfo::readFromConfig( const QSettings &settings )
 {
 	filename = settings.value(NAME_PATH, DEFAULT_PATH).toString();
@@ -82,9 +76,6 @@ void SoundInfo::readFromConfig( const QSettings &settings )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundInfo::saveToConfig( QSettings &settings ) const
 {
 	settings.setValue(NAME_PATH, filename);
@@ -100,9 +91,6 @@ void SoundInfo::saveToConfig( QSettings &settings ) const
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 double SoundInfo::getStartTime() const
 {
 	if(!cropEnabled)
@@ -111,9 +99,6 @@ double SoundInfo::getStartTime() const
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 double SoundInfo::getPlayTime() const
 {
 	if(!cropEnabled)
@@ -125,9 +110,6 @@ double SoundInfo::getPlayTime() const
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 double SoundInfo::getTimeUnitFactor(int unit)
 {
 	switch(unit)

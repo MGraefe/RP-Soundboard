@@ -1,4 +1,4 @@
-// src/config_qt.h
+// src/MainWindow.h
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__config_qt_H__
-#define rpsbsrc__config_qt_H__
 
 #include <QDialog>
 #include <QWidget>
@@ -23,7 +21,7 @@
 #include <QRadioButton>
 
 
-#include "ui_config_qt.h"
+#include "ui_MainWindow.h"
 #include "ConfigModel.h"
 
 class SpeechBubble;
@@ -31,19 +29,19 @@ class ExpandableSection;
 class SoundButton;
 
 namespace Ui {
-	class ConfigQt;
+	class MainWindow;
 }
 
-class ConfigQt : public QWidget
+class MainWindow : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit ConfigQt(ConfigModel *model, QWidget *parent = 0);
+	explicit MainWindow(ConfigModel *model, QWidget *parent = 0);
 
 	void createBubbles();
 
-	virtual ~ConfigQt();
+	virtual ~MainWindow();
 
 	static QString getShortcutString(const char *internalName);
 	static QString getShortcutString(size_t buttonId);
@@ -117,13 +115,13 @@ private:
 	class ModelObserver : public ConfigModel::Observer
 	{
 	public:
-		ModelObserver(ConfigQt &parent) : p(parent) {}
+		ModelObserver(MainWindow &parent) : p(parent) {}
 		void notify(ConfigModel &model, ConfigModel::notifications_e what, int data) override;
 	private:
-		ConfigQt &p;
+		MainWindow &p;
 	};
 
-	Ui::ConfigQt *ui;
+	Ui::MainWindow *ui;
 	std::vector<SoundButton*> m_buttons;
 	ConfigModel *m_model;
 	QBoxLayout *m_configArea;
@@ -141,4 +139,3 @@ private:
 	std::array<QPushButton*, NUM_CONFIGS> m_configHotkeyButtons;
 };
 
-#endif // rpsbsrc__config_qt_H__

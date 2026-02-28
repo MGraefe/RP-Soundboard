@@ -1,4 +1,4 @@
-// src/soundview_qt.h
+// src/SoundView.h
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__soundview_qt_H__
-#define rpsbsrc__soundview_qt_H__
 
 #include <QWidget>
 #include <QPainterPath>
@@ -23,7 +21,7 @@ class SoundView : public QWidget
 	Q_OBJECT
 
 public:
-	SoundView(QWidget *parent = NULL);
+	SoundView(QWidget *parent = nullptr);
 	void setSound(const SoundInfo &sound);
 
 protected:
@@ -44,4 +42,3 @@ private:
 	QPainterPath m_path[2];
 };
 
-#endif // rpsbsrc__soundview_qt_H__

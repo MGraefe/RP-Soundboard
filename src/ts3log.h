@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__ts3log_H__
-#define rpsbsrc__ts3log_H__
 
 #include "common.h"
 
@@ -23,4 +21,3 @@ void logMessage(const char *msg, LogLevel level,  ...);
 
 UINT checkError(UINT code, const char *msg, ...);
 
-#endif // rpsbsrc__ts3log_H__

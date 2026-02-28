@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__common_H__
-#define rpsbsrc__common_H__
 
 #include <stddef.h>
 #include <stdint.h>
@@ -59,4 +57,3 @@ CAPI struct TS3Functions ts3Functions;
 
 #define NUM_CONFIGS 4
 
-#endif // rpsbsrc__common_H__

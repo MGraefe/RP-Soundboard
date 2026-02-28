@@ -1,4 +1,4 @@
-// src/about_qt.cpp
+// src/About.cpp
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -7,19 +7,13 @@
 //----------------------------------
 
 
-#include "about_qt.h"
+#include "About.h"
 #include "buildinfo.h"
 
-extern "C"
-{
-//#include <libavutil/avutil.h>
-const char *av_version_info();
-}
+// Import from ffmpeg
+extern "C" const char *av_version_info();
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 AboutQt::AboutQt(QWidget *parent) :
 	QWidget(parent, Qt::Window | Qt::WindowTitleHint /*| Qt::CustomizeWindowHint*/ | Qt::WindowCloseButtonHint),
 	ui(new Ui::AboutQt)
@@ -34,9 +28,6 @@ AboutQt::AboutQt(QWidget *parent) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 AboutQt::~AboutQt()
 {
 	delete ui;

@@ -8,8 +8,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__SampleBuffer_H__
-#define rpsbsrc__SampleBuffer_H__
 
 #include <vector>
 #include <mutex>
@@ -101,9 +99,6 @@ public:
 		return 2 * m_channels;
 	}
 
-	//Copy a number of samples to another buffer
-	//void copyToOther(SampleBuffer *other, int count, int start = 0) const;
-
 	//Directly return bare memory adress
 	//Be careful!
 	inline short *getBufferData() {
@@ -128,4 +123,3 @@ private:
 	ConsumeCallback *m_cbCons;
 };
 
-#endif // rpsbsrc__SampleBuffer_H__

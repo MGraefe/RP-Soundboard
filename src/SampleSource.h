@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__SampleSource_H__
-#define rpsbsrc__SampleSource_H__
 
 #include "SampleProducer.h"
 
@@ -19,4 +17,3 @@ public:
 	virtual int readSamples(SampleProducer *sampleBuffer) = 0;
 };
 
-#endif // rpsbsrc__SampleSource_H__

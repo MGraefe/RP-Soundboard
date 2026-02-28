@@ -9,8 +9,6 @@
 
 
 #pragma once
-#ifndef rpsbsrc__device_H__
-#define rpsbsrc__device_H__
 
 #include "common.h"
 
@@ -22,34 +20,29 @@ class Sampler;
 Sampler *sb_getSampler();
 #endif
 
-CAPI void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
+void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples,
 	int sampleCount, int channels, int* edited);
-CAPI void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
+void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
 	int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask);
-CAPI void sb_stopPlayback();
-//CAPI void sb_setVolume(int vol);
-//CAPI void sb_setLocalPlayback(int enabled);
-CAPI void sb_init();
-CAPI void sb_kill();
-CAPI void sb_onServerChange(uint64 serverID);
-CAPI void sb_saveConfig();
-CAPI void sb_openDialog();
-CAPI int sb_playButtonEx(const char* btn);
-CAPI void sb_playButton(int btn);
-CAPI void sb_setConfig(int cfg);
-CAPI void sb_openAbout();
-CAPI void sb_pauseSound();
-CAPI void sb_unpauseSound();
-CAPI void sb_pauseButtonPressed();
-CAPI void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
-CAPI void sb_getInternalHotkeyName(int buttonId, char *buf); // buf should be at sized 16
-CAPI void sb_getInternalConfigHotkeyName(int configId, char *buf);
-CAPI void sb_onHotkeyRecordedEvent(const char *keyword, const char *key);
-CAPI void sb_onStopTalking();
-CAPI void sb_onHotkeyPressed(const char *keyword);
-CAPI void sb_checkForUpdates();
-CAPI int sb_parseCommand(char**, int);
-CAPI void sb_disableHotkeysTemporarily(bool disable);
+void sb_stopPlayback();
+void sb_init();
+void sb_kill();
+void sb_onServerChange(uint64 serverID);
+void sb_openDialog();
+int sb_playButtonEx(const char* btn);
+void sb_playButton(int btn);
+void sb_setConfig(int cfg);
+void sb_openAbout();
+void sb_pauseButtonPressed();
+void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
+void sb_getInternalHotkeyName(int buttonId, char *buf); // buf should be at sized 16
+void sb_getInternalConfigHotkeyName(int configId, char *buf);
+void sb_onHotkeyRecordedEvent(const char *keyword, const char *key);
+void sb_onStopTalking();
+void sb_onHotkeyPressed(const char *keyword);
+void sb_checkForUpdates();
+int sb_parseCommand(char**, int);
+void sb_disableHotkeysTemporarily(bool disable);
 
 
 #define HOTKEY_STOP_ALL "stop_all"
@@ -59,4 +52,3 @@ CAPI void sb_disableHotkeysTemporarily(bool disable);
 #define HOTKEY_VOLUME_INCREASE "volume_increase"
 #define HOTKEY_VOLUME_DECREASE "volume_decrease"
 
-#endif

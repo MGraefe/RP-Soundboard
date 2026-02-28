@@ -1,4 +1,4 @@
-// src/soundsettings_qt.h
+// src/SoundSettings.h
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -7,9 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__soundsettings_qt_H__
-#define rpsbsrc__soundsettings_qt_H__
-
 
 #include <QDialog>
 #include <QCloseEvent>
@@ -63,5 +60,3 @@ private:
 	QColor customColor;
 };
 
-
-#endif

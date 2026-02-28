@@ -1,4 +1,4 @@
-// src/updater_qt.h
+// src/UpdaterWindow.h
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -7,9 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__updater_qt_H__
-#define rpsbsrc__updater_qt_H__
-
 
 #include <QDialog>
 #include <QUrl>
@@ -18,7 +15,7 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
-#include "ui_updater_qt.h"
+#include "ui_UpdaterWindow.h"
 
 namespace Ui {
 	class updaterWindow;
@@ -60,5 +57,3 @@ private:
 	bool m_success;
 };
 
-
-#endif // rpsbsrc__updater_qt_H__

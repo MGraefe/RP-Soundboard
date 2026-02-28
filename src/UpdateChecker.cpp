@@ -33,15 +33,12 @@
 
 #include "UpdateChecker.h"
 #include "ts3log.h"
-#include "updater_qt.h"
+#include "UpdaterWindow.h"
 #include "ConfigModel.h"
 
 #define CHECK_URL "https://mgraefe.de/rpsb/version/version.xml"
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 std::string toStdStringUtf8(const QString &str)
 {
 	QByteArray arr = str.toUtf8();
@@ -49,31 +46,22 @@ std::string toStdStringUtf8(const QString &str)
 	return res;
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool isValid(const QXmlStreamReader &xml)
 {
 	return !(xml.hasError() || xml.atEnd());
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-UpdateChecker::UpdateChecker( QObject *parent /*= NULL*/ ) :
+UpdateChecker::UpdateChecker( QObject *parent /*= nullptr*/ ) :
 	QObject(parent),
-	m_updater(NULL),
-	m_config(NULL),
+	m_updater(nullptr),
+	m_config(nullptr),
 	m_explicitCheck(false)
 {
 
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::startCheck(bool explicitCheck, ConfigModel *config)
 {
 	m_explicitCheck = explicitCheck;
@@ -95,9 +83,6 @@ void UpdateChecker::startCheck(bool explicitCheck, ConfigModel *config)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::onFinishDownload(QNetworkReply *reply)
 {
 	switch (loading)
@@ -112,9 +97,6 @@ void UpdateChecker::onFinishDownload(QNetworkReply *reply)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 {
 	if(reply->error() != QNetworkReply::NoError)
@@ -149,16 +131,13 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 
 			if (m_explicitCheck)
 			{
-				QMessageBox::information(NULL, "Update Check", "Your version of RP Soundboard is up to date.");
+				QMessageBox::information(nullptr, "Update Check", "Your version of RP Soundboard is up to date.");
 			}
 		}
 	}
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::onFinishDownloadFeatures(QNetworkReply *reply)
 {
 	if (reply->error() != QNetworkReply::NoError)
@@ -176,9 +155,6 @@ void UpdateChecker::onFinishDownloadFeatures(QNetworkReply *reply)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::parseXml(QIODevice *device)
 {
 	m_verInfo.reset();
@@ -197,9 +173,6 @@ void UpdateChecker::parseXml(QIODevice *device)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::parseProduct( QXmlStreamReader &xml )
 {
 	if (xml.attributes().value("descVersion") == "1" && 
@@ -217,9 +190,6 @@ void UpdateChecker::parseProduct( QXmlStreamReader &xml )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
 {
 	if(xml.name() == "latestVersion")
@@ -253,9 +223,6 @@ void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::askUserForUpdate()
 {
 	QMessageBox msgBox0;
@@ -289,15 +256,11 @@ void UpdateChecker::askUserForUpdate()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::onFinishedUpdate()
 {
 	if(m_updater->getSuccess())
 	{
 		QApplication::closeAllWindows();
-		//QMessageBox::information(NULL, "Update finished", QString("RP Soundboard was successfully updated to build %1").arg(m_verInfo.build));
 	}
 	else
 	{
@@ -315,13 +278,10 @@ void UpdateChecker::onFinishedUpdate()
 	}
 
 	m_updater->deleteLater();
-	m_updater = NULL;
+	m_updater = nullptr;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::version_info_t::reset()
 {
 	productName = QString();
@@ -333,9 +293,6 @@ void UpdateChecker::version_info_t::reset()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool UpdateChecker::version_info_t::valid()
 {
 	return !productName.isNull() && !productName.isEmpty() &&
@@ -344,18 +301,12 @@ bool UpdateChecker::version_info_t::valid()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QByteArray UpdateChecker::getUserAgent() // static
 {
 	return QByteArray("RP Soundboard Update Checker, ") + buildinfo_getPluginVersion();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdateChecker::setUserAgent(QNetworkRequest& request) // static
 {
 	request.setRawHeader("User-Agent", getUserAgent());

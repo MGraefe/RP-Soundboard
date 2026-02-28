@@ -1,4 +1,4 @@
-// src/about_qt.h
+// src/About.h
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -7,12 +7,10 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__about_qt_H__
-#define rpsbsrc__about_qt_H__
 
 #include <QWidget>
 
-#include "ui_about_qt.h"
+#include "ui_About.h"
 
 namespace Ui {
 	class AboutQt;
@@ -31,5 +29,3 @@ private:
 	Ui::AboutQt *ui;
 };
 
-
-#endif

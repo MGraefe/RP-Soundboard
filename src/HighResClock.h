@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__HighResClock_H__
-#define rpsbsrc__HighResClock_H__
 
 #include <chrono>
 
@@ -27,4 +25,3 @@ struct HighResClock
 typedef std::chrono::high_resolution_clock HighResClock;
 #endif
 
-#endif // rpsbsrc__HighResClock_H__

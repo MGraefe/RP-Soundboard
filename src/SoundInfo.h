@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__SoundInfo_H__
-#define rpsbsrc__SoundInfo_H__
 
 #include <QSettings>
 #include <QColor>
@@ -40,4 +38,3 @@ public:
 	int cropStopUnit;
 };
 
-#endif // rpsbsrc__SoundInfo_H__

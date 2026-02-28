@@ -1,4 +1,4 @@
-// src/soundsettings_qt.cpp
+// src/SoundSettings.cpp
 //----------------------------------
 // RP Soundboard Source Code
 // Copyright (c) 2015 Marius Graefe
@@ -8,22 +8,19 @@
 
 
 
-#include "ui_soundsettings_qt.h"
-#include "soundsettings_qt.h"
+#include "ui_SoundSettings.h"
+#include "SoundSettings.h"
 #include "ConfigModel.h"
 #include "main.h"
 #include "samples.h"
-#include "soundview_qt.h"
+#include "SoundView.h"
 #include <QFileDialog>
 #include <QPainter>
 #include <QFileInfo>
-#include "config_qt.h"
+#include "MainWindow.h"
 #include <QColorDialog>
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QWidget *parent /*= 0*/) :
 	QDialog(parent),
 	ui(new Ui::SoundSettingsQt),
@@ -66,9 +63,6 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QW
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::initGui(const SoundInfo &sound)
 {
 	ui->filenameEdit->setText(sound.filename);
@@ -92,9 +86,6 @@ void SoundSettingsQt::initGui(const SoundInfo &sound)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::fillFromGui(SoundInfo &sound)
 {
 	sound.filename = ui->filenameEdit->text();
@@ -109,18 +100,12 @@ void SoundSettingsQt::fillFromGui(SoundInfo &sound)
 	sound.customColor = this->customColor;
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SoundSettingsQt::~SoundSettingsQt()
 {
 	delete ui;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::done( int r )
 {
 	Sampler *sampler = sb_getSampler();
@@ -131,18 +116,12 @@ void SoundSettingsQt::done( int r )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::onVolumeChanged(int value)
 {
 	ui->soundVolumeDbLabel->setText(QString("%1%2 dB").arg(value > 0 ? "+" : "", QString::number(value)));
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::onBrowsePressed()
 {
 	QString filePath = ui->filenameEdit->text();
@@ -159,9 +138,6 @@ void SoundSettingsQt::onBrowsePressed()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::onPreviewPressed()
 {
 	Sampler *sampler = sb_getSampler();
@@ -183,9 +159,6 @@ void SoundSettingsQt::onPreviewPressed()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::onTimer()
 {
 	Sampler *sampler = sb_getSampler();
@@ -197,21 +170,15 @@ void SoundSettingsQt::onTimer()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::onHotkeyChangePressed()
 {
-	ConfigQt::openHotkeySetDialog(m_buttonId, this);
+	MainWindow::openHotkeySetDialog(m_buttonId, this);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundSettingsQt::updateHotkeyText()
 {
-	QString hotkeyText = ConfigQt::getShortcutString(m_buttonId);
+	QString hotkeyText = MainWindow::getShortcutString(m_buttonId);
 	ui->hotkeyCurrentLabel->setText(QString("Current hotkey: ") + 
 		(hotkeyText.isEmpty() ? QString("None") : hotkeyText));
 }

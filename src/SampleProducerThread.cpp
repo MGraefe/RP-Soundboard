@@ -17,11 +17,8 @@
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SampleProducerThread::SampleProducerThread() :
-	m_source(NULL),
+	m_source(nullptr),
 	m_running(false),
 	m_stop(false)
 {
@@ -29,9 +26,6 @@ SampleProducerThread::SampleProducerThread() :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::start()
 {
 	if(m_running)
@@ -44,9 +38,6 @@ void SampleProducerThread::start()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::stop(bool wait)
 {
 	m_stop = true;
@@ -55,18 +46,12 @@ void SampleProducerThread::stop(bool wait)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool SampleProducerThread::isRunning()
 {
 	return m_running;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::setSource( SampleSource *source )
 {
 	m_mutex.lock();
@@ -75,9 +60,6 @@ void SampleProducerThread::setSource( SampleSource *source )
 }
 
 #define MIN_BUFFER_SAMPLES (48000 / 2)
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::run()
 {
 	while(!m_stop)
@@ -94,9 +76,6 @@ void SampleProducerThread::run()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::threadFunc()
 {
 	run();
@@ -104,9 +83,6 @@ void SampleProducerThread::threadFunc()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::addBuffer( SampleBuffer *buffer, bool enableBuffer /*= true*/ )
 {
 	Lock lock(m_mutex);
@@ -118,9 +94,6 @@ void SampleProducerThread::addBuffer( SampleBuffer *buffer, bool enableBuffer /*
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::remBuffer( SampleBuffer *buffer )
 {
 	Lock lock(m_mutex);
@@ -130,9 +103,6 @@ void SampleProducerThread::remBuffer( SampleBuffer *buffer )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::setBufferEnabled( SampleBuffer *buffer, bool enabled )
 {
 	Lock lock(m_mutex);
@@ -142,9 +112,6 @@ void SampleProducerThread::setBufferEnabled( SampleBuffer *buffer, bool enabled 
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleProducerThread::produce( const short *samples, int count )
 {
 	for(const buffer_t &buffer : m_buffers)
@@ -158,9 +125,6 @@ void SampleProducerThread::produce( const short *samples, int count )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool SampleProducerThread::singleBufferFill()
 {
 	for(const buffer_t &buffer : m_buffers)

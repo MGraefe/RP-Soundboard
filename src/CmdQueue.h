@@ -7,8 +7,6 @@
 //----------------------------------
 
 #pragma once
-#ifndef rpsbsrc__CmdQueue_H__
-#define rpsbsrc__CmdQueue_H__
 
 #include <queue>
 #include <memory>
@@ -59,4 +57,3 @@ private:
 	std::atomic_bool running;
 };
 
-#endif // rpsbsrc__CmdQueue_H__

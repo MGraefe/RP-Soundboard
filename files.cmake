@@ -1,16 +1,15 @@
 set(sources
-	src/about_qt.cpp
-	src/about_qt.h
-	src/about_qt.ui
+	src/About.cpp
+	src/About.h
+	src/About.ui
 	src/buildinfo.c
 	src/buildinfo.h
-	src/bytebuffer.h
 	src/CmdQueue.cpp
 	src/CmdQueue.h
 	src/common.h
-	src/config_qt.cpp
-	src/config_qt.h
-	src/config_qt.ui
+	src/MainWindow.cpp
+	src/MainWindow.h
+	src/MainWindow.ui
 	src/ConfigModel.cpp
 	src/ConfigModel.h
 	src/ExpandableSection.cpp
@@ -40,11 +39,11 @@ set(sources
 	src/SoundButton.h
 	src/SoundInfo.cpp
 	src/SoundInfo.h
-	src/soundsettings_qt.cpp
-	src/soundsettings_qt.h
-	src/soundsettings_qt.ui
-	src/soundview_qt.cpp
-	src/soundview_qt.h
+	src/SoundSettings.cpp
+	src/SoundSettings.h
+	src/SoundSettings.ui
+	src/SoundView.cpp
+	src/SoundView.h
 	src/SpeechBubble.cpp
 	src/SpeechBubble.h
 	src/TalkStateManager.cpp
@@ -54,7 +53,7 @@ set(sources
 	src/UpdateChecker.cpp
 	src/UpdateChecker.h
 	src/updater.ui
-	src/updater_qt.cpp
-	src/updater_qt.h
-	src/updater_qt.ui
+	src/UpdaterWindow.cpp
+	src/UpdaterWindow.h
+	src/UpdaterWindow.ui
 )
