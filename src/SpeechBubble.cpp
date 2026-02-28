@@ -15,9 +15,6 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SpeechBubble::SpeechBubble(QWidget *parent /*= 0*/) :
 	BaseClass(parent, Qt::FramelessWindowHint),
 	m_attach(nullptr),
@@ -36,18 +33,12 @@ SpeechBubble::SpeechBubble(QWidget *parent /*= 0*/) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::setText( const QString &text )
 {
 	m_text = text;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::paintEvent(QPaintEvent *evt)
 {
 	QPainter painter(this);
@@ -104,9 +95,6 @@ void SpeechBubble::paintEvent(QPaintEvent *evt)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::attachTo( QWidget *widget )
 {
 	m_attach = widget;
@@ -115,9 +103,6 @@ void SpeechBubble::attachTo( QWidget *widget )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::setBackgroundColor(const QColor & color)
 {
 	m_backgroundColor = color;
@@ -125,9 +110,6 @@ void SpeechBubble::setBackgroundColor(const QColor & color)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::setClosable(bool closable)
 {
 	m_closable = closable;
@@ -135,9 +117,6 @@ void SpeechBubble::setClosable(bool closable)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::setBubbleStyle(bool bubbleStyle)
 {
 	m_bubbleStyle = bubbleStyle;
@@ -145,9 +124,6 @@ void SpeechBubble::setBubbleStyle(bool bubbleStyle)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool SpeechBubble::eventFilter(QObject *object, QEvent *evt)
 {
 	if(object == parent())
@@ -179,9 +155,6 @@ bool SpeechBubble::eventFilter(QObject *object, QEvent *evt)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::mouseReleaseEvent( QMouseEvent *evt )
 {
 	if (!m_closable)
@@ -196,9 +169,6 @@ void SpeechBubble::mouseReleaseEvent( QMouseEvent *evt )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::mouseMoveEvent( QMouseEvent *evt )
 {
 	if (!m_closable)
@@ -223,9 +193,6 @@ void SpeechBubble::mouseMoveEvent( QMouseEvent *evt )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SpeechBubble::recalcPos()
 {
 	QPoint pos;
@@ -237,9 +204,6 @@ void SpeechBubble::recalcPos()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QRect SpeechBubble::getCloseButtonRect()
 {
 	int xsize = 8;

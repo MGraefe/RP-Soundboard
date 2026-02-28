@@ -17,17 +17,11 @@
 #define SAMPLE_RATE 44100;
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SampleVisualizerThread::SampleBufferSynced::SampleBufferSynced(int channels, size_t maxSize) :
 	SampleBuffer(channels, maxSize)
 {}
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::SampleBufferSynced::produce(const short *samples, int count)
 {
 	SampleBuffer::Lock l(getMutex());
@@ -35,9 +29,6 @@ void SampleVisualizerThread::SampleBufferSynced::produce(const short *samples, i
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 double SampleVisualizerThread::fileLength() const
 {
 	uint64_t samples = m_running ? m_numSamplesTotalEst : m_numSamplesProcessed;
@@ -45,9 +36,6 @@ double SampleVisualizerThread::fileLength() const
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SampleVisualizerThread & SampleVisualizerThread::GetInstance()
 {
 	static SampleVisualizerThread t;
@@ -55,9 +43,6 @@ SampleVisualizerThread & SampleVisualizerThread::GetInstance()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SampleVisualizerThread::SampleVisualizerThread() :
 	m_buffer(1),
 	m_numBins(0),
@@ -74,18 +59,12 @@ SampleVisualizerThread::SampleVisualizerThread() :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SampleVisualizerThread::~SampleVisualizerThread()
 {
 	stop();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::startAnalysis( const char *filename, size_t numBins )
 {
 	Lock lock(m_mutex);
@@ -109,9 +88,6 @@ void SampleVisualizerThread::startAnalysis( const char *filename, size_t numBins
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::stop( bool wait /*= true*/ )
 {
 	m_stop = true;
@@ -120,27 +96,18 @@ void SampleVisualizerThread::stop( bool wait /*= true*/ )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool SampleVisualizerThread::isRunning() const
 {
 	return m_running;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 size_t SampleVisualizerThread::getBinsProcessed() const
 {
 	return m_numBinsProcessed;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::run()
 {
 	while(!m_stop)
@@ -173,9 +140,6 @@ void SampleVisualizerThread::run()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::threadFunc()
 {
 	run();
@@ -183,9 +147,6 @@ void SampleVisualizerThread::threadFunc()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::openNewFile()
 {
 	m_newFile = false;
@@ -205,9 +166,6 @@ void SampleVisualizerThread::openNewFile()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::processSamples(size_t newSamples)
 {
 	while(true)
@@ -236,9 +194,6 @@ void SampleVisualizerThread::processSamples(size_t newSamples)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleVisualizerThread::getMinMax( const short *data, size_t count, int &min, int &max )
 {
 
@@ -250,9 +205,6 @@ void SampleVisualizerThread::getMinMax( const short *data, size_t count, int &mi
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 volatile const int * SampleVisualizerThread::getBins() const
 {
 	return m_bins.data();

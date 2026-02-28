@@ -14,9 +14,6 @@
 #include "SampleVisualizerThread.h"
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SoundView::SoundView( QWidget *parent /*= NULL*/ ) :
 	QWidget(parent),
 	m_timer(new QTimer(this)),
@@ -26,9 +23,6 @@ SoundView::SoundView( QWidget *parent /*= NULL*/ ) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundView::paintEvent(QPaintEvent *evt)
 {
 	QPainter painter(this);
@@ -67,9 +61,6 @@ void SoundView::paintEvent(QPaintEvent *evt)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundView::resizeEvent(QResizeEvent *evt)
 {
 	// Invalidate drawings
@@ -77,9 +68,6 @@ void SoundView::resizeEvent(QResizeEvent *evt)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundView::setSound( const SoundInfo &sound )
 {
 	bool filenameDiffers = m_soundInfo.filename != sound.filename;
@@ -97,18 +85,12 @@ void SoundView::setSound( const SoundInfo &sound )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundView::onTimer()
 {
 	update();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundView::drawWaves(QPainter *painter)
 {
 	preparePaths();
@@ -118,9 +100,6 @@ void SoundView::drawWaves(QPainter *painter)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SoundView::preparePaths()
 {
 	SampleVisualizerThread &t = SampleVisualizerThread::GetInstance();

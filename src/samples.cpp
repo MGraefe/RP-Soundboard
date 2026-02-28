@@ -42,9 +42,6 @@ static_assert(sizeof(short) == 2, "Short is weird size");
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 Sampler::Sampler() :
 	m_sbCapture(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sbPlayback(2, MAX_SAMPLEBUFFER_SIZE),
@@ -66,18 +63,12 @@ Sampler::Sampler() :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 Sampler::~Sampler()
 {
 	
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::init()
 {
 	m_sampleProducerThread.addBuffer(&m_sbCapture);
@@ -86,9 +77,6 @@ void Sampler::init()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::shutdown()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -109,9 +97,6 @@ size_t g_perfMeasureCount = 0;
 double g_perfMeasurement = 0.0;
 #endif
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight )
 {
 	if (m_state == ePAUSED)
@@ -252,18 +237,12 @@ bool Sampler::playFile(const SoundInfo &sound)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool Sampler::playPreview(const SoundInfo &sound)
 {
 	return playSoundInternal(sound, true);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::stopPlayback()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -272,9 +251,6 @@ void Sampler::stopPlayback()
 
 #define VOLUMESCALER_EXPONENT 1.0
 #define VOLUMESCALER_DB_MIN -28.0
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setVolumeRemote( int vol )
 {
 	double v = (double)vol / 100.0;
@@ -284,9 +260,6 @@ void Sampler::setVolumeRemote( int vol )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setVolumeLocal( int vol )
 {
 	double v = (double)vol / 100.0;
@@ -296,9 +269,6 @@ void Sampler::setVolumeLocal( int vol )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setLocalPlayback( bool enabled )
 {
 	m_localPlayback = enabled;
@@ -306,18 +276,12 @@ void Sampler::setLocalPlayback( bool enabled )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setMuteMyself(bool enabled)
 {
 	m_muteMyself = enabled;
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::setVolumeDb( double decibel )
 {
 	double factor = pow(10.0, decibel/10.0);
@@ -326,9 +290,6 @@ void Sampler::setVolumeDb( double decibel )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::stopSoundInternal()
 {
 	if (m_inputFile)
@@ -350,9 +311,6 @@ void Sampler::stopSoundInternal()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -398,9 +356,6 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::pausePlayback()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
@@ -412,9 +367,6 @@ void Sampler::pausePlayback()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void Sampler::unpausePlayback()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);

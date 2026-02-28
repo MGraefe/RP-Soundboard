@@ -5,9 +5,6 @@
 #include "main.h"
 #include <QMetaEnum>
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 #define RETURN_ENUM_CASE(val) case val: return #val
 const char * TalkStateManager::toString(talk_state_e ts)
 {
@@ -24,9 +21,6 @@ const char * TalkStateManager::toString(talk_state_e ts)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 TalkStateManager::TalkStateManager() :
 	previousTalkState(TS_INVALID),
 	defaultTalkState(TS_INVALID),
@@ -38,18 +32,12 @@ TalkStateManager::TalkStateManager() :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 TalkStateManager::~TalkStateManager()
 {
 	
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::onStartPlaying(bool preview, QString filename)
 {
 	if (!preview)
@@ -60,36 +48,24 @@ void TalkStateManager::onStartPlaying(bool preview, QString filename)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::onStopPlaying()
 {
 	setTalkTransMode();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::onPauseSound()
 {
 	setTalkTransMode();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::onUnpauseSound()
 {
 	setPlayTransMode();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::setTalkTransMode()
 {
 	if (previousTalkState == TS_INVALID)
@@ -100,9 +76,6 @@ void TalkStateManager::setTalkTransMode()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::setPlayTransMode()
 {
 	talk_state_e s = getTalkState(activeServerId);
@@ -125,9 +98,6 @@ void TalkStateManager::setPlayTransMode()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::setActiveServerId(uint64 id)
 {
 	logDebug("TSMGR: Setting active server id: %i -> %i", (int)activeServerId, (int)id);
@@ -148,9 +118,6 @@ void TalkStateManager::setActiveServerId(uint64 id)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 TalkStateManager::talk_state_e TalkStateManager::getTalkState(uint64 scHandlerID)
 {
 	char *vadStr;
@@ -171,9 +138,6 @@ TalkStateManager::talk_state_e TalkStateManager::getTalkState(uint64 scHandlerID
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------s
 bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state)
 {
 	logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
@@ -199,36 +163,24 @@ bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool TalkStateManager::setPushToTalk(uint64 scHandlerID, bool voiceActivation)
 {
 	return setTalkState(scHandlerID, voiceActivation ? TS_PTT_WITH_VA : TS_PTT_WITHOUT_VA);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool TalkStateManager::setVoiceActivation(uint64 scHandlerID)
 {
 	return setTalkState(scHandlerID, TS_VOICE_ACTIVATION);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool TalkStateManager::setContinuousTransmission(uint64 scHandlerID)
 {
 	return setTalkState(scHandlerID, TS_CONT_TRANS);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void TalkStateManager::onClientStopsTalking()
 {
 	// If we are in PTT mode and the client lets go of the PTT key while playing a sound, ptt state gets reset to not-talking.

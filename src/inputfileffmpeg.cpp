@@ -370,7 +370,7 @@ int InputFileFFmpeg::receiveSamples(SampleProducer *sampleBuffer, int& producedS
 }
 
 
-// Purpose: Read a bunch of samples and push them into sampleBuffer.
+// Read a bunch of samples and push them into sampleBuffer.
 // Returns the number of read samples, or a negative error code
 int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 {

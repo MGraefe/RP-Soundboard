@@ -15,9 +15,6 @@
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 UpdaterWindow::UpdaterWindow( QWidget *parent /*= 0*/ ) :
 	QDialog(parent),
 	ui(new Ui::updaterWindow),
@@ -34,9 +31,6 @@ UpdaterWindow::UpdaterWindow( QWidget *parent /*= 0*/ ) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bool execute /*= false*/)
 {
 	m_url = url;
@@ -67,9 +61,6 @@ void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bo
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::startRequest(const QUrl &url)
 {
 	QNetworkRequest request(url);
@@ -82,9 +73,6 @@ void UpdaterWindow::startRequest(const QUrl &url)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onReadyRead()
 {
 	if(m_file)
@@ -92,9 +80,6 @@ void UpdaterWindow::onReadyRead()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onDownloadProgress(qint64 bytes, qint64 total)
 {
 	if(m_canceled)
@@ -105,9 +90,6 @@ void UpdaterWindow::onDownloadProgress(qint64 bytes, qint64 total)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onFinished()
 {
 	if(m_canceled)
@@ -177,9 +159,6 @@ void UpdaterWindow::onFinished()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool UpdaterWindow::executeFile()
 {
 	bool status = QProcess::startDetached("package_inst.exe",
@@ -191,9 +170,6 @@ bool UpdaterWindow::executeFile()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void UpdaterWindow::onClickedCancel(QAbstractButton*)
 {
 	if(!m_canceled)

@@ -11,9 +11,6 @@
 #include "SampleBuffer.h"
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 SampleBuffer::SampleBuffer( int channels, size_t maxSize /*= 0*/ ) :
 	m_channels(channels),
 	m_maxSize(maxSize),
@@ -24,9 +21,6 @@ SampleBuffer::SampleBuffer( int channels, size_t maxSize /*= 0*/ ) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void SampleBuffer::produce( const short *samples, int count )
 {
 	assert(!m_mutex.try_lock() && "Mutex not locked");
@@ -39,9 +33,6 @@ void SampleBuffer::produce( const short *samples, int count )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 int SampleBuffer::consume( short *samples, int maxCount, bool eraseConsumed )
 {
 	assert(!m_mutex.try_lock() && "Mutex not locked");

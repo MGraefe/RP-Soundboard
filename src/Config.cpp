@@ -40,9 +40,6 @@ enum button_choices_e {
 };
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 ConfigQt::ConfigQt( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	QWidget(parent),
 	ui(new Ui::ConfigQt),
@@ -196,9 +193,6 @@ void ConfigQt::onConfigHotkey()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 ConfigQt::~ConfigQt()
 {
 	m_model->remObserver(&m_modelObserver);
@@ -221,17 +215,11 @@ void ConfigQt::onLoadModel()
     m_model->readConfig(fn);
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::closeEvent(QCloseEvent *)
 {
 	m_model->setWindowSize(size().width(), size().height());
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onClickedPlay()
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
@@ -241,72 +229,48 @@ void ConfigQt::onClickedPlay()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onClickedStop()
 {
 	sb_stopPlayback();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateVolumeLocal(int val)
 {
 	m_model->setVolumeLocal(val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateVolumeRemote(int val)
 {
 	m_model->setVolumeRemote(val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateMuteLocally(bool val)
 {
 	m_model->setPlaybackLocal(!val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateCols(int val)
 {
 	m_model->setCols(val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateRows(int val)
 {
 	m_model->setRows(val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateMuteMyself(bool val)
 {
 	m_model->setMuteMyselfDuringPb(val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::createButtons()
 {
 	for(SoundButton *button : m_buttons)
@@ -348,9 +312,6 @@ void ConfigQt::createButtons()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::createConfigButtons()
 {
 	for (int i = 0; i < NUM_CONFIGS; i++)
@@ -376,17 +337,11 @@ void ConfigQt::createConfigButtons()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 bool ConfigQt::hotkeysEnabled()
 {
 	return m_model->getHotkeysEnabled();
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::updateButtonText(int i)
 {
     if(i >= (int)m_buttons.size())
@@ -415,9 +370,6 @@ void ConfigQt::updateButtonText(int i)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::showButtonContextMenu( const QPoint &point )
 {
 	QPushButton *button = dynamic_cast<QPushButton*>(sender());
@@ -462,9 +414,6 @@ void ConfigQt::showButtonContextMenu( const QPoint &point )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::setPlayingLabelIcon(int index)
 {
 	ui->playingIconLabel->setPixmap(QPixmap(QString(":/icon/img/speaker_icon_%1_64.png").arg(index)));
@@ -472,9 +421,6 @@ void ConfigQt::setPlayingLabelIcon(int index)
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::playSound( size_t buttonId )
 {
 	const SoundInfo *info = m_model->getSoundInfo(buttonId);
@@ -483,9 +429,6 @@ void ConfigQt::playSound( size_t buttonId )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::chooseFile( size_t buttonId )
 {
 	QString filePath = m_model->getFileName(buttonId);
@@ -497,9 +440,6 @@ void ConfigQt::chooseFile( size_t buttonId )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::openAdvanced( size_t buttonId )
 {
 	const SoundInfo *buttonInfo = m_model->getSoundInfo(buttonId);
@@ -512,9 +452,6 @@ void ConfigQt::openAdvanced( size_t buttonId )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::deleteButton(size_t buttonId)
 {
 	const SoundInfo *info = m_model->getSoundInfo(buttonId);
@@ -523,9 +460,6 @@ void ConfigQt::deleteButton(size_t buttonId)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::createBubbles()
 {
 	if(m_model->getBubbleButtonsBuild() == 0)
@@ -561,54 +495,36 @@ void ConfigQt::createBubbles()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onStopBubbleFinished()
 {
 	m_model->setBubbleStopBuild(buildinfo_getBuildNumber());
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onButtonBubbleFinished()
 {
 	m_model->setBubbleButtonsBuild(buildinfo_getBuildNumber());
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onColsBubbleFinished()
 {
 	m_model->setBubbleColsBuild(buildinfo_getBuildNumber());
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::showStopButtonContextMenu(const QPoint &point)
 {
 	showSetHotkeyMenu(HOTKEY_STOP_ALL, ui->b_stop->mapToGlobal(point));
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::showPauseButtonContextMenu(const QPoint &point)
 {
 	showSetHotkeyMenu(HOTKEY_PAUSE_ALL, ui->b_pause->mapToGlobal(point));
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::showSetHotkeyMenu(const char *hotkeyName, const QPoint &point)
 {
 	QString hotkeyString = getShortcutString(hotkeyName);
@@ -623,9 +539,6 @@ void ConfigQt::showSetHotkeyMenu(const char *hotkeyName, const QPoint &point)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onStartPlayingSound(bool preview, QString filename)
 {
 	QFileInfo info(filename);
@@ -640,9 +553,6 @@ void ConfigQt::onStartPlayingSound(bool preview, QString filename)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onStopPlayingSound()
 {
 	playingIconTimer->stop();
@@ -655,9 +565,6 @@ void ConfigQt::onStopPlayingSound()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onPausePlayingSound()
 {
 	playingIconTimer->stop();
@@ -665,9 +572,6 @@ void ConfigQt::onPausePlayingSound()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUnpausePlayingSound()
 {
 	playingIconTimer->start();
@@ -675,9 +579,6 @@ void ConfigQt::onUnpausePlayingSound()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onPlayingIconTimer()
 {
 	setPlayingLabelIcon(playingIconIndex);
@@ -685,18 +586,12 @@ void ConfigQt::onPlayingIconTimer()
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::openHotkeySetDialog(size_t buttonId)
 {
 	openHotkeySetDialog(buttonId, this);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::openButtonColorDialog(size_t buttonId)
 {
 	QColorDialog dialog;
@@ -712,9 +607,6 @@ void ConfigQt::openButtonColorDialog(size_t buttonId)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QString ConfigQt::unescapeCustomText(const QString &text)
 {
 	QString cpy = text;
@@ -722,9 +614,6 @@ QString ConfigQt::unescapeCustomText(const QString &text)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::openHotkeySetDialog( size_t buttonId, QWidget *parent )
 {
 	char intName[16];
@@ -733,9 +622,6 @@ void ConfigQt::openHotkeySetDialog( size_t buttonId, QWidget *parent )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QString ConfigQt::getShortcutString(const char *internalName)
 {
 	std::vector<char> name(128, 0);
@@ -748,9 +634,6 @@ QString ConfigQt::getShortcutString(const char *internalName)
 
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 QString ConfigQt::getShortcutString(size_t buttonId)
 {
 	char intName[16];
@@ -770,9 +653,6 @@ QString ConfigQt::getConfigShortcutString(int cfg)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 {
     QString sKey = key;
@@ -798,27 +678,18 @@ void ConfigQt::onHotkeyRecordedEvent(const char *keyword, const char *key)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateShowHotkeysOnButtons(bool val)
 {
 	m_model->setShowHotkeysOnButtons(val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onUpdateHotkeysDisabled(bool val)
 {
 	m_model->setHotkeysEnabled(!val);
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::showEvent(QShowEvent *evt)
 {
 	QWidget::showEvent(evt);
@@ -828,9 +699,6 @@ void ConfigQt::showEvent(QShowEvent *evt)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onButtonFileDropped(const QList<QUrl> &urls)
 {
 	int buttonId = sender()->property("buttonId").toInt();
@@ -865,9 +733,6 @@ void ConfigQt::onButtonFileDropped(const QList<QUrl> &urls)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::setButtonFile(size_t buttonId, const QString &fn, bool askForDisablingCrop)
 {
 	const SoundInfo *info = m_model->getSoundInfo(buttonId);
@@ -890,18 +755,12 @@ void ConfigQt::setButtonFile(size_t buttonId, const QString &fn, bool askForDisa
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onButtonPausePressed()
 {
 	sb_pauseButtonPressed();
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onButtonDroppedOnButton(SoundButton *button)
 {
 	SoundButton *btn0 = button;
@@ -942,9 +801,6 @@ void ConfigQt::onButtonDroppedOnButton(SoundButton *button)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onFilterEditTextChanged(const QString &text)
 {
 	QString filter = text.trimmed();
@@ -960,9 +816,6 @@ void ConfigQt::onFilterEditTextChanged(const QString &text)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onVolumeSliderContextMenuLocal(const QPoint &point)
 {
 	QString hotkeyStringIncr = getShortcutString(HOTKEY_VOLUME_INCREASE);
@@ -984,9 +837,6 @@ void ConfigQt::onVolumeSliderContextMenuLocal(const QPoint &point)
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::onVolumeSliderContextMenuRemote(const QPoint &point)
 {
 	QString hotkeyStringIncr = getShortcutString(HOTKEY_VOLUME_INCREASE);
@@ -1007,9 +857,6 @@ void ConfigQt::onVolumeSliderContextMenuRemote(const QPoint &point)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_DECREASE, 0, this);
 }
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 void ConfigQt::ModelObserver::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
 {
     //p.ui->labelStatus->setText(QString("Notify Code: %1").arg((int)what));

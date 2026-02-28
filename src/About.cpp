@@ -14,9 +14,6 @@
 extern "C" const char *av_version_info();
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 AboutQt::AboutQt(QWidget *parent) :
 	QWidget(parent, Qt::Window | Qt::WindowTitleHint /*| Qt::CustomizeWindowHint*/ | Qt::WindowCloseButtonHint),
 	ui(new Ui::AboutQt)
@@ -31,9 +28,6 @@ AboutQt::AboutQt(QWidget *parent) :
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
 AboutQt::~AboutQt()
 {
 	delete ui;
