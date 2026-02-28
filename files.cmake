@@ -4,7 +4,6 @@ set(sources
 	src/about_qt.ui
 	src/buildinfo.c
 	src/buildinfo.h
-	src/bytebuffer.h
 	src/CmdQueue.cpp
 	src/CmdQueue.h
 	src/common.h

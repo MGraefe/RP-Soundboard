@@ -10,11 +10,8 @@
 #include "about_qt.h"
 #include "buildinfo.h"
 
-extern "C"
-{
-//#include <libavutil/avutil.h>
-const char *av_version_info();
-}
+// Import from ffmpeg
+extern "C" const char *av_version_info();
 
 
 //---------------------------------------------------------------
