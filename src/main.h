@@ -28,14 +28,11 @@ void sb_stopPlayback();
 void sb_init();
 void sb_kill();
 void sb_onServerChange(uint64 serverID);
-void sb_saveConfig();
 void sb_openDialog();
 int sb_playButtonEx(const char* btn);
 void sb_playButton(int btn);
 void sb_setConfig(int cfg);
 void sb_openAbout();
-void sb_pauseSound();
-void sb_unpauseSound();
 void sb_pauseButtonPressed();
 void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber);
 void sb_getInternalHotkeyName(int buttonId, char *buf); // buf should be at sized 16

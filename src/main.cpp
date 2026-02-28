@@ -176,12 +176,6 @@ void sb_init()
 }
 
 
-void sb_saveConfig()
-{
-	configModel->writeConfig();
-}
-
-
 void sb_kill()
 {
 	configModel->remObserver(modelObserver);
@@ -243,24 +237,12 @@ void sb_stopPlayback()
 }
 
 
-void sb_pauseSound()
-{
-	sampler->pausePlayback();
-}
-
-
-void sb_unpauseSound()
-{
-	sampler->unpausePlayback();
-}
-
-
 void sb_pauseButtonPressed()
 {
 	if (sampler->getState() == Sampler::ePLAYING)
-		sb_pauseSound();
+		sampler->pausePlayback();
 	else if (sampler->getState() == Sampler::ePAUSED)
-		sb_unpauseSound();
+		sampler->unpausePlayback();
 }
 
 /** play button by name or index(strtol), return 0 on success */
