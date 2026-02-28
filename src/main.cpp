@@ -27,7 +27,7 @@
 #include "ts3log.h"
 #include "inputfile.h"
 #include "samples.h"
-#include "Config.h"
+#include "MainWindow.h"
 #include "About.h"
 #include "ConfigModel.h"
 #include "UpdateChecker.h"
@@ -46,7 +46,7 @@ static uint64 activeServerId = 1;
 
 ConfigModel *configModel = nullptr;
 SpeechBubble *notConnectedBubble = nullptr;
-ConfigQt *configDialog = nullptr;
+MainWindow *configDialog = nullptr;
 AboutQt *aboutDialog = nullptr;
 Sampler *sampler = nullptr;
 TalkStateManager *tsMgr = nullptr;
@@ -163,9 +163,7 @@ void sb_init()
 		QObject::connect(sampler, &Sampler::onPausePlaying, tsMgr, &TalkStateManager::onPauseSound, Qt::QueuedConnection);
 		QObject::connect(sampler, &Sampler::onUnpausePlaying, tsMgr, &TalkStateManager::onUnpauseSound, Qt::QueuedConnection);
 
-		configDialog = new ConfigQt(configModel);
-		//configDialog->showMinimized();
-		//configDialog->hide();
+		configDialog = new MainWindow(configModel);
 
 		modelObserver = new ModelObserver_Prog();
 		configModel->addObserver(modelObserver);
@@ -230,7 +228,7 @@ void sb_onServerChange(uint64 serverID)
 void sb_openDialog()
 {
 	if(!configDialog)
-		configDialog = new ConfigQt(configModel);
+		configDialog = new MainWindow(configModel);
 	configDialog->showNormal();
 	configDialog->raise();
 	configDialog->activateWindow();

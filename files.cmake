@@ -7,9 +7,9 @@ set(sources
 	src/CmdQueue.cpp
 	src/CmdQueue.h
 	src/common.h
-	src/Config.cpp
-	src/Config.h
-	src/Config.ui
+	src/MainWindow.cpp
+	src/MainWindow.h
+	src/MainWindow.ui
 	src/ConfigModel.cpp
 	src/ConfigModel.h
 	src/ExpandableSection.cpp

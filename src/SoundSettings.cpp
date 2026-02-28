@@ -17,7 +17,7 @@
 #include <QFileDialog>
 #include <QPainter>
 #include <QFileInfo>
-#include "Config.h"
+#include "MainWindow.h"
 #include <QColorDialog>
 
 
@@ -172,13 +172,13 @@ void SoundSettingsQt::onTimer()
 
 void SoundSettingsQt::onHotkeyChangePressed()
 {
-	ConfigQt::openHotkeySetDialog(m_buttonId, this);
+	MainWindow::openHotkeySetDialog(m_buttonId, this);
 }
 
 
 void SoundSettingsQt::updateHotkeyText()
 {
-	QString hotkeyText = ConfigQt::getShortcutString(m_buttonId);
+	QString hotkeyText = MainWindow::getShortcutString(m_buttonId);
 	ui->hotkeyCurrentLabel->setText(QString("Current hotkey: ") + 
 		(hotkeyText.isEmpty() ? QString("None") : hotkeyText));
 }
