@@ -11,4 +11,4 @@ This plugin is still in development. Any kind of constructive feedback is apprec
 Your microphone is constantly open (picking up your voice) while a sound is played unless you check "Mute myself during playback". That is due to the limited access that plugins have to the sound interface of Teamspeak and cannot be changed currently. However I do not think that this is that important.
 
 Disclaimer:
-This software uses code of FFmpeg (http://ffmpeg.org) licensed under the LGPLv2.1 (http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) and its source can be downloaded here: http://mgraefe.de/rpsb/ffmpeg-source.zip"
+This software uses code of FFmpeg (http://ffmpeg.org) licensed under the LGPLv2.1 (http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html) and its source can be downloaded here: https://github.com/MGraefe/RP-Soundboard"
