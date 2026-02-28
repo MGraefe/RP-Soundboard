@@ -257,26 +257,6 @@ void ConfigModel::setRows( int n )
 //---------------------------------------------------------------
 void ConfigModel::setCols( int n )
 {
-    //if (n > m_cols)
-    //{
-    //    for (int i = m_rows - 1; i >= 1; i--)
-    //        for (int k = m_cols - 1; k >= 0; k--)
-    //            if (m_sounds->size() > (i * m_cols + k))
-    //            {
-    //                int index = i * n + k;
-    //                if (m_sounds->size() <= index)
-    //                    m_sounds->resize(index + 1);
-    //                (*m_sounds)[index] = (*m_sounds)[i * m_cols + k];
-    //            }
-    //}
-    //else if (n < m_cols)
-    //{
-    //    for (int i = 1; i < m_rows; i++)
-    //        for (int k = 0; k < m_cols; k++)
-    //            if (m_sounds->size() > (i * m_cols + k))
-    //                (*m_sounds)[i * n + k] = (*m_sounds)[i * m_cols + k];
-    //}
-
 	m_cols[m_activeConfig] = n;
 	writeConfig();
 	notify(NOTIFY_SET_COLS, n);

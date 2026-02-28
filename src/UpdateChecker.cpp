@@ -297,7 +297,6 @@ void UpdateChecker::onFinishedUpdate()
 	if(m_updater->getSuccess())
 	{
 		QApplication::closeAllWindows();
-		//QMessageBox::information(NULL, "Update finished", QString("RP Soundboard was successfully updated to build %1").arg(m_verInfo.build));
 	}
 	else
 	{

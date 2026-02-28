@@ -57,17 +57,4 @@ int SampleBuffer::consume( short *samples, int maxCount, bool eraseConsumed )
 }
 
 
-//---------------------------------------------------------------
-// Purpose: 
-//---------------------------------------------------------------
-//void SampleBuffer::copyToOther( SampleBuffer *other, int count, int start /*= 0*/ ) const
-//{
-//	assert(!m_mutex.try_lock() && "Mutex not locked");
-//	if(m_channels != other->m_channels)
-//		throw std::logic_error("Copying to buffers with different channel count is not supported.");
-//	start = std::min(start, avail());
-//	count = std::min(count, avail() - start);
-//	if(count > 0)
-//		other->produce(&m_buf[start * m_channels], count);
-//}
 
