@@ -14,7 +14,7 @@
 #include "SampleVisualizerThread.h"
 
 
-SoundView::SoundView( QWidget *parent /*= NULL*/ ) :
+SoundView::SoundView( QWidget *parent /*= nullptr*/ ) :
 	QWidget(parent),
 	m_timer(new QTimer(this)),
 	m_drawnBins(0)

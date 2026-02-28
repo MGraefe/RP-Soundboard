@@ -180,7 +180,7 @@ const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
 {
     if(itemId >= 0 && itemId < numSounds())
 		return &sounds()[itemId];
-	return NULL;
+	return nullptr;
 }
 
 
@@ -349,11 +349,11 @@ std::vector<SoundInfo> ConfigModel::getInitialSounds()
 		"Airporn.mp3",
 		"Peter Griffin Laugh.mp3",
 		"Spooky.mp3",
-		NULL,
+		nullptr,
 	};
 
 	std::vector<SoundInfo> sounds;
-	for (int i = 0; files[i] != NULL; i++)
+	for (int i = 0; files[i] != nullptr; i++)
 	{
 		SoundInfo info;
 		info.filename = fullPath + files[i];

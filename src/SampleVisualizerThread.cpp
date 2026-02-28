@@ -50,7 +50,7 @@ SampleVisualizerThread::SampleVisualizerThread() :
 	m_numSamplesProcessed(0),
 	m_numSamplesTotalEst(0),
 	m_numSamplesProcessedThisBin(0),
-	m_file(NULL),
+	m_file(nullptr),
 	m_running(false),
 	m_newFile(false),
 	m_stop(false)
@@ -124,7 +124,7 @@ void SampleVisualizerThread::run()
 			{
 				m_file->close();
 				delete m_file;
-				m_file = NULL;
+				m_file = nullptr;
 			}
 			if(samples > 0)
 			{
@@ -161,7 +161,7 @@ void SampleVisualizerThread::openNewFile()
 	else
 	{
 		delete m_file;
-		m_file = NULL;
+		m_file = nullptr;
 	}
 }
 
@@ -181,7 +181,7 @@ void SampleVisualizerThread::processSamples(size_t newSamples)
 		if(numSamplesThisIt == 0)
 			break;
 		getMinMax(m_buffer.getBufferData(), numSamplesThisIt, m_min, m_max);
-		m_buffer.consume(NULL, numSamplesThisIt);
+		m_buffer.consume(nullptr, numSamplesThisIt);
 		m_numSamplesProcessedThisBin += numSamplesThisIt;
 		if(m_numSamplesProcessedThisBin >= samplesPerBin)
 		{

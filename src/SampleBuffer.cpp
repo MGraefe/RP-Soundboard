@@ -14,8 +14,8 @@
 SampleBuffer::SampleBuffer( int channels, size_t maxSize /*= 0*/ ) :
 	m_channels(channels),
 	m_maxSize(maxSize),
-	m_cbProd(NULL),
-	m_cbCons(NULL)
+	m_cbProd(nullptr),
+	m_cbCons(nullptr)
 {
 
 }

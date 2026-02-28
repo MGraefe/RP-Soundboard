@@ -157,7 +157,7 @@ bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state)
 		in ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
 		return false;
 
-	ts3Functions.flushClientSelfUpdates(scHandlerID, NULL);
+	ts3Functions.flushClientSelfUpdates(scHandlerID, nullptr);
 	currentTalkState = state;
 	return true;
 }

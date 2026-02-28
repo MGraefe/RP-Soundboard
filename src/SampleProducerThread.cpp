@@ -18,7 +18,7 @@
 
 
 SampleProducerThread::SampleProducerThread() :
-	m_source(NULL),
+	m_source(nullptr),
 	m_running(false),
 	m_stop(false)
 {

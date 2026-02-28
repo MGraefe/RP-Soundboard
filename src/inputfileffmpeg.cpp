@@ -38,7 +38,7 @@ extern "C"
 #define OUTPUT_FORMAT AV_SAMPLE_FMT_S16
 
 
-int checkFFmpegErr(int code, const char *msg = NULL)
+int checkFFmpegErr(int code, const char *msg = nullptr)
 {
 	if(code < 0)
 	{
@@ -86,8 +86,8 @@ private:
 
 	AVFormatContext *m_fmtCtx;
 	AVCodecContext *m_codecCtx;
-	AVFrame *m_frame = NULL;
-	AVPacket *m_packet = NULL;
+	AVFrame *m_frame = nullptr;
+	AVPacket *m_packet = nullptr;
 	SwrContext *m_swrCtx;
 	int m_streamIndex;
 	uint8_t *m_outBuf;
@@ -115,16 +115,16 @@ InputFileFFmpeg::InputFileFFmpeg(const InputFileOptions &options) :
 	);
 
 	reset();
-	av_samples_alloc(&m_outBuf, NULL, m_outputChannels, OUTPUT_BUFFER_COUNT, OUTPUT_FORMAT, 0);
+	av_samples_alloc(&m_outBuf, nullptr, m_outputChannels, OUTPUT_BUFFER_COUNT, OUTPUT_FORMAT, 0);
 }
 
 
 
 void InputFileFFmpeg::reset()
 {
-	m_fmtCtx = NULL;
-	m_codecCtx = NULL;
-	m_swrCtx = NULL;
+	m_fmtCtx = nullptr;
+	m_codecCtx = nullptr;
+	m_swrCtx = nullptr;
 	m_streamIndex = 0;
 	m_opened = false;
 	m_done = false;
@@ -148,10 +148,10 @@ InputFileFFmpeg::~InputFileFFmpeg()
 
 bool InputFileFFmpeg::openInternal(const char *filename, double startPosSeconds, double playTimeSeconds)
 {	
-	if(checkFFmpegErr(avformat_open_input(&m_fmtCtx, filename, NULL, NULL), "Cannot open file") != 0)
+	if(checkFFmpegErr(avformat_open_input(&m_fmtCtx, filename, nullptr, nullptr), "Cannot open file") != 0)
 		return false;
 
-	if(checkFFmpegErr(avformat_find_stream_info(m_fmtCtx, NULL), "Cannot find stream info") < 0)
+	if(checkFFmpegErr(avformat_find_stream_info(m_fmtCtx, nullptr), "Cannot find stream info") < 0)
 		return false;
 
 	m_streamIndex = getAudioStreamNum();
@@ -186,7 +186,7 @@ bool InputFileFFmpeg::openInternal(const char *filename, double startPosSeconds,
 	// but it's not always set by the demuxer, so set it manually from the stream info
 	m_codecCtx->pkt_timebase = m_fmtCtx->streams[m_streamIndex]->time_base;
 
-	if(checkFFmpegErr(avcodec_open2(m_codecCtx, decoder, NULL), "Cannot open codec") < 0)
+	if(checkFFmpegErr(avcodec_open2(m_codecCtx, decoder, nullptr), "Cannot open codec") < 0)
 		return false; //Cannot open codec
 
 	//Open Resample context
@@ -197,7 +197,7 @@ bool InputFileFFmpeg::openInternal(const char *filename, double startPosSeconds,
 		&m_codecCtx->ch_layout, 	//Input layout
 		m_codecCtx->sample_fmt,		//Input format
 		m_codecCtx->sample_rate,	//Input Sample Rate
-		0, NULL);
+		0, nullptr);
 
 	if (result < 0)
 	{
@@ -317,7 +317,7 @@ int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 	int generatedSamples = 0;
 	do {
 		res = swr_convert(m_swrCtx, &m_outBuf, OUTPUT_BUFFER_COUNT,
-			frame ? (const uint8_t **)frame->extended_data : NULL,
+			frame ? (const uint8_t **)frame->extended_data : nullptr,
 			frame ? frame->nb_samples : 0);
 		if(res < 0)
 			return res;
@@ -334,7 +334,7 @@ int InputFileFFmpeg::handleDecoded(AVFrame *frame, SampleProducer *sb)
 		m_skipSamples -= skippedSamples;
 		m_convertedSamples += outSamples;
 		generatedSamples += outSamples;
-		frame = NULL; // Only use the frame for the first conversion, then pass NULL to flush the resampler
+		frame = nullptr; // Only use the frame for the first conversion, then pass NULL to flush the resampler
 	} while (!m_done && res == OUTPUT_BUFFER_COUNT); // If we filled the whole output buffer, there might be more data to convert, so try again immediately
 
 	return generatedSamples;
@@ -406,7 +406,7 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 		if (m_packet->pts == AV_NOPTS_VALUE && m_packet->dts != AV_NOPTS_VALUE)
 			m_packet->pts = m_packet->dts;
 
-		int sendRet = avcodec_send_packet(m_codecCtx, eofFlush ? NULL : m_packet);
+		int sendRet = avcodec_send_packet(m_codecCtx, eofFlush ? nullptr : m_packet);
 		av_packet_unref(m_packet); // Unref immediately after sending
 		if (checkFFmpegErr(sendRet, "Error while sending packet to decoder") < 0)
 		{
@@ -427,7 +427,7 @@ int InputFileFFmpeg::readSamples(SampleProducer *sampleBuffer)
 
 		if (eofFlush)
 		{
-			int flushedSamples = handleDecoded(NULL, sampleBuffer);
+			int flushedSamples = handleDecoded(nullptr, sampleBuffer);
 			if (flushedSamples > 0)
 				written += flushedSamples;
 
@@ -449,7 +449,7 @@ bool InputFileFFmpeg::done() const
 
 int InputFileFFmpeg::getAudioStreamNum() const
 {
-	return av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
+	return av_find_best_stream(m_fmtCtx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
 }
 
 

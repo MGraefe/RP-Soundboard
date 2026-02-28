@@ -18,9 +18,9 @@
 UpdaterWindow::UpdaterWindow( QWidget *parent /*= 0*/ ) :
 	QDialog(parent),
 	ui(new Ui::updaterWindow),
-	m_file(NULL),
-	m_manager(NULL),
-	m_reply(NULL),
+	m_file(nullptr),
+	m_manager(nullptr),
+	m_reply(nullptr),
 	m_redirects(0),
 	m_execute(false),
 	m_canceled(false),
@@ -51,7 +51,7 @@ void UpdaterWindow::startDownload(const QUrl &url, const QFileInfo &fileInfo, bo
 		logError("Unable to write to file %s", m_fileinfo.absoluteFilePath().toUtf8().data());
 		QMessageBox::information(this, "Error", "Unable to save the file.");
 		delete m_file;
-		m_file = NULL;
+		m_file = nullptr;
 		return;
 	}
 
@@ -101,10 +101,10 @@ void UpdaterWindow::onFinished()
 			m_file->close();
 			m_file->remove();
 			delete m_file;
-			m_file = NULL;
+			m_file = nullptr;
 		}
 		m_reply->deleteLater();
-		m_reply = NULL;
+		m_reply = nullptr;
 		this->hide();
 	}
 	else
@@ -127,7 +127,7 @@ void UpdaterWindow::onFinished()
 				logInfo("Download of update redirected to %s", url.toString().toUtf8().data());
 				m_url = url;
 				m_reply->deleteLater();
-				m_reply = NULL;
+				m_reply = nullptr;
 				m_file->open(QIODevice::WriteOnly);
 				m_file->resize(0);
 				startRequest(url);
@@ -148,10 +148,10 @@ void UpdaterWindow::onFinished()
 		}
 
 		m_reply->deleteLater();
-		m_reply = NULL;
+		m_reply = nullptr;
 		delete m_file;
-		m_file = NULL;
-		m_manager = NULL;
+		m_file = nullptr;
+		m_manager = nullptr;
 		m_redirects = 0;
 	}
 

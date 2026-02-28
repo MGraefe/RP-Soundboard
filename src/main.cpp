@@ -44,17 +44,17 @@ public:
 
 static uint64 activeServerId = 1;
 
-ConfigModel *configModel = NULL;
-SpeechBubble *notConnectedBubble = NULL;
-ConfigQt *configDialog = NULL;
-AboutQt *aboutDialog = NULL;
-Sampler *sampler = NULL;
-TalkStateManager *tsMgr = NULL;
+ConfigModel *configModel = nullptr;
+SpeechBubble *notConnectedBubble = nullptr;
+ConfigQt *configDialog = nullptr;
+AboutQt *aboutDialog = nullptr;
+Sampler *sampler = nullptr;
+TalkStateManager *tsMgr = nullptr;
 
 bool hotkeysTemporarilyDisabled = false;
 
-ModelObserver_Prog *modelObserver = NULL;
-UpdateChecker *updateChecker = NULL;
+ModelObserver_Prog *modelObserver = nullptr;
+UpdateChecker *updateChecker = nullptr;
 std::map<uint64, int> connectionStatusMap;
 typedef std::lock_guard<std::mutex> Lock;
 
@@ -95,7 +95,7 @@ void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples, int 
 	if (serverConnectionHandlerID != activeServerId)
 		return; //Ignore other servers
 
-	int written = sampler->fetchInputSamples(samples, sampleCount, channels, NULL);
+	int written = sampler->fetchInputSamples(samples, sampleCount, channels, nullptr);
 	if(written > 0)
 		*edited |= 0x1;
 }
@@ -137,7 +137,7 @@ void sb_enableInterface(bool enabled)
 	else if (notConnectedBubble)
 	{
 		delete notConnectedBubble;
-		notConnectedBubble = NULL;
+		notConnectedBubble = nullptr;
 	}
 
 	configDialog->setEnabled(enabled);
@@ -146,7 +146,7 @@ void sb_enableInterface(bool enabled)
 void sb_init()
 {
 #ifdef _DEBUG
-	QMessageBox::information(NULL, "", "rp soundboard plugin init, attach debugger now");
+	QMessageBox::information(nullptr, "", "rp soundboard plugin init, attach debugger now");
 #endif
 
 	QTimer::singleShot(10, []{
@@ -188,29 +188,29 @@ void sb_kill()
 {
 	configModel->remObserver(modelObserver);
 	delete modelObserver; 
-	modelObserver = NULL;
+	modelObserver = nullptr;
 
 	sampler->shutdown();
 	delete sampler;
-	sampler = NULL;
+	sampler = nullptr;
 
 	configDialog->close();
 	delete configDialog;
-	configDialog = NULL;
+	configDialog = nullptr;
 
 	configModel->writeConfig();
 	delete configModel;
-	configModel = NULL;
+	configModel = nullptr;
 
 	if(aboutDialog)
 	{
 		aboutDialog->close();
 		delete aboutDialog;
-		aboutDialog = NULL;
+		aboutDialog = nullptr;
 	}
 
 	delete updateChecker;
-	updateChecker = NULL;
+	updateChecker = nullptr;
 }
 
 
@@ -268,9 +268,9 @@ void sb_pauseButtonPressed()
 /** play button by name or index(strtol), return 0 on success */
 int sb_playButtonEx(const char* button)
 {
-	long arg1 = strtol(button, NULL, 10);
+	long arg1 = strtol(button, nullptr, 10);
 
-	if ((NULL != configDialog) && (configDialog->hotkeysEnabled()))
+	if ((nullptr != configDialog) && (configDialog->hotkeysEnabled()))
 	{
 		if (arg1 <= 0)
 		{
@@ -290,7 +290,7 @@ int sb_playButtonEx(const char* button)
 
 void sb_playButton(int btn)
 {
-    if ((NULL != configDialog) && (configDialog->hotkeysEnabled()))
+    if ((nullptr != configDialog) && (configDialog->hotkeysEnabled()))
     {
         const SoundInfo *sound = configModel->getSoundInfo(btn);
         if (sound)
@@ -413,7 +413,7 @@ int sb_parseCommand(char** args, int argc)
 		sb_openDialog();
 	else if (argc == 1)
 	{
-		long arg1 = strtol(args[0], NULL, 10);
+		long arg1 = strtol(args[0], nullptr, 10);
 		if (strcmp(args[0], "stop")==0)
 			sb_stopPlayback();
 		else if (strcmp(args[0], "-?") == 0)
@@ -423,7 +423,7 @@ int sb_parseCommand(char** args, int argc)
 	}
 	else if (argc == 2)
 	{
-		long arg0 = strtol(args[0], NULL, 10);
+		long arg0 = strtol(args[0], nullptr, 10);
 		int pconfig = configModel->getConfiguration(); //TODO ConfigModel::getConfiguration() { return m_activeConfig; }
 		if (arg0 < 1 || arg0 > 4)
 			ts3Functions.printMessageToCurrentTab("Invalid configuration number");

@@ -21,7 +21,7 @@ class SoundView : public QWidget
 	Q_OBJECT
 
 public:
-	SoundView(QWidget *parent = NULL);
+	SoundView(QWidget *parent = nullptr);
 	void setSound(const SoundInfo &sound);
 
 protected:

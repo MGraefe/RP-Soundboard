@@ -46,7 +46,7 @@ Sampler::Sampler() :
 	m_sbCapture(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sbPlayback(2, MAX_SAMPLEBUFFER_SIZE),
 	m_sampleProducerThread(),
-	m_inputFile(NULL),
+	m_inputFile(nullptr),
 	m_peakMeterCapture(0.01f, 0.00005f, 24000),
 	m_peakMeterPlayback(0.01f, 0.00005f, 24000),
 	m_volumeDivider(1),
@@ -85,7 +85,7 @@ void Sampler::shutdown()
 	{
 		m_inputFile->close();
 		delete m_inputFile;
-		m_inputFile = NULL;
+		m_inputFile = nullptr;
 	}
 
 	m_sampleProducerThread.stop();
@@ -151,7 +151,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 		}
 	}
 
-	sb.consume(NULL, write, true);
+	sb.consume(nullptr, write, true);
 
 #ifdef MEASURE_PERFORMANCE
 	end = HighResClock::now();
@@ -295,16 +295,16 @@ void Sampler::stopSoundInternal()
 	if (m_inputFile)
 	{
 		m_state = eSILENT;
-		m_sampleProducerThread.setSource(NULL);
+		m_sampleProducerThread.setSource(nullptr);
 		m_inputFile->close();
 		delete m_inputFile;
-		m_inputFile = NULL;
+		m_inputFile = nullptr;
 
 		//Clear buffers
 		SampleBuffer::Lock sblc(m_sbCapture.getMutex());
 		SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
-		m_sbCapture.consume(NULL, m_sbCapture.avail());
-		m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+		m_sbCapture.consume(nullptr, m_sbCapture.avail());
+		m_sbPlayback.consume(nullptr, m_sbPlayback.avail());
 
 		emit onStopPlaying();
 	}
@@ -322,7 +322,7 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	if(m_inputFile->open(sound.filename.toUtf8(), sound.getStartTime(), sound.getPlayTime()) != 0)
 	{
 		delete m_inputFile;
-		m_inputFile = NULL;
+		m_inputFile = nullptr;
 		return false;
 	}
 
@@ -333,8 +333,8 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
 
 	//Clear buffers
-	m_sbCapture.consume(NULL, m_sbCapture.avail());
-	m_sbPlayback.consume(NULL, m_sbPlayback.avail());
+	m_sbCapture.consume(nullptr, m_sbCapture.avail());
+	m_sbPlayback.consume(nullptr, m_sbPlayback.avail());
 
 	if(preview)
 	{

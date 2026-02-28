@@ -37,7 +37,7 @@
 
 
 
-static char* pluginID = NULL;
+static char* pluginID = nullptr;
 
 #ifdef _WIN32
 /* Helper function to convert wchar_T to Utf-8 encoded strings on Windows */
@@ -117,7 +117,7 @@ void ts3plugin_shutdown() {
 	if(pluginID) 
 	{
 		free(pluginID);
-		pluginID = NULL;
+		pluginID = nullptr;
 	}
 }
 
@@ -153,13 +153,13 @@ int ts3plugin_processCommand(uint64 serverConnectionHandlerID, const char* comma
 	int argc = 0; //number of arguments
 	
 	char* tokanize = strdup(command); //create working copy of command for strtok that is not const
-	if (tokanize != NULL)
+	if (tokanize != nullptr)
 	{
 		token = strtok((char*)tokanize, " ");
-		while (token != NULL && argc < 3) //read next token, but not more than 3
+		while (token != nullptr && argc < 3) //read next token, but not more than 3
 		{
 			args[argc++] = token; //append token, increase arg counter
-			token = strtok(NULL, " "); //try to read next token
+			token = strtok(nullptr, " "); //try to read next token
 		}
 		free(tokanize);
 	}
@@ -214,7 +214,7 @@ static struct PluginMenuItem* createMenuItem(enum PluginMenuType type, int id, c
 /* Some makros to make the code to create menu items a bit more readable */
 #define BEGIN_CREATE_MENUS(x) const size_t sz = x + 1; size_t n = 0; *menuItems = (struct PluginMenuItem**)malloc(sizeof(struct PluginMenuItem*) * sz);
 #define CREATE_MENU_ITEM(a, b, c, d) (*menuItems)[n++] = createMenuItem(a, b, c, d);
-#define END_CREATE_MENUS (*menuItems)[n++] = NULL; assert(n == sz);
+#define END_CREATE_MENUS (*menuItems)[n++] = nullptr; assert(n == sz);
 
 /*
  * Menu IDs for this plugin. Pass these IDs when creating a menuitem to the TS3 client. When the menu item is triggered,
@@ -290,7 +290,7 @@ static struct PluginHotkey* createHotkey(const char* keyword, const char* descri
 /* Some makros to make the code to create hotkeys a bit more readable */
 #define BEGIN_CREATE_HOTKEYS(x) const size_t sz = (x) + 1; size_t n = 0; *hotkeys = (struct PluginHotkey**)malloc(sizeof(struct PluginHotkey*) * sz);
 #define CREATE_HOTKEY(a, b) (*hotkeys)[n++] = createHotkey(a, b);
-#define END_CREATE_HOTKEYS (*hotkeys)[n++] = NULL; assert(n == sz);
+#define END_CREATE_HOTKEYS (*hotkeys)[n++] = nullptr; assert(n == sz);
 
 /*
  * Initialize plugin hotkeys. If your plugin does not use this feature, this function can be omitted.

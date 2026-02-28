@@ -52,10 +52,10 @@ bool isValid(const QXmlStreamReader &xml)
 }
 
 
-UpdateChecker::UpdateChecker( QObject *parent /*= NULL*/ ) :
+UpdateChecker::UpdateChecker( QObject *parent /*= nullptr*/ ) :
 	QObject(parent),
-	m_updater(NULL),
-	m_config(NULL),
+	m_updater(nullptr),
+	m_config(nullptr),
 	m_explicitCheck(false)
 {
 
@@ -131,7 +131,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 
 			if (m_explicitCheck)
 			{
-				QMessageBox::information(NULL, "Update Check", "Your version of RP Soundboard is up to date.");
+				QMessageBox::information(nullptr, "Update Check", "Your version of RP Soundboard is up to date.");
 			}
 		}
 	}
@@ -278,7 +278,7 @@ void UpdateChecker::onFinishedUpdate()
 	}
 
 	m_updater->deleteLater();
-	m_updater = NULL;
+	m_updater = nullptr;
 }
 
 
