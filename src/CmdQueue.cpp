@@ -17,9 +17,7 @@ CmdQueue::CmdQueue() :
 }
 
 
-CmdQueue::~CmdQueue()
-{
-}
+CmdQueue::~CmdQueue() {}
 
 
 void CmdQueue::enqueue(std::unique_ptr<Command> cmd)
@@ -56,10 +54,7 @@ void CmdQueue::threadFunc()
 		cmdsMutex.lock();
 		while (!cmds.empty())
 		{
-			//TODO
+			// TODO
 		}
 	}
 }
-
-
-

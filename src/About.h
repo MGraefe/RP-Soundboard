@@ -12,8 +12,9 @@
 
 #include "ui_About.h"
 
-namespace Ui {
-	class AboutQt;
+namespace Ui
+{
+class AboutQt;
 }
 
 
@@ -21,11 +22,10 @@ class AboutQt : public QWidget
 {
 	Q_OBJECT
 
-public:
-	explicit AboutQt(QWidget *parent = 0);
+  public:
+	explicit AboutQt(QWidget* parent = 0);
 	~AboutQt();
 
-private:
-	Ui::AboutQt *ui;
+  private:
+	Ui::AboutQt* ui;
 };
-

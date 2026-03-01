@@ -10,7 +10,7 @@
 
 #include "common.h"
 
-void logMessage(const char *msg, LogLevel level,  ...);
+void logMessage(const char* msg, LogLevel level, ...);
 
 #define logError(msg, ...) logMessage(msg, LogLevel_ERROR, ##__VA_ARGS__)
 #define logInfo(msg, ...) logMessage(msg, LogLevel_INFO, ##__VA_ARGS__)
@@ -19,5 +19,4 @@ void logMessage(const char *msg, LogLevel level,  ...);
 #define logCritical(msg, ...) logMessage(msg, LogLevel_CRITICAL, ##__VA_ARGS__)
 
 
-UINT checkError(UINT code, const char *msg, ...);
-
+UINT checkError(UINT code, const char* msg, ...);

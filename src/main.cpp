@@ -37,31 +37,31 @@
 
 class ModelObserver_Prog : public ConfigModel::Observer
 {
-public:
-	void notify(ConfigModel &model, ConfigModel::notifications_e what, int data) override;
+  public:
+	void notify(ConfigModel& model, ConfigModel::notifications_e what, int data) override;
 };
 
 
 static uint64 activeServerId = 1;
 
-ConfigModel *configModel = nullptr;
-SpeechBubble *notConnectedBubble = nullptr;
-MainWindow *configDialog = nullptr;
-AboutQt *aboutDialog = nullptr;
-Sampler *sampler = nullptr;
-TalkStateManager *tsMgr = nullptr;
+ConfigModel* configModel = nullptr;
+SpeechBubble* notConnectedBubble = nullptr;
+MainWindow* configDialog = nullptr;
+AboutQt* aboutDialog = nullptr;
+Sampler* sampler = nullptr;
+TalkStateManager* tsMgr = nullptr;
 
 bool hotkeysTemporarilyDisabled = false;
 
-ModelObserver_Prog *modelObserver = nullptr;
-UpdateChecker *updateChecker = nullptr;
+ModelObserver_Prog* modelObserver = nullptr;
+UpdateChecker* updateChecker = nullptr;
 std::map<uint64, int> connectionStatusMap;
 typedef std::lock_guard<std::mutex> Lock;
 
 
-void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
+void ModelObserver_Prog::notify(ConfigModel& model, ConfigModel::notifications_e what, int data)
 {
-	switch(what)
+	switch (what)
 	{
 	case ConfigModel::NOTIFY_SET_VOLUME_LOCAL:
 		sampler->setVolumeLocal(data);
@@ -80,11 +80,13 @@ void ModelObserver_Prog::notify(ConfigModel &model, ConfigModel::notifications_e
 }
 
 
-void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int sampleCount,
-	int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask)
+void sb_handlePlaybackData(
+	uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels,
+	const unsigned int* channelSpeakerArray, unsigned int* channelFillMask
+)
 {
 	if (serverConnectionHandlerID != activeServerId)
-		return; //Ignore other servers
+		return; // Ignore other servers
 
 	sampler->fetchOutputSamples(samples, sampleCount, channels, channelSpeakerArray, channelFillMask);
 }
@@ -93,15 +95,15 @@ void sb_handlePlaybackData(uint64 serverConnectionHandlerID, short* samples, int
 void sb_handleCaptureData(uint64 serverConnectionHandlerID, short* samples, int sampleCount, int channels, int* edited)
 {
 	if (serverConnectionHandlerID != activeServerId)
-		return; //Ignore other servers
+		return; // Ignore other servers
 
 	int written = sampler->fetchInputSamples(samples, sampleCount, channels, nullptr);
-	if(written > 0)
+	if (written > 0)
 		*edited |= 0x1;
 }
 
 
-int sb_playFile(const SoundInfo &sound)
+int sb_playFile(const SoundInfo& sound)
 {
 	if (activeServerId == 0)
 		return 2;
@@ -109,13 +111,13 @@ int sb_playFile(const SoundInfo &sound)
 }
 
 
-Sampler *sb_getSampler()
+Sampler* sb_getSampler()
 {
 	return sampler;
 }
 
 
-void sb_enableInterface(bool enabled) 
+void sb_enableInterface(bool enabled)
 {
 	if (!enabled)
 	{
@@ -127,8 +129,10 @@ void sb_enableInterface(bool enabled)
 			notConnectedBubble->setBackgroundColor(QColor(255, 255, 255));
 			notConnectedBubble->setBubbleStyle(false);
 			notConnectedBubble->setClosable(false);
-			notConnectedBubble->setText("You are not connected to a server.\n"
-				"RP Soundboard is disabled until you are connected properly.");
+			notConnectedBubble->setText(
+				"You are not connected to a server.\n"
+				"RP Soundboard is disabled until you are connected properly."
+			);
 			notConnectedBubble->attachTo(configDialog);
 			if (configDialog->isVisible())
 				notConnectedBubble->show();
@@ -149,37 +153,49 @@ void sb_init()
 	QMessageBox::information(nullptr, "", "rp soundboard plugin init, attach debugger now");
 #endif
 
-	QTimer::singleShot(10, []{
-		configModel = new ConfigModel();
-		configModel->readConfig();
+	QTimer::singleShot(
+		10,
+		[]
+		{
+			configModel = new ConfigModel();
+			configModel->readConfig();
 
-		/* This if first QObject instantiated, it will load the resources */
-		sampler = new Sampler();
-		sampler->init();
+			/* This if first QObject instantiated, it will load the resources */
+			sampler = new Sampler();
+			sampler->init();
 
-		tsMgr = new TalkStateManager();
-		QObject::connect(sampler, &Sampler::onStartPlaying, tsMgr, &TalkStateManager::onStartPlaying, Qt::QueuedConnection);
-		QObject::connect(sampler, &Sampler::onStopPlaying, tsMgr, &TalkStateManager::onStopPlaying, Qt::QueuedConnection);
-		QObject::connect(sampler, &Sampler::onPausePlaying, tsMgr, &TalkStateManager::onPauseSound, Qt::QueuedConnection);
-		QObject::connect(sampler, &Sampler::onUnpausePlaying, tsMgr, &TalkStateManager::onUnpauseSound, Qt::QueuedConnection);
+			tsMgr = new TalkStateManager();
+			QObject::connect(
+				sampler, &Sampler::onStartPlaying, tsMgr, &TalkStateManager::onStartPlaying, Qt::QueuedConnection
+			);
+			QObject::connect(
+				sampler, &Sampler::onStopPlaying, tsMgr, &TalkStateManager::onStopPlaying, Qt::QueuedConnection
+			);
+			QObject::connect(
+				sampler, &Sampler::onPausePlaying, tsMgr, &TalkStateManager::onPauseSound, Qt::QueuedConnection
+			);
+			QObject::connect(
+				sampler, &Sampler::onUnpausePlaying, tsMgr, &TalkStateManager::onUnpauseSound, Qt::QueuedConnection
+			);
 
-		configDialog = new MainWindow(configModel);
+			configDialog = new MainWindow(configModel);
 
-		modelObserver = new ModelObserver_Prog();
-		configModel->addObserver(modelObserver);
+			modelObserver = new ModelObserver_Prog();
+			configModel->addObserver(modelObserver);
 
-		configModel->notifyAllEvents();
+			configModel->notifyAllEvents();
 
-		updateChecker = new UpdateChecker();
-		updateChecker->startCheck(false, configModel);
-	});
+			updateChecker = new UpdateChecker();
+			updateChecker->startCheck(false, configModel);
+		}
+	);
 }
 
 
 void sb_kill()
 {
 	configModel->remObserver(modelObserver);
-	delete modelObserver; 
+	delete modelObserver;
 	modelObserver = nullptr;
 
 	sampler->shutdown();
@@ -194,7 +210,7 @@ void sb_kill()
 	delete configModel;
 	configModel = nullptr;
 
-	if(aboutDialog)
+	if (aboutDialog)
 	{
 		aboutDialog->close();
 		delete aboutDialog;
@@ -221,7 +237,7 @@ void sb_onServerChange(uint64 serverID)
 
 void sb_openDialog()
 {
-	if(!configDialog)
+	if (!configDialog)
 		configDialog = new MainWindow(configModel);
 	configDialog->showNormal();
 	configDialog->raise();
@@ -254,11 +270,11 @@ int sb_playButtonEx(const char* button)
 	{
 		if (arg1 <= 0)
 		{
-			//TODO search by name, too lazy right now
+			// TODO search by name, too lazy right now
 		}
 		else
 		{
-			const SoundInfo *sound = configModel->getSoundInfo(arg1);
+			const SoundInfo* sound = configModel->getSoundInfo(arg1);
 			if (sound)
 				sb_playFile(*sound);
 			else
@@ -270,33 +286,33 @@ int sb_playButtonEx(const char* button)
 
 void sb_playButton(int btn)
 {
-    if ((nullptr != configDialog) && (configDialog->hotkeysEnabled()))
-    {
-        const SoundInfo *sound = configModel->getSoundInfo(btn);
-        if (sound)
-            sb_playFile(*sound);
-    }
+	if ((nullptr != configDialog) && (configDialog->hotkeysEnabled()))
+	{
+		const SoundInfo* sound = configModel->getSoundInfo(btn);
+		if (sound)
+			sb_playFile(*sound);
+	}
 }
 
 void sb_setConfig(int cfg)
 {
-    if (configDialog)
-        configDialog->setConfiguration(cfg);
+	if (configDialog)
+		configDialog->setConfiguration(cfg);
 }
 
 void sb_openAbout()
 {
-	if(!aboutDialog)
+	if (!aboutDialog)
 		aboutDialog = new AboutQt();
 	aboutDialog->show();
 }
 
 
-void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber) 
+void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, unsigned int errorNumber)
 {
-    Q_UNUSED(errorNumber)
+	Q_UNUSED(errorNumber)
 
-    if(newStatus == STATUS_DISCONNECTED)
+	if (newStatus == STATUS_DISCONNECTED)
 		connectionStatusMap.erase(serverConnectionHandlerID);
 	else
 		connectionStatusMap[serverConnectionHandlerID] = newStatus;
@@ -310,19 +326,19 @@ void sb_onConnectStatusChange(uint64 serverConnectionHandlerID, int newStatus, u
 }
 
 
-void sb_getInternalHotkeyName(int buttonId, char *buf)
+void sb_getInternalHotkeyName(int buttonId, char* buf)
 {
 	sprintf(buf, "button_%i", buttonId + 1);
 }
 
 
-void sb_getInternalConfigHotkeyName(int configId, char *buf)
+void sb_getInternalConfigHotkeyName(int configId, char* buf)
 {
 	sprintf(buf, "config_%i", configId);
 }
 
 
-void sb_onHotkeyRecordedEvent(const char *keyword, const char *key)
+void sb_onHotkeyRecordedEvent(const char* keyword, const char* key)
 {
 	if (configDialog)
 		configDialog->onHotkeyRecordedEvent(keyword, key);
@@ -334,7 +350,7 @@ void sb_onStopTalking()
 	tsMgr->onClientStopsTalking();
 }
 
-void sb_onHotkeyPressed(const char * keyword)
+void sb_onHotkeyPressed(const char* keyword)
 {
 	if (hotkeysTemporarilyDisabled)
 		return;
@@ -394,24 +410,26 @@ int sb_parseCommand(char** args, int argc)
 	else if (argc == 1)
 	{
 		long arg1 = strtol(args[0], nullptr, 10);
-		if (strcmp(args[0], "stop")==0)
+		if (strcmp(args[0], "stop") == 0)
 			sb_stopPlayback();
 		else if (strcmp(args[0], "-?") == 0)
-			ts3Functions.printMessageToCurrentTab("Arguments: 'stop' to stop playback or '[configuration number] <button number>'");
+			ts3Functions.printMessageToCurrentTab(
+				"Arguments: 'stop' to stop playback or '[configuration number] <button number>'"
+			);
 		else if (sb_playButtonEx(args[0]) != 0)
 			ts3Functions.printMessageToCurrentTab("No such button found");
 	}
 	else if (argc == 2)
 	{
 		long arg0 = strtol(args[0], nullptr, 10);
-		int pconfig = configModel->getConfiguration(); //TODO ConfigModel::getConfiguration() { return m_activeConfig; }
+		int pconfig = configModel->getConfiguration(); // TODO ConfigModel::getConfiguration() { return m_activeConfig;
+													   // }
 		if (arg0 < 1 || arg0 > 4)
 			ts3Functions.printMessageToCurrentTab("Invalid configuration number");
-		configModel->setConfiguration((int)arg0); //switch to specified configuration
+		configModel->setConfiguration((int)arg0); // switch to specified configuration
 		if (sb_playButtonEx(args[0]) != 0)
 			ts3Functions.printMessageToCurrentTab("No such button found");
-		configModel->setConfiguration(pconfig); //return to previous configuration
-
+		configModel->setConfiguration(pconfig); // return to previous configuration
 	}
 	return 0;
 }

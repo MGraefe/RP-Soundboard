@@ -25,7 +25,7 @@ class Sampler : public QObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	enum state_e
 	{
 		eSILENT = 0,
@@ -34,15 +34,17 @@ public:
 		ePLAYING_PREVIEW,
 	};
 
-public:
+  public:
 	Sampler();
 	~Sampler();
 	void init();
 	void shutdown();
-	int fetchInputSamples(short *samples, int count, int channels, bool *finished);
-	int fetchOutputSamples(short *samples, int count, int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask);
-	bool playFile(const SoundInfo &sound);
-	bool playPreview(const SoundInfo &sound);
+	int fetchInputSamples(short* samples, int count, int channels, bool* finished);
+	int fetchOutputSamples(
+		short* samples, int count, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask
+	);
+	bool playFile(const SoundInfo& sound);
+	bool playPreview(const SoundInfo& sound);
 	void stopPlayback();
 	void setVolumeLocal(int vol);
 	void setVolumeRemote(int vol);
@@ -50,29 +52,36 @@ public:
 	void setMuteMyself(bool enabled);
 	void pausePlayback();
 	void unpausePlayback();
-	inline state_e getState() const { return m_state; }
+	inline state_e getState() const
+	{
+		return m_state;
+	}
 
-signals:
+  signals:
 	void onStartPlaying(bool preview, QString filename);
 	void onStopPlaying();
 	void onPausePlaying();
 	void onUnpausePlaying();
 
-private:
+  private:
 	void stopSoundInternal();
-	bool playSoundInternal(const SoundInfo &sound, bool preview);
+	bool playSoundInternal(const SoundInfo& sound, bool preview);
 	void setVolumeDb(double decibel);
-	int fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight);
-	int findChannelId(unsigned int channel, const unsigned int *channelSpeakerArray, int count);
-	inline short scale(int val) const {
+	int fetchSamples(
+		SampleBuffer& sb, PeakMeter& pm, short* samples, int count, int channels, bool eraseConsumed, int ciLeft,
+		int ciRight, bool overLeft, bool overRight
+	);
+	int findChannelId(unsigned int channel, const unsigned int* channelSpeakerArray, int count);
+	inline short scale(int val) const
+	{
 		return (short)((val * m_volumeDivider) >> volumeScaleExp);
 	}
-	
-private:
+
+  private:
 	SampleBuffer m_sbCapture;
 	SampleBuffer m_sbPlayback;
 	SampleProducerThread m_sampleProducerThread;
-	InputFile *m_inputFile;
+	InputFile* m_inputFile;
 	PeakMeter m_peakMeterCapture;
 	PeakMeter m_peakMeterPlayback;
 	int m_volumeDivider;
@@ -86,4 +95,3 @@ private:
 	bool m_localPlayback;
 	bool m_muteMyself;
 };
-

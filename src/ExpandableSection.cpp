@@ -7,7 +7,7 @@
 #include "ExpandableSection.h"
 #include <QPropertyAnimation>
 
-ExpandableSection::ExpandableSection(const QString &title, int animationDuration, QWidget *parent) :
+ExpandableSection::ExpandableSection(const QString& title, int animationDuration, QWidget* parent) :
 	QWidget(parent),
 	animationDuration(animationDuration)
 {
@@ -43,20 +43,21 @@ ExpandableSection::ExpandableSection(const QString &title, int animationDuration
 	connect(&toggleButton, SIGNAL(clicked(bool)), SLOT(setExpanded(bool)));
 }
 
-void ExpandableSection::setContentLayout(QLayout & contentLayout)
+void ExpandableSection::setContentLayout(QLayout& contentLayout)
 {
 	delete contentArea.layout();
 	contentArea.setLayout(&contentLayout);
 	const auto collapsedHeight = sizeHint().height() - contentArea.maximumHeight();
 	auto contentHeight = contentLayout.sizeHint().height();
-	for (int i = 0; i < toggleAnimation.animationCount() - 1; ++i) 
+	for (int i = 0; i < toggleAnimation.animationCount() - 1; ++i)
 	{
-		QPropertyAnimation *anim = static_cast<QPropertyAnimation *>(toggleAnimation.animationAt(i));
+		QPropertyAnimation* anim = static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(i));
 		anim->setDuration(animationDuration);
 		anim->setStartValue(collapsedHeight);
 		anim->setEndValue(collapsedHeight + contentHeight);
 	}
-	QPropertyAnimation * contentAnimation = static_cast<QPropertyAnimation *>(toggleAnimation.animationAt(toggleAnimation.animationCount() - 1));
+	QPropertyAnimation* contentAnimation =
+		static_cast<QPropertyAnimation*>(toggleAnimation.animationAt(toggleAnimation.animationCount() - 1));
 	contentAnimation->setDuration(animationDuration);
 	contentAnimation->setStartValue(0);
 	contentAnimation->setEndValue(contentHeight);

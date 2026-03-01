@@ -10,7 +10,6 @@
 
 class SampleProducer
 {
-public:
-	virtual void produce(const short *samples, int count) = 0;
+  public:
+	virtual void produce(const short* samples, int count) = 0;
 };
-

@@ -7,14 +7,13 @@
 //----------------------------------
 
 
-
 #include <QPainter>
 #include <QTimer>
 #include "SoundView.h"
 #include "SampleVisualizerThread.h"
 
 
-SoundView::SoundView( QWidget *parent /*= nullptr*/ ) :
+SoundView::SoundView(QWidget* parent /*= nullptr*/) :
 	QWidget(parent),
 	m_timer(new QTimer(this)),
 	m_drawnBins(0)
@@ -23,7 +22,7 @@ SoundView::SoundView( QWidget *parent /*= nullptr*/ ) :
 }
 
 
-void SoundView::paintEvent(QPaintEvent *evt)
+void SoundView::paintEvent(QPaintEvent* evt)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing, false);
@@ -61,19 +60,19 @@ void SoundView::paintEvent(QPaintEvent *evt)
 }
 
 
-void SoundView::resizeEvent(QResizeEvent *evt)
+void SoundView::resizeEvent(QResizeEvent* evt)
 {
 	// Invalidate drawings
 	m_drawnBins = 0;
 }
 
 
-void SoundView::setSound( const SoundInfo &sound )
+void SoundView::setSound(const SoundInfo& sound)
 {
 	bool filenameDiffers = m_soundInfo.filename != sound.filename;
 	m_soundInfo = sound;
 	m_drawnBins = 0;
-	if(filenameDiffers && !sound.filename.isEmpty())
+	if (filenameDiffers && !sound.filename.isEmpty())
 	{
 		SampleVisualizerThread::GetInstance().startAnalysis(sound.filename.toUtf8(), 1024);
 		m_timer->start(250);
@@ -91,7 +90,7 @@ void SoundView::onTimer()
 }
 
 
-void SoundView::drawWaves(QPainter *painter)
+void SoundView::drawWaves(QPainter* painter)
 {
 	preparePaths();
 
@@ -102,9 +101,9 @@ void SoundView::drawWaves(QPainter *painter)
 
 void SoundView::preparePaths()
 {
-	SampleVisualizerThread &t = SampleVisualizerThread::GetInstance();
+	SampleVisualizerThread& t = SampleVisualizerThread::GetInstance();
 	size_t bins = t.getBinsProcessed();
-	if(m_drawnBins < bins)
+	if (m_drawnBins < bins)
 	{
 		double fhh = (double)height() * 0.5;
 		double fw = (double)width();
@@ -112,7 +111,7 @@ void SoundView::preparePaths()
 		double shortScale = 1.0 / ((double)std::numeric_limits<short>::max() * 1.1);
 		m_path[0] = QPainterPath(QPointF(0.0, fhh));
 		m_path[1] = QPainterPath(QPointF(0.0, fhh));
-		for(size_t i = 0; i < bins; ++i)
+		for (size_t i = 0; i < bins; ++i)
 		{
 			double binValue0 = (double)t.getBins()[i * 2] * shortScale;
 			double binValue1 = (double)t.getBins()[i * 2 + 1] * shortScale;
@@ -128,4 +127,3 @@ void SoundView::preparePaths()
 		m_drawnBins = bins;
 	}
 }
-

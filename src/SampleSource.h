@@ -10,10 +10,9 @@
 
 #include "SampleProducer.h"
 
-//Interface SampleSource
+// Interface SampleSource
 class SampleSource
 {
-public:
-	virtual int readSamples(SampleProducer *sampleBuffer) = 0;
+  public:
+	virtual int readSamples(SampleProducer* sampleBuffer) = 0;
 };
-

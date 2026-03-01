@@ -25,20 +25,20 @@ enum class CommandType
 
 class Command
 {
-public:
-	CommandType getType() const {
+  public:
+	CommandType getType() const
+	{
 		return type;
 	}
 
-private:
+  private:
 	CommandType type;
 };
 
 
-
 class CmdQueue
 {
-public:
+  public:
 	CmdQueue();
 	~CmdQueue();
 
@@ -46,7 +46,7 @@ public:
 	void startWorker();
 	void stopWorker(bool wait);
 
-private:
+  private:
 	void threadFunc();
 
 	std::queue<std::unique_ptr<Command>> cmds;
@@ -56,4 +56,3 @@ private:
 	std::atomic_bool stop;
 	std::atomic_bool running;
 };
-

@@ -16,19 +16,17 @@
 #include "SampleProducerThread.h"
 
 
-
 SampleProducerThread::SampleProducerThread() :
 	m_source(nullptr),
 	m_running(false),
 	m_stop(false)
 {
-	
 }
 
 
 void SampleProducerThread::start()
 {
-	if(m_running)
+	if (m_running)
 		return;
 
 	m_running = true;
@@ -41,7 +39,7 @@ void SampleProducerThread::start()
 void SampleProducerThread::stop(bool wait)
 {
 	m_stop = true;
-	if(wait && m_thread.joinable())
+	if (wait && m_thread.joinable())
 		m_thread.join();
 }
 
@@ -52,7 +50,7 @@ bool SampleProducerThread::isRunning()
 }
 
 
-void SampleProducerThread::setSource( SampleSource *source )
+void SampleProducerThread::setSource(SampleSource* source)
 {
 	m_mutex.lock();
 	m_source = source;
@@ -62,7 +60,7 @@ void SampleProducerThread::setSource( SampleSource *source )
 #define MIN_BUFFER_SAMPLES (48000 / 2)
 void SampleProducerThread::run()
 {
-	while(!m_stop)
+	while (!m_stop)
 	{
 		m_mutex.lock();
 		if (m_source)
@@ -83,10 +81,11 @@ void SampleProducerThread::threadFunc()
 }
 
 
-void SampleProducerThread::addBuffer( SampleBuffer *buffer, bool enableBuffer /*= true*/ )
+void SampleProducerThread::addBuffer(SampleBuffer* buffer, bool enableBuffer /*= true*/)
 {
 	Lock lock(m_mutex);
-	if(std::find_if(m_buffers.begin(), m_buffers.end(), [buffer](const buffer_t &b) {return b.buffer == buffer;}) == m_buffers.end())
+	if (std::find_if(m_buffers.begin(), m_buffers.end(), [buffer](const buffer_t& b) { return b.buffer == buffer; }) ==
+		m_buffers.end())
 	{
 		buffer_t b = {buffer, enableBuffer};
 		m_buffers.push_back(b);
@@ -94,29 +93,31 @@ void SampleProducerThread::addBuffer( SampleBuffer *buffer, bool enableBuffer /*
 }
 
 
-void SampleProducerThread::remBuffer( SampleBuffer *buffer )
+void SampleProducerThread::remBuffer(SampleBuffer* buffer)
 {
 	Lock lock(m_mutex);
-	auto it = std::find_if(m_buffers.begin(), m_buffers.end(), [buffer](const buffer_t &b) {return b.buffer == buffer;});
-	if(it != m_buffers.end())
+	auto it =
+		std::find_if(m_buffers.begin(), m_buffers.end(), [buffer](const buffer_t& b) { return b.buffer == buffer; });
+	if (it != m_buffers.end())
 		m_buffers.erase(it);
 }
 
 
-void SampleProducerThread::setBufferEnabled( SampleBuffer *buffer, bool enabled )
+void SampleProducerThread::setBufferEnabled(SampleBuffer* buffer, bool enabled)
 {
 	Lock lock(m_mutex);
-	auto it = std::find_if(m_buffers.begin(), m_buffers.end(), [buffer](const buffer_t &b) {return b.buffer == buffer;});
-	if(it != m_buffers.end())
+	auto it =
+		std::find_if(m_buffers.begin(), m_buffers.end(), [buffer](const buffer_t& b) { return b.buffer == buffer; });
+	if (it != m_buffers.end())
 		it->enabled = enabled;
 }
 
 
-void SampleProducerThread::produce( const short *samples, int count )
+void SampleProducerThread::produce(const short* samples, int count)
 {
-	for(const buffer_t &buffer : m_buffers)
+	for (const buffer_t& buffer : m_buffers)
 	{
-		if(buffer.enabled)
+		if (buffer.enabled)
 		{
 			SampleBuffer::Lock lock(buffer.buffer->getMutex());
 			buffer.buffer->produce(samples, count);
@@ -127,7 +128,7 @@ void SampleProducerThread::produce( const short *samples, int count )
 
 bool SampleProducerThread::singleBufferFill()
 {
-	for(const buffer_t &buffer : m_buffers)
+	for (const buffer_t& buffer : m_buffers)
 	{
 		if (buffer.enabled)
 		{

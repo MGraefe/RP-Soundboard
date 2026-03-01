@@ -6,17 +6,17 @@
 #include <QToolButton>
 #include <QWidget>
 
-class ExpandableSection : public QWidget 
+class ExpandableSection : public QWidget
 {
 	Q_OBJECT
-public:
-	explicit ExpandableSection(const QString &title = "", int animationDuration = 300, QWidget *parent = 0);
-	void setContentLayout(QLayout & contentLayout);
+  public:
+	explicit ExpandableSection(const QString& title = "", int animationDuration = 300, QWidget* parent = 0);
+	void setContentLayout(QLayout& contentLayout);
 
-public slots:
+  public slots:
 	void setExpanded(bool expanded);
 
-private:
+  private:
 	QGridLayout mainLayout;
 	QToolButton toggleButton;
 	QFrame headerLine;
@@ -24,4 +24,3 @@ private:
 	QScrollArea contentArea;
 	int animationDuration = 300;
 };
-

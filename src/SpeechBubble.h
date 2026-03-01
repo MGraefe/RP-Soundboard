@@ -20,29 +20,29 @@ class SpeechBubble : public QDialog
 	Q_OBJECT
 	typedef QDialog BaseClass;
 
-public:
-	explicit SpeechBubble(QWidget *parent = 0);
-	void setText(const QString &text);
-	void attachTo(QWidget *widget);
-	void setBackgroundColor(const QColor &color);
+  public:
+	explicit SpeechBubble(QWidget* parent = 0);
+	void setText(const QString& text);
+	void attachTo(QWidget* widget);
+	void setBackgroundColor(const QColor& color);
 	void setClosable(bool closable);
 	void setBubbleStyle(bool bubbleStyle);
 
-protected:
-	void paintEvent(QPaintEvent *evt) override;
-	bool eventFilter(QObject *object, QEvent *evt) override;
-	void mouseReleaseEvent(QMouseEvent *evt) override;
-	void mouseMoveEvent(QMouseEvent *evt) override;
+  protected:
+	void paintEvent(QPaintEvent* evt) override;
+	bool eventFilter(QObject* object, QEvent* evt) override;
+	void mouseReleaseEvent(QMouseEvent* evt) override;
+	void mouseMoveEvent(QMouseEvent* evt) override;
 
-signals:
+  signals:
 	void closePressed();
 
-private:
+  private:
 	void recalcPos();
 	QRect getCloseButtonRect();
 
 	QString m_text;
-	QWidget *m_attach;
+	QWidget* m_attach;
 	int m_tipHeight;
 	int m_tipWidth;
 	int m_tipDistLeft;
@@ -51,4 +51,3 @@ private:
 	bool m_bubbleStyle;
 	QColor m_backgroundColor;
 };
-

@@ -11,17 +11,18 @@
 
 class PeakMeter
 {
-private:
+  private:
 	static constexpr float minOutput = 0.001f;
 
-public:
+  public:
 	PeakMeter(float alpha, float beta, int hold) :
 		alpha(alpha),
 		beta(beta),
 		hold(hold),
 		output(minOutput),
 		timer(0)
-	{}
+	{
+	}
 
 	inline float process(float sample)
 	{
@@ -47,7 +48,10 @@ public:
 		return (short)(sample + 0.5f);
 	}
 
-	inline float getOutput() const { return output; }
+	inline float getOutput() const
+	{
+		return output;
+	}
 
 	inline void reset()
 	{
@@ -55,11 +59,10 @@ public:
 		timer = 0;
 	}
 
-private:
+  private:
 	const float alpha;
 	const float beta;
 	const int hold;
 	float output;
 	int timer;
 };
-

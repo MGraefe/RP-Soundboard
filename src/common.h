@@ -15,10 +15,10 @@
 extern "C"
 {
 #endif
-	#include "teamspeak/public_errors.h"
-	#include "teamspeak/public_errors_rare.h"
-	#include "teamspeak/public_definitions.h"
-	#include "teamspeak/public_rare_definitions.h"
+#include "teamspeak/public_errors.h"
+#include "teamspeak/public_errors_rare.h"
+#include "teamspeak/public_definitions.h"
+#include "teamspeak/public_rare_definitions.h"
 #ifdef __cplusplus
 }
 #endif
@@ -35,12 +35,12 @@ extern "C"
 #endif
 
 #ifdef __cplusplus
-	#include <string>
-	#ifdef UNICODE
-		typedef std::wstring tstring;
-	#else
-		typedef std::string tstring;
-	#endif
+#include <string>
+#ifdef UNICODE
+typedef std::wstring tstring;
+#else
+typedef std::string tstring;
+#endif
 #endif // __cplusplus
 
 typedef uint32_t UINT;
@@ -56,4 +56,3 @@ CAPI struct TS3Functions ts3Functions;
 #define RETURNCODE_BUFSIZE 128
 
 #define NUM_CONFIGS 4
-

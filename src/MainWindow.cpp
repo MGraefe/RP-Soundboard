@@ -31,7 +31,8 @@
 #include "Windows.h"
 #endif
 
-enum button_choices_e {
+enum button_choices_e
+{
 	BC_CHOOSE = 0,
 	BC_ADVANCED,
 	BC_SET_HOTKEY,
@@ -40,37 +41,37 @@ enum button_choices_e {
 };
 
 
-MainWindow::MainWindow( ConfigModel *model, QWidget *parent /*= 0*/ ) :
+MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	QWidget(parent),
 	ui(new Ui::MainWindow),
 	m_model(model),
 	m_modelObserver(*this),
 	m_buttonBubble(nullptr)
 {
-    /* Ensure resources are loaded */
-    Q_INIT_RESOURCE(qtres);
+	/* Ensure resources are loaded */
+	Q_INIT_RESOURCE(qtres);
 
-    m_pauseIcon = QIcon(":/icon/img/pausebutton_32.png");
-    m_playIcon = QIcon(":/icon/img/playarrow_32.png");
+	m_pauseIcon = QIcon(":/icon/img/pausebutton_32.png");
+	m_playIcon = QIcon(":/icon/img/playarrow_32.png");
 
-    ui->setupUi(this);
-	//setAttribute(Qt::WA_DeleteOnClose);
+	ui->setupUi(this);
+	// setAttribute(Qt::WA_DeleteOnClose);
 
 	createConfigButtons();
 
-    settingsSection = new ExpandableSection("Settings", 200, this);
-    settingsSection->setContentLayout(*ui->settingsWidget->layout());
-    layout()->addWidget(settingsSection);
+	settingsSection = new ExpandableSection("Settings", 200, this);
+	settingsSection->setContentLayout(*ui->settingsWidget->layout());
+	layout()->addWidget(settingsSection);
 
-    configsSection = new ExpandableSection("Configurations", 200, this);
-    configsSection->setContentLayout(*ui->configsWidget->layout());
-    layout()->addWidget(configsSection);
+	configsSection = new ExpandableSection("Configurations", 200, this);
+	configsSection->setContentLayout(*ui->configsWidget->layout());
+	layout()->addWidget(configsSection);
 
-    QAction *actChooseFile = new QAction("Choose File", this);
+	QAction* actChooseFile = new QAction("Choose File", this);
 	actChooseFile->setData((int)BC_CHOOSE);
 	m_buttonContextMenu.addAction(actChooseFile);
 
-	QAction *actAdvancedOpts = new QAction("Advanced Options", this);
+	QAction* actAdvancedOpts = new QAction("Advanced Options", this);
 	actAdvancedOpts->setData((int)BC_ADVANCED);
 	m_buttonContextMenu.addAction(actAdvancedOpts);
 
@@ -78,11 +79,11 @@ MainWindow::MainWindow( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	actSetHotkey->setData((int)BC_SET_HOTKEY);
 	m_buttonContextMenu.addAction(actSetHotkey);
 
-	QAction *actSetColor = new QAction("Set color", this);
+	QAction* actSetColor = new QAction("Set color", this);
 	actSetColor->setData((int)BC_SET_COLOR);
 	m_buttonContextMenu.addAction(actSetColor);
 
-	QAction *actDeleteButton = new QAction("Make button great again (delete)", this);
+	QAction* actDeleteButton = new QAction("Make button great again (delete)", this);
 	actDeleteButton->setData((int)BC_DELETE);
 	m_buttonContextMenu.addAction(actDeleteButton);
 
@@ -94,13 +95,17 @@ MainWindow::MainWindow( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	ui->cb_mute_myself->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui->sl_volumeLocal->setContextMenuPolicy(Qt::CustomContextMenu);
 	ui->sl_volumeRemote->setContextMenuPolicy(Qt::CustomContextMenu);
-	
+
 	connect(ui->b_stop, SIGNAL(clicked()), this, SLOT(onClickedStop()));
-	connect(ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-		SLOT(showStopButtonContextMenu(const QPoint&)));
+	connect(
+		ui->b_stop, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+		SLOT(showStopButtonContextMenu(const QPoint&))
+	);
 	connect(ui->b_pause, SIGNAL(clicked()), this, SLOT(onButtonPausePressed()));
-	connect(ui->b_pause, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-		SLOT(showPauseButtonContextMenu(const QPoint&)));
+	connect(
+		ui->b_pause, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+		SLOT(showPauseButtonContextMenu(const QPoint&))
+	);
 	connect(ui->sl_volumeLocal, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolumeLocal(int)));
 	connect(ui->sl_volumeRemote, SIGNAL(valueChanged(int)), this, SLOT(onUpdateVolumeRemote(int)));
 	connect(ui->cb_mute_locally, SIGNAL(clicked(bool)), this, SLOT(onUpdateMuteLocally(bool)));
@@ -110,28 +115,43 @@ MainWindow::MainWindow( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 	connect(ui->cb_show_hotkeys_on_buttons, SIGNAL(clicked(bool)), this, SLOT(onUpdateShowHotkeysOnButtons(bool)));
 	connect(ui->cb_disable_hotkeys, SIGNAL(clicked(bool)), this, SLOT(onUpdateHotkeysDisabled(bool)));
 	connect(ui->filterEdit, SIGNAL(textChanged(const QString&)), this, SLOT(onFilterEditTextChanged(const QString&)));
-	connect(ui->cb_mute_locally, &QCheckBox::customContextMenuRequested,
-		[this](const QPoint &point) {this->showSetHotkeyMenu(HOTKEY_MUTE_ON_MY_CLIENT, ui->cb_mute_locally->mapToGlobal(point));});
-	connect(ui->cb_mute_myself, &QCheckBox::customContextMenuRequested,
-		[this](const QPoint &point) {this->showSetHotkeyMenu(HOTKEY_MUTE_MYSELF, ui->cb_mute_myself->mapToGlobal(point));});
-	connect(ui->sl_volumeLocal, &QSlider::customContextMenuRequested, this, &MainWindow::onVolumeSliderContextMenuLocal);
-	connect(ui->sl_volumeRemote, &QSlider::customContextMenuRequested, this, &MainWindow::onVolumeSliderContextMenuRemote);
+	connect(
+		ui->cb_mute_locally, &QCheckBox::customContextMenuRequested, [this](const QPoint& point)
+		{ this->showSetHotkeyMenu(HOTKEY_MUTE_ON_MY_CLIENT, ui->cb_mute_locally->mapToGlobal(point)); }
+	);
+	connect(
+		ui->cb_mute_myself, &QCheckBox::customContextMenuRequested, [this](const QPoint& point)
+		{ this->showSetHotkeyMenu(HOTKEY_MUTE_MYSELF, ui->cb_mute_myself->mapToGlobal(point)); }
+	);
+	connect(
+		ui->sl_volumeLocal, &QSlider::customContextMenuRequested, this, &MainWindow::onVolumeSliderContextMenuLocal
+	);
+	connect(
+		ui->sl_volumeRemote, &QSlider::customContextMenuRequested, this, &MainWindow::onVolumeSliderContextMenuRemote
+	);
 
-    /* Load/Save Model */
-    connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
-    connect(ui->pushSave, SIGNAL(released()), this, SLOT(onSaveModel()));
-    
-    ui->playingIconLabel->hide();
+	/* Load/Save Model */
+	connect(ui->pushLoad, SIGNAL(released()), this, SLOT(onLoadModel()));
+	connect(ui->pushSave, SIGNAL(released()), this, SLOT(onSaveModel()));
+
+	ui->playingIconLabel->hide();
 	ui->playingLabel->setText("");
 	playingIconTimer = new QTimer(this);
 	playingIconTimer->setInterval(150);
 	connect(playingIconTimer, SIGNAL(timeout()), this, SLOT(onPlayingIconTimer()));
 
-	Sampler *sampler = sb_getSampler();
-	connect(sampler, SIGNAL(onStartPlaying(bool, QString)), this, SLOT(onStartPlayingSound(bool, QString)), Qt::QueuedConnection);
+	Sampler* sampler = sb_getSampler();
+	connect(
+		sampler, SIGNAL(onStartPlaying(bool, QString)), this, SLOT(onStartPlayingSound(bool, QString)),
+		Qt::QueuedConnection
+	);
 	connect(sampler, SIGNAL(onStopPlaying()), this, SLOT(onStopPlayingSound()), Qt::QueuedConnection);
-	connect(sampler, SIGNAL(onPausePlaying()), this, SLOT(onPausePlayingSound())); // No queued connection since signal is emitted from GUI Thread
-	connect(sampler, SIGNAL(onUnpausePlaying()), this, SLOT(onUnpausePlayingSound())); // No queued connection since signal is emitted from GUI Thread
+	connect(
+		sampler, SIGNAL(onPausePlaying()), this, SLOT(onPausePlayingSound())
+	); // No queued connection since signal is emitted from GUI Thread
+	connect(
+		sampler, SIGNAL(onUnpausePlaying()), this, SLOT(onUnpausePlayingSound())
+	); // No queued connection since signal is emitted from GUI Thread
 
 	createBubbles();
 
@@ -159,7 +179,8 @@ MainWindow::MainWindow( ConfigModel *model, QWidget *parent /*= 0*/ ) :
 		"QPushButton:pressed {"
 		"  background-color: rgb(204, 228, 247);"
 		"  border-color: rgb(0, 85, 155);"
-		"}");
+		"}"
+	);
 }
 
 void MainWindow::setConfiguration(int cfg)
@@ -177,19 +198,19 @@ void MainWindow::setConfiguration(int cfg)
 
 void MainWindow::onSetConfig()
 {
-	QRadioButton *button = qobject_cast<QRadioButton*>(sender());
+	QRadioButton* button = qobject_cast<QRadioButton*>(sender());
 	int configId = button->property("configId").toInt();
 	setConfiguration(configId);
 }
 
 void MainWindow::onConfigHotkey()
 {
-	QPushButton *button = qobject_cast<QPushButton*>(sender());
+	QPushButton* button = qobject_cast<QPushButton*>(sender());
 	int configId = button->property("configId").toInt();
 
 	char buf[16];
 	sb_getInternalConfigHotkeyName(configId, buf);
-    ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, configId, this);
+	ts3Functions.requestHotkeyInputDialog(getPluginID(), buf, configId, this);
 }
 
 
@@ -201,29 +222,31 @@ MainWindow::~MainWindow()
 
 void MainWindow::onSaveModel()
 {
-    QString fn = QFileDialog::getSaveFileName(this, tr("Choose File to Save"), QString(), tr("Ini Files (*.ini)"));
-    if (fn.isNull())
-        return;
-    m_model->writeConfig(fn);
+	QString fn = QFileDialog::getSaveFileName(this, tr("Choose File to Save"), QString(), tr("Ini Files (*.ini)"));
+	if (fn.isNull())
+		return;
+	m_model->writeConfig(fn);
 }
 
 void MainWindow::onLoadModel()
 {
-    QString fn = QFileDialog::getOpenFileName(this, tr("Choose File to Load"), QString(), tr("Ini Files (*.ini)"));
-    if (fn.isNull())
-        return;
-    m_model->readConfig(fn);
+	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File to Load"), QString(), tr("Ini Files (*.ini)"));
+	if (fn.isNull())
+		return;
+	m_model->readConfig(fn);
 }
 
-void MainWindow::closeEvent(QCloseEvent *)
+void MainWindow::closeEvent(QCloseEvent*)
 {
 	m_model->setWindowSize(size().width(), size().height());
 }
 
 void MainWindow::onClickedPlay()
 {
-	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](SoundButton *b){return b == button;}) - m_buttons.begin();
+	QPushButton* button = dynamic_cast<QPushButton*>(sender());
+	size_t buttonId =
+		std::find_if(m_buttons.begin(), m_buttons.end(), [button](SoundButton* b) { return b == button; }) -
+		m_buttons.begin();
 
 	playSound(buttonId);
 }
@@ -273,18 +296,18 @@ void MainWindow::onUpdateMuteMyself(bool val)
 
 void MainWindow::createButtons()
 {
-	for(SoundButton *button : m_buttons)
+	for (SoundButton* button : m_buttons)
 		delete button;
 	m_buttons.clear();
 
 	int numRows = m_model->getRows();
 	int numCols = m_model->getCols();
 
-	for(int i = 0; i < numRows; i++)
+	for (int i = 0; i < numRows; i++)
 	{
-		for(int j = 0; j < numCols; j++)
+		for (int j = 0; j < numCols; j++)
 		{
-			SoundButton *elem = new SoundButton(this);
+			SoundButton* elem = new SoundButton(this);
 			elem->setProperty("buttonId", (int)m_buttons.size());
 			elem->setText("(no file)");
 			elem->setEnabled(true);
@@ -294,8 +317,10 @@ void MainWindow::createButtons()
 			ui->gridLayout->addWidget(elem, i, j);
 			connect(elem, SIGNAL(clicked()), this, SLOT(onClickedPlay()));
 			elem->setContextMenuPolicy(Qt::CustomContextMenu);
-			connect(elem, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-				SLOT(showButtonContextMenu(const QPoint&)));
+			connect(
+				elem, SIGNAL(customContextMenuRequested(const QPoint&)), this,
+				SLOT(showButtonContextMenu(const QPoint&))
+			);
 			connect(elem, SIGNAL(fileDropped(QList<QUrl>)), this, SLOT(onButtonFileDropped(QList<QUrl>)));
 			connect(elem, SIGNAL(buttonDropped(SoundButton*)), this, SLOT(onButtonDroppedOnButton(SoundButton*)));
 
@@ -304,10 +329,10 @@ void MainWindow::createButtons()
 		}
 	}
 
-    for(int i = 0; i < (int)m_buttons.size(); i++)
+	for (int i = 0; i < (int)m_buttons.size(); i++)
 		updateButtonText(i);
 
-	if(m_buttonBubble)
+	if (m_buttonBubble)
 		m_buttonBubble->attachTo(m_buttons[0]);
 }
 
@@ -344,11 +369,11 @@ bool MainWindow::hotkeysEnabled()
 
 void MainWindow::updateButtonText(int i)
 {
-    if(i >= (int)m_buttons.size())
+	if (i >= (int)m_buttons.size())
 		return;
 
 	QString text;
-	const SoundInfo *info = m_model->getSoundInfo(i);
+	const SoundInfo* info = m_model->getSoundInfo(i);
 	if (info && !info->filename.isEmpty())
 	{
 		if (!info->customText.isEmpty())
@@ -370,31 +395,32 @@ void MainWindow::updateButtonText(int i)
 }
 
 
-void MainWindow::showButtonContextMenu( const QPoint &point )
+void MainWindow::showButtonContextMenu(const QPoint& point)
 {
-	QPushButton *button = dynamic_cast<QPushButton*>(sender());
-	size_t buttonId = std::find_if(m_buttons.begin(), m_buttons.end(), [button](SoundButton *b){return b == button;}) - m_buttons.begin();
+	QPushButton* button = dynamic_cast<QPushButton*>(sender());
+	size_t buttonId =
+		std::find_if(m_buttons.begin(), m_buttons.end(), [button](SoundButton* b) { return b == button; }) -
+		m_buttons.begin();
 
 	QString shortcutName = getShortcutString(buttonId);
-	QString hotkeyText = "Set hotkey (Current: " +
-		(shortcutName.isEmpty() ? QString("None") : shortcutName) + ")";
+	QString hotkeyText = "Set hotkey (Current: " + (shortcutName.isEmpty() ? QString("None") : shortcutName) + ")";
 	actSetHotkey->setText(hotkeyText);
 
 	QPoint globalPos = m_buttons[buttonId]->mapToGlobal(point);
-	QAction *action = m_buttonContextMenu.exec(globalPos);
-	if(action)
+	QAction* action = m_buttonContextMenu.exec(globalPos);
+	if (action)
 	{
 		bool ok = false;
 		int choice = action->data().toInt(&ok);
-		if(ok)
+		if (ok)
 		{
-			switch(choice)
+			switch (choice)
 			{
-			case BC_CHOOSE: 
-				chooseFile(buttonId); 
+			case BC_CHOOSE:
+				chooseFile(buttonId);
 				break;
-			case BC_ADVANCED: 
-				openAdvanced(buttonId); 
+			case BC_ADVANCED:
+				openAdvanced(buttonId);
 				break;
 			case BC_SET_HOTKEY:
 				openHotkeySetDialog(buttonId);
@@ -405,7 +431,8 @@ void MainWindow::showButtonContextMenu( const QPoint &point )
 			case BC_DELETE:
 				deleteButton(buttonId);
 				break;
-			default: break;
+			default:
+				break;
 			}
 		}
 		else
@@ -420,41 +447,39 @@ void MainWindow::setPlayingLabelIcon(int index)
 }
 
 
-
-void MainWindow::playSound( size_t buttonId )
+void MainWindow::playSound(size_t buttonId)
 {
-	const SoundInfo *info = m_model->getSoundInfo(buttonId);
-	if(info)
+	const SoundInfo* info = m_model->getSoundInfo(buttonId);
+	if (info)
 		sb_playFile(*info);
 }
 
 
-void MainWindow::chooseFile( size_t buttonId )
+void MainWindow::chooseFile(size_t buttonId)
 {
 	QString filePath = m_model->getFileName(buttonId);
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
 	if (fn.isNull())
 		return;
 	setButtonFile(buttonId, fn);
-
 }
 
 
-void MainWindow::openAdvanced( size_t buttonId )
+void MainWindow::openAdvanced(size_t buttonId)
 {
-	const SoundInfo *buttonInfo = m_model->getSoundInfo(buttonId);
+	const SoundInfo* buttonInfo = m_model->getSoundInfo(buttonId);
 	SoundInfo defaultInfo;
-	const SoundInfo &info = buttonInfo ? *buttonInfo : defaultInfo;
+	const SoundInfo& info = buttonInfo ? *buttonInfo : defaultInfo;
 	SoundSettingsQt dlg(info, buttonId, this);
 	dlg.setWindowTitle(QString("Sound %1 Settings").arg(QString::number(buttonId + 1)));
-	if(dlg.exec() == QDialog::Accepted)
+	if (dlg.exec() == QDialog::Accepted)
 		m_model->setSoundInfo(buttonId, dlg.getSoundInfo());
 }
 
 
 void MainWindow::deleteButton(size_t buttonId)
 {
-	const SoundInfo *info = m_model->getSoundInfo(buttonId);
+	const SoundInfo* info = m_model->getSoundInfo(buttonId);
 	if (info)
 		m_model->setSoundInfo(buttonId, SoundInfo());
 }
@@ -462,7 +487,7 @@ void MainWindow::deleteButton(size_t buttonId)
 
 void MainWindow::createBubbles()
 {
-	if(m_model->getBubbleButtonsBuild() == 0)
+	if (m_model->getBubbleButtonsBuild() == 0)
 	{
 		m_buttonBubble = new SpeechBubble(this);
 		m_buttonBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
@@ -472,9 +497,9 @@ void MainWindow::createBubbles()
 		connect(m_buttonBubble, SIGNAL(closePressed()), this, SLOT(onButtonBubbleFinished()));
 	}
 
-	if(m_model->getBubbleStopBuild() == 0)
+	if (m_model->getBubbleStopBuild() == 0)
 	{
-		SpeechBubble *stopBubble = new SpeechBubble(this);
+		SpeechBubble* stopBubble = new SpeechBubble(this);
 		stopBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 		stopBubble->setFixedSize(180, 60);
 		stopBubble->setText("Stop the currently playing sound.");
@@ -482,10 +507,10 @@ void MainWindow::createBubbles()
 		connect(stopBubble, SIGNAL(closePressed()), this, SLOT(onStopBubbleFinished()));
 	}
 
-	if(m_model->getBubbleColsBuild() == 0)
+	if (m_model->getBubbleColsBuild() == 0)
 	{
 		settingsSection->setExpanded(true);
-		SpeechBubble *colsBubble = new SpeechBubble(this);
+		SpeechBubble* colsBubble = new SpeechBubble(this);
 		colsBubble->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 		colsBubble->setFixedSize(180, 80);
 		colsBubble->setText("Change the number of buttons\non the soundboard.");
@@ -513,27 +538,26 @@ void MainWindow::onColsBubbleFinished()
 }
 
 
-void MainWindow::showStopButtonContextMenu(const QPoint &point)
+void MainWindow::showStopButtonContextMenu(const QPoint& point)
 {
 	showSetHotkeyMenu(HOTKEY_STOP_ALL, ui->b_stop->mapToGlobal(point));
 }
 
 
-void MainWindow::showPauseButtonContextMenu(const QPoint &point)
+void MainWindow::showPauseButtonContextMenu(const QPoint& point)
 {
 	showSetHotkeyMenu(HOTKEY_PAUSE_ALL, ui->b_pause->mapToGlobal(point));
 }
 
 
-void MainWindow::showSetHotkeyMenu(const char *hotkeyName, const QPoint &point)
+void MainWindow::showSetHotkeyMenu(const char* hotkeyName, const QPoint& point)
 {
 	QString hotkeyString = getShortcutString(hotkeyName);
-	QString hotkeyText = "Set hotkey (Current: " +
-		(hotkeyString.isEmpty() ? QString("None") : hotkeyString) + ")";
+	QString hotkeyText = "Set hotkey (Current: " + (hotkeyString.isEmpty() ? QString("None") : hotkeyString) + ")";
 
 	QMenu menu;
 	menu.addAction(hotkeyText);
-	QAction *action = menu.exec(point);
+	QAction* action = menu.exec(point);
 	if (action)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), hotkeyName, 0, this);
 }
@@ -592,7 +616,7 @@ void MainWindow::openHotkeySetDialog(size_t buttonId)
 void MainWindow::openButtonColorDialog(size_t buttonId)
 {
 	QColorDialog dialog;
-	const SoundInfo *pinfo = m_model->getSoundInfo(buttonId);
+	const SoundInfo* pinfo = m_model->getSoundInfo(buttonId);
 	SoundInfo info = pinfo ? *pinfo : SoundInfo();
 	dialog.setCurrentColor(info.customColor);
 	dialog.setWindowTitle("Choose button color");
@@ -604,14 +628,14 @@ void MainWindow::openButtonColorDialog(size_t buttonId)
 }
 
 
-QString MainWindow::unescapeCustomText(const QString &text)
+QString MainWindow::unescapeCustomText(const QString& text)
 {
 	QString cpy = text;
 	return cpy.replace("\\n", "\n");
 }
 
 
-void MainWindow::openHotkeySetDialog( size_t buttonId, QWidget *parent )
+void MainWindow::openHotkeySetDialog(size_t buttonId, QWidget* parent)
 {
 	char intName[16];
 	sb_getInternalHotkeyName((int)buttonId, intName);
@@ -619,16 +643,14 @@ void MainWindow::openHotkeySetDialog( size_t buttonId, QWidget *parent )
 }
 
 
-QString MainWindow::getShortcutString(const char *internalName)
+QString MainWindow::getShortcutString(const char* internalName)
 {
 	std::vector<char> name(128, 0);
-	char *namePtr = name.data();
-	unsigned int res = ts3Functions.getHotkeyFromKeyword(
-		getPluginID(), &internalName, &namePtr, 1, 128);
+	char* namePtr = name.data();
+	unsigned int res = ts3Functions.getHotkeyFromKeyword(getPluginID(), &internalName, &namePtr, 1, 128);
 	QString str = res == 0 ? QString(name.data()) : QString();
 	return str;
 }
-
 
 
 QString MainWindow::getShortcutString(size_t buttonId)
@@ -642,17 +664,17 @@ QString MainWindow::getConfigShortcutString(int cfg)
 {
 	char buf[16];
 	sb_getInternalConfigHotkeyName(cfg, buf);
-    QString shortcut = getShortcutString(buf);
-    if (!shortcut.isEmpty())
-        return shortcut;
+	QString shortcut = getShortcutString(buf);
+	if (!shortcut.isEmpty())
+		return shortcut;
 
-    return QString("no hotkey");
+	return QString("no hotkey");
 }
 
 
-void MainWindow::onHotkeyRecordedEvent(const char *keyword, const char *key)
+void MainWindow::onHotkeyRecordedEvent(const char* keyword, const char* key)
 {
-    QString sKey = key;
+	QString sKey = key;
 
 	int configId = -1;
 	if (sscanf(keyword, "config_%i", &configId) == 1)
@@ -662,16 +684,16 @@ void MainWindow::onHotkeyRecordedEvent(const char *keyword, const char *key)
 		else
 			logError("Invalid hotkey keyword: %s", keyword);
 	}
-    else
-    {
-        QString sKeyword = keyword;
+	else
+	{
+		QString sKeyword = keyword;
 
-        emit hotkeyRecordedEvent(sKey, sKeyword);
+		emit hotkeyRecordedEvent(sKey, sKeyword);
 
-        if (m_model->getShowHotkeysOnButtons())
-            for (size_t i = 0; i < m_buttons.size(); i++)
-                updateButtonText(i);
-    }
+		if (m_model->getShowHotkeysOnButtons())
+			for (size_t i = 0; i < m_buttons.size(); i++)
+				updateButtonText(i);
+	}
 }
 
 
@@ -687,27 +709,30 @@ void MainWindow::onUpdateHotkeysDisabled(bool val)
 }
 
 
-void MainWindow::showEvent(QShowEvent *evt)
+void MainWindow::showEvent(QShowEvent* evt)
 {
 	QWidget::showEvent(evt);
 
-	for(size_t i = 0; i < m_buttons.size(); i++)
+	for (size_t i = 0; i < m_buttons.size(); i++)
 		updateButtonText(i);
 }
 
 
-void MainWindow::onButtonFileDropped(const QList<QUrl> &urls)
+void MainWindow::onButtonFileDropped(const QList<QUrl>& urls)
 {
 	int buttonId = sender()->property("buttonId").toInt();
 	int buttonNr = 0;
 
-	for(int i = 0; i < urls.size(); i++)
+	for (int i = 0; i < urls.size(); i++)
 	{
 		if (buttonNr == 1)
 		{
-			QMessageBox msgbox(QMessageBox::Icon::Question, "Fill buttons?",
-				"You dropped multiple files. Consecutively apply them to the buttons following the one you dropped your files on?",
-				QMessageBox::Yes | QMessageBox::No, this);
+			QMessageBox msgbox(
+				QMessageBox::Icon::Question, "Fill buttons?",
+				"You dropped multiple files. Consecutively apply them to the buttons following the one you dropped "
+				"your files on?",
+				QMessageBox::Yes | QMessageBox::No, this
+			);
 			if (msgbox.exec() == QMessageBox::No)
 				break;
 		}
@@ -722,7 +747,10 @@ void MainWindow::onButtonFileDropped(const QList<QUrl> &urls)
 			}
 			else if (buttonNr == 0)
 			{
-				QMessageBox msgBox(QMessageBox::Icon::Critical, "Unsupported drop type", "Some things could not be dropped here :(", QMessageBox::Ok, this);
+				QMessageBox msgBox(
+					QMessageBox::Icon::Critical, "Unsupported drop type", "Some things could not be dropped here :(",
+					QMessageBox::Ok, this
+				);
 				msgBox.exec();
 			}
 		}
@@ -730,15 +758,17 @@ void MainWindow::onButtonFileDropped(const QList<QUrl> &urls)
 }
 
 
-void MainWindow::setButtonFile(size_t buttonId, const QString &fn, bool askForDisablingCrop)
+void MainWindow::setButtonFile(size_t buttonId, const QString& fn, bool askForDisablingCrop)
 {
-	const SoundInfo *info = m_model->getSoundInfo(buttonId);
+	const SoundInfo* info = m_model->getSoundInfo(buttonId);
 	if (askForDisablingCrop && info && info->cropEnabled && info->filename != fn)
 	{
-		QMessageBox mb(QMessageBox::Question, "Keep crop settings?",
-			"You selected a new file for a button that has 'crop sound' enabled.", QMessageBox::NoButton, this);
-		QPushButton *btnDisable = mb.addButton("Disable cropping (recommended)", QMessageBox::YesRole);
-		QPushButton *btnKeep = mb.addButton("Keep old crop settings", QMessageBox::NoRole);
+		QMessageBox mb(
+			QMessageBox::Question, "Keep crop settings?",
+			"You selected a new file for a button that has 'crop sound' enabled.", QMessageBox::NoButton, this
+		);
+		QPushButton* btnDisable = mb.addButton("Disable cropping (recommended)", QMessageBox::YesRole);
+		QPushButton* btnKeep = mb.addButton("Keep old crop settings", QMessageBox::NoRole);
 		mb.setDefaultButton(btnDisable);
 		mb.exec();
 		if (mb.clickedButton() != btnKeep)
@@ -758,14 +788,14 @@ void MainWindow::onButtonPausePressed()
 }
 
 
-void MainWindow::onButtonDroppedOnButton(SoundButton *button)
+void MainWindow::onButtonDroppedOnButton(SoundButton* button)
 {
-	SoundButton *btn0 = button;
-	SoundButton *btn1 = qobject_cast<SoundButton*>(sender());
+	SoundButton* btn0 = button;
+	SoundButton* btn1 = qobject_cast<SoundButton*>(sender());
 	int bid0 = btn0->property("buttonId").toInt();
 	int bid1 = btn1->property("buttonId").toInt();
-	const SoundInfo *info0 = m_model->getSoundInfo(bid0);
-	const SoundInfo *info1 = m_model->getSoundInfo(bid1);
+	const SoundInfo* info0 = m_model->getSoundInfo(bid0);
+	const SoundInfo* info1 = m_model->getSoundInfo(bid1);
 
 	// Copy sound info
 	SoundInfo infoCopy0;
@@ -781,12 +811,12 @@ void MainWindow::onButtonDroppedOnButton(SoundButton *button)
 
 	// Switch button position and then animate the buttons to slide into place
 	const int animDuration = 300;
-	QPropertyAnimation *anim0 = new QPropertyAnimation(btn0, "pos");
+	QPropertyAnimation* anim0 = new QPropertyAnimation(btn0, "pos");
 	anim0->setStartValue(btn1->pos());
 	anim0->setEndValue(btn0->pos());
 	anim0->setDuration(animDuration);
 
-	QPropertyAnimation *anim1 = new QPropertyAnimation(btn1, "pos");
+	QPropertyAnimation* anim1 = new QPropertyAnimation(btn1, "pos");
 	anim1->setStartValue(btn0->pos());
 	anim1->setEndValue(btn1->pos());
 	anim1->setDuration(animDuration);
@@ -798,13 +828,13 @@ void MainWindow::onButtonDroppedOnButton(SoundButton *button)
 }
 
 
-void MainWindow::onFilterEditTextChanged(const QString &text)
+void MainWindow::onFilterEditTextChanged(const QString& text)
 {
 	QString filter = text.trimmed();
-	for (auto &button : m_buttons)
+	for (auto& button : m_buttons)
 	{
 		int buttonId = button->property("buttonId").toInt();
-		const SoundInfo *info = m_model->getSoundInfo(buttonId);
+		const SoundInfo* info = m_model->getSoundInfo(buttonId);
 		bool hasFile = info && !info->filename.isEmpty();
 		QString buttonText = button->text();
 		bool pass = filter.length() == 0 || (hasFile && buttonText.contains(filter, Qt::CaseInsensitive));
@@ -813,20 +843,22 @@ void MainWindow::onFilterEditTextChanged(const QString &text)
 }
 
 
-void MainWindow::onVolumeSliderContextMenuLocal(const QPoint &point)
+void MainWindow::onVolumeSliderContextMenuLocal(const QPoint& point)
 {
 	QString hotkeyStringIncr = getShortcutString(HOTKEY_VOLUME_INCREASE);
-	QString hotkeyTextIncr = "Set 'increase 20%' hotkey (Current: " +
-		(hotkeyStringIncr.isEmpty() ? QString("None") : hotkeyStringIncr) + ")";
+	QString hotkeyTextIncr =
+		"Set 'increase 20%' hotkey (Current: " + (hotkeyStringIncr.isEmpty() ? QString("None") : hotkeyStringIncr) +
+		")";
 
 	QString hotkeyStringDecr = getShortcutString(HOTKEY_VOLUME_DECREASE);
-	QString hotkeyTextDecr = "Set 'decrease 20%' hotkey (Current: " +
-		(hotkeyStringDecr.isEmpty() ? QString("None") : hotkeyStringDecr) + ")";
+	QString hotkeyTextDecr =
+		"Set 'decrease 20%' hotkey (Current: " + (hotkeyStringDecr.isEmpty() ? QString("None") : hotkeyStringDecr) +
+		")";
 
 	QMenu menu;
-	QAction *actIncr = menu.addAction(hotkeyTextIncr);
-	QAction *actDecr = menu.addAction(hotkeyTextDecr);
-	QAction *action = menu.exec(ui->sl_volumeLocal->mapToGlobal(point));
+	QAction* actIncr = menu.addAction(hotkeyTextIncr);
+	QAction* actDecr = menu.addAction(hotkeyTextDecr);
+	QAction* action = menu.exec(ui->sl_volumeLocal->mapToGlobal(point));
 	if (action == actIncr)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_INCREASE, 0, this);
 	else if (action == actDecr)
@@ -834,29 +866,31 @@ void MainWindow::onVolumeSliderContextMenuLocal(const QPoint &point)
 }
 
 
-void MainWindow::onVolumeSliderContextMenuRemote(const QPoint &point)
+void MainWindow::onVolumeSliderContextMenuRemote(const QPoint& point)
 {
 	QString hotkeyStringIncr = getShortcutString(HOTKEY_VOLUME_INCREASE);
-	QString hotkeyTextIncr = "Set 'increase 20%' hotkey (Current: " +
-		(hotkeyStringIncr.isEmpty() ? QString("None") : hotkeyStringIncr) + ")";
+	QString hotkeyTextIncr =
+		"Set 'increase 20%' hotkey (Current: " + (hotkeyStringIncr.isEmpty() ? QString("None") : hotkeyStringIncr) +
+		")";
 
 	QString hotkeyStringDecr = getShortcutString(HOTKEY_VOLUME_DECREASE);
-	QString hotkeyTextDecr = "Set 'decrease 20%' hotkey (Current: " +
-		(hotkeyStringDecr.isEmpty() ? QString("None") : hotkeyStringDecr) + ")";
+	QString hotkeyTextDecr =
+		"Set 'decrease 20%' hotkey (Current: " + (hotkeyStringDecr.isEmpty() ? QString("None") : hotkeyStringDecr) +
+		")";
 
 	QMenu menu;
-	QAction *actIncr = menu.addAction(hotkeyTextIncr);
-	QAction *actDecr = menu.addAction(hotkeyTextDecr);
-	QAction *action = menu.exec(ui->sl_volumeRemote->mapToGlobal(point));
+	QAction* actIncr = menu.addAction(hotkeyTextIncr);
+	QAction* actDecr = menu.addAction(hotkeyTextDecr);
+	QAction* action = menu.exec(ui->sl_volumeRemote->mapToGlobal(point));
 	if (action == actIncr)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_INCREASE, 0, this);
 	else if (action == actDecr)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_DECREASE, 0, this);
 }
 
-void MainWindow::ModelObserver::notify(ConfigModel &model, ConfigModel::notifications_e what, int data)
+void MainWindow::ModelObserver::notify(ConfigModel& model, ConfigModel::notifications_e what, int data)
 {
-	switch(what)
+	switch (what)
 	{
 	case ConfigModel::NOTIFY_SET_ROWS:
 		p.ui->sb_rows->setValue(model.getRows());
@@ -886,18 +920,18 @@ void MainWindow::ModelObserver::notify(ConfigModel &model, ConfigModel::notifica
 			p.ui->cb_mute_myself->setChecked(model.getMuteMyselfDuringPb());
 		break;
 	case ConfigModel::NOTIFY_SET_WINDOW_SIZE:
-		{
-			QSize s = p.size();
-			int w = 0, h = 0;
-			model.getWindowSize(&w, &h);
-			if(s.width() != w || s.height() != h)
-				p.resize(w, h);
-		}
-		break;
+	{
+		QSize s = p.size();
+		int w = 0, h = 0;
+		model.getWindowSize(&w, &h);
+		if (s.width() != w || s.height() != h)
+			p.resize(w, h);
+	}
+	break;
 	case ConfigModel::NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS:
 		if (p.ui->cb_show_hotkeys_on_buttons->isChecked() != model.getShowHotkeysOnButtons())
 			p.ui->cb_show_hotkeys_on_buttons->setChecked(model.getShowHotkeysOnButtons());
-		for(size_t i = 0; i < p.m_buttons.size(); i++)
+		for (size_t i = 0; i < p.m_buttons.size(); i++)
 			p.updateButtonText(i);
 		break;
 	case ConfigModel::NOTIFY_SET_HOTKEYS_ENABLED:

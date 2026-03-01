@@ -17,7 +17,6 @@
 #include "plugin.h"
 
 
-
 ConfigModel::ConfigModel()
 {
 	m_rows.fill(2);
@@ -36,28 +35,32 @@ ConfigModel::ConfigModel()
 	m_showHotkeysOnButtons = false;
 	m_hotkeysEnabled = true;
 
-    m_activeConfig = 0;
+	m_activeConfig = 0;
 	m_nextUpdateCheck = 0;
 }
 
 
-void ConfigModel::readConfig(const QString &file)
+void ConfigModel::readConfig(const QString& file)
 {
-    QString path;
-    if (file.isEmpty())
-        path = GetFullConfigPath();
-    else
-        path = file;
+	QString path;
+	if (file.isEmpty())
+		path = GetFullConfigPath();
+	else
+		path = file;
 
-    QSettings settings(path, QSettings::IniFormat);
+	QSettings settings(path, QSettings::IniFormat);
 
 	for (int i = 0; i < NUM_CONFIGS; i++)
-		m_sounds[i] = readConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i+1));
+		m_sounds[i] = readConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i + 1));
 
 	for (int i = 0; i < NUM_CONFIGS; i++)
 	{
-		m_rows[i] = settings.value(i == 0 ? QString("num_rows") : QString("num_rows%1").arg(i + 1), i == 0 ? 2 : m_rows[0]).toInt();
-		m_cols[i] = settings.value(i == 0 ? QString("num_cols") : QString("num_cols%1").arg(i + 1), i == 0 ? 5 : m_cols[0]).toInt();
+		m_rows[i] =
+			settings.value(i == 0 ? QString("num_rows") : QString("num_rows%1").arg(i + 1), i == 0 ? 2 : m_rows[0])
+				.toInt();
+		m_cols[i] =
+			settings.value(i == 0 ? QString("num_cols") : QString("num_cols%1").arg(i + 1), i == 0 ? 5 : m_cols[0])
+				.toInt();
 	}
 	int volume_old = settings.value("volume", 50).toInt();
 	m_volumeLocal = settings.value("volumeLocal", volume_old).toInt();
@@ -76,27 +79,27 @@ void ConfigModel::readConfig(const QString &file)
 	notifyAllEvents();
 }
 
-void ConfigModel::writeConfig(const QString &file)
+void ConfigModel::writeConfig(const QString& file)
 {
-    QString path;
-    if (file.isEmpty())
-        path = GetFullConfigPath();
-    else
-        path = file;
+	QString path;
+	if (file.isEmpty())
+		path = GetFullConfigPath();
+	else
+		path = file;
 
-    QSettings settings(path, QSettings::IniFormat);
+	QSettings settings(path, QSettings::IniFormat);
 
-    settings.setValue("config_build", buildinfo_getBuildNumber());
-    settings.setValue("volumeLocal", m_volumeLocal);
-    settings.setValue("volumeRemote", m_volumeRemote);
-    settings.setValue("playback_local", m_playbackLocal);
-    settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
-    settings.setValue("window_width", m_windowWidth);
-    settings.setValue("window_height", m_windowHeight);
-    settings.setValue("bubble_buttons_build", m_bubbleButtonsBuild);
-    settings.setValue("bubble_stop_build", m_bubbleStopBuild);
-    settings.setValue("bubble_cols_build", m_bubbleColsBuild);
-    settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
+	settings.setValue("config_build", buildinfo_getBuildNumber());
+	settings.setValue("volumeLocal", m_volumeLocal);
+	settings.setValue("volumeRemote", m_volumeRemote);
+	settings.setValue("playback_local", m_playbackLocal);
+	settings.setValue("mute_myself_during_pb", m_muteMyselfDuringPb);
+	settings.setValue("window_width", m_windowWidth);
+	settings.setValue("window_height", m_windowHeight);
+	settings.setValue("bubble_buttons_build", m_bubbleButtonsBuild);
+	settings.setValue("bubble_stop_build", m_bubbleStopBuild);
+	settings.setValue("bubble_cols_build", m_bubbleColsBuild);
+	settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
 	settings.setValue("hotkeys_enabled", m_hotkeysEnabled);
 	settings.setValue("next_update_check", m_nextUpdateCheck);
 
@@ -110,35 +113,35 @@ void ConfigModel::writeConfig(const QString &file)
 }
 
 
-std::vector<SoundInfo> ConfigModel::readConfiguration(QSettings &settings, const QString &name)
+std::vector<SoundInfo> ConfigModel::readConfiguration(QSettings& settings, const QString& name)
 {
 	std::vector<SoundInfo> sounds;
-    int size = settings.beginReadArray(name);
-    if (size == 0)
-        sounds = getInitialSounds();
-    else
-    {
-        sounds.resize(size);
-        for (int i = 0; i < size; i++)
-        {
-            settings.setArrayIndex(i);
-            sounds[i].readFromConfig(settings);
-        }
-    }
-    settings.endArray();
+	int size = settings.beginReadArray(name);
+	if (size == 0)
+		sounds = getInitialSounds();
+	else
+	{
+		sounds.resize(size);
+		for (int i = 0; i < size; i++)
+		{
+			settings.setArrayIndex(i);
+			sounds[i].readFromConfig(settings);
+		}
+	}
+	settings.endArray();
 	return sounds;
 }
 
 
-void ConfigModel::writeConfiguration(QSettings & settings, const QString &name, const std::vector<SoundInfo> &sounds)
+void ConfigModel::writeConfiguration(QSettings& settings, const QString& name, const std::vector<SoundInfo>& sounds)
 {
-    settings.beginWriteArray(name);
-    for (int i = 0; i < (int)sounds.size(); i++)
-    {
-        settings.setArrayIndex(i);
-        sounds[i].saveToConfig(settings);
-    }
-    settings.endArray();
+	settings.beginWriteArray(name);
+	for (int i = 0; i < (int)sounds.size(); i++)
+	{
+		settings.setArrayIndex(i);
+		sounds[i].saveToConfig(settings);
+	}
+	settings.endArray();
 }
 
 
@@ -146,8 +149,8 @@ void ConfigModel::setConfiguration(int config)
 {
 	m_activeConfig = config;
 
-    /* Tell observers that our data changed */
-    notifyAllEvents();
+	/* Tell observers that our data changed */
+	notifyAllEvents();
 }
 
 int ConfigModel::getConfiguration()
@@ -155,19 +158,19 @@ int ConfigModel::getConfiguration()
 	return m_activeConfig;
 }
 
-QString ConfigModel::getFileName( int itemId ) const
+QString ConfigModel::getFileName(int itemId) const
 {
-    if(itemId >= 0 && itemId < numSounds())
+	if (itemId >= 0 && itemId < numSounds())
 		return sounds()[itemId].filename;
 	return QString();
 }
 
 
-void ConfigModel::setFileName( int itemId, const QString &fn )
+void ConfigModel::setFileName(int itemId, const QString& fn)
 {
-	if(itemId >= 0)
+	if (itemId >= 0)
 	{
-        if(itemId < 1000 && itemId >= numSounds())
+		if (itemId < 1000 && itemId >= numSounds())
 			sounds().resize(itemId + 1);
 		sounds()[itemId].filename = fn;
 		writeConfig();
@@ -176,17 +179,17 @@ void ConfigModel::setFileName( int itemId, const QString &fn )
 }
 
 
-const SoundInfo *ConfigModel::getSoundInfo(int itemId) const
+const SoundInfo* ConfigModel::getSoundInfo(int itemId) const
 {
-    if(itemId >= 0 && itemId < numSounds())
+	if (itemId >= 0 && itemId < numSounds())
 		return &sounds()[itemId];
 	return nullptr;
 }
 
 
-void ConfigModel::setSoundInfo( int itemId, const SoundInfo &info )
+void ConfigModel::setSoundInfo(int itemId, const SoundInfo& info)
 {
-    if(itemId < 1000 && itemId >= numSounds())
+	if (itemId < 1000 && itemId >= numSounds())
 		sounds().resize(itemId + 1);
 	sounds()[itemId] = info;
 	writeConfig();
@@ -214,7 +217,7 @@ QString ConfigModel::GetFullConfigPath()
 }
 
 
-void ConfigModel::setRows( int n )
+void ConfigModel::setRows(int n)
 {
 	m_rows[m_activeConfig] = n;
 	writeConfig();
@@ -222,7 +225,7 @@ void ConfigModel::setRows( int n )
 }
 
 
-void ConfigModel::setCols( int n )
+void ConfigModel::setCols(int n)
 {
 	m_cols[m_activeConfig] = n;
 	writeConfig();
@@ -230,19 +233,19 @@ void ConfigModel::setCols( int n )
 }
 
 
-void ConfigModel::setVolumeLocal( int val )
+void ConfigModel::setVolumeLocal(int val)
 {
 	m_volumeLocal = val;
 	notify(NOTIFY_SET_VOLUME_LOCAL, val);
 }
 
-void ConfigModel::setVolumeRemote( int val )
+void ConfigModel::setVolumeRemote(int val)
 {
 	m_volumeRemote = val;
 	notify(NOTIFY_SET_VOLUME_REMOTE, val);
 }
 
-void ConfigModel::setPlaybackLocal( bool val )
+void ConfigModel::setPlaybackLocal(bool val)
 {
 	m_playbackLocal = val;
 	writeConfig();
@@ -258,11 +261,11 @@ void ConfigModel::setMuteMyselfDuringPb(bool val)
 }
 
 
-void ConfigModel::getWindowSize(int *width, int *height) const
+void ConfigModel::getWindowSize(int* width, int* height) const
 {
-	if(width)
+	if (width)
 		*width = m_windowWidth;
-	if(height)
+	if (height)
 		*height = m_windowHeight;
 }
 
@@ -284,7 +287,7 @@ void ConfigModel::setNextUpdateCheck(uint time)
 
 void ConfigModel::notify(notifications_e what, int data)
 {
-	for(Observer *obs : m_obs)
+	for (Observer* obs : m_obs)
 		obs->notify(*this, what, data);
 }
 
@@ -297,13 +300,13 @@ void ConfigModel::setHotkeysEnabled(bool enabled)
 }
 
 
-void ConfigModel::addObserver(Observer *obs)
+void ConfigModel::addObserver(Observer* obs)
 {
 	m_obs.push_back(obs);
 }
 
 
-void ConfigModel::remObserver(Observer *obs)
+void ConfigModel::remObserver(Observer* obs)
 {
 	m_obs.erase(std::remove(m_obs.begin(), m_obs.end(), obs), m_obs.end());
 }
@@ -344,12 +347,7 @@ std::vector<SoundInfo> ConfigModel::getInitialSounds()
 	fullPath.append("rp_soundboard/");
 
 	static const char* files[] = {
-		"Airhorn Sonata.mp3",
-		"Airhorn.mp3",
-		"Airporn.mp3",
-		"Peter Griffin Laugh.mp3",
-		"Spooky.mp3",
-		nullptr,
+		"Airhorn Sonata.mp3", "Airhorn.mp3", "Airporn.mp3", "Peter Griffin Laugh.mp3", "Spooky.mp3", nullptr,
 	};
 
 	std::vector<SoundInfo> sounds;
@@ -365,8 +363,8 @@ std::vector<SoundInfo> ConfigModel::getInitialSounds()
 
 void ConfigModel::notifyAllEvents()
 {
-	//Notify all changes
-    for(int i = 0; i < numSounds(); i++)
+	// Notify all changes
+	for (int i = 0; i < numSounds(); i++)
 		notify(NOTIFY_SET_SOUND, i);
 	notify(NOTIFY_SET_COLS, getCols());
 	notify(NOTIFY_SET_ROWS, getRows());
@@ -389,4 +387,3 @@ void ConfigModel::setShowHotkeysOnButtons(bool show)
 	writeConfig();
 	notify(NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS, show ? 1 : 0);
 }
-

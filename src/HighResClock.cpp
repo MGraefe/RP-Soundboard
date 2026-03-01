@@ -15,13 +15,13 @@
 
 namespace
 {
-	const long long g_Frequency = []() -> long long 
-	{
-		LARGE_INTEGER frequency;
-		QueryPerformanceFrequency(&frequency);
-		return frequency.QuadPart;
-	}();
-}
+const long long g_Frequency = []() -> long long
+{
+	LARGE_INTEGER frequency;
+	QueryPerformanceFrequency(&frequency);
+	return frequency.QuadPart;
+}();
+} // namespace
 
 HighResClock::time_point HighResClock::now()
 {

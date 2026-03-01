@@ -6,7 +6,7 @@
 #include <QMetaEnum>
 
 #define RETURN_ENUM_CASE(val) case val: return #val
-const char * TalkStateManager::toString(talk_state_e ts)
+const char* TalkStateManager::toString(talk_state_e ts)
 {
 	switch (ts)
 	{
@@ -28,14 +28,10 @@ TalkStateManager::TalkStateManager() :
 	activeServerId(0),
 	playingServerId(0)
 {
-	
 }
 
 
-TalkStateManager::~TalkStateManager()
-{
-	
-}
+TalkStateManager::~TalkStateManager() {}
 
 
 void TalkStateManager::onStartPlaying(bool preview, QString filename)
@@ -80,8 +76,9 @@ void TalkStateManager::setPlayTransMode()
 {
 	talk_state_e s = getTalkState(activeServerId);
 	if (defaultTalkState == TS_INVALID)
-		defaultTalkState = s; // Set once at first played file
-							  // Don't accept a sudden change to TS_CONT_TRANS except when defaultTalkState is also TS_CONT_TRANS
+		defaultTalkState =
+			s; // Set once at first played file
+			   // Don't accept a sudden change to TS_CONT_TRANS except when defaultTalkState is also TS_CONT_TRANS
 	if (s == TS_CONT_TRANS)
 		s = defaultTalkState;
 
@@ -120,14 +117,19 @@ void TalkStateManager::setActiveServerId(uint64 id)
 
 TalkStateManager::talk_state_e TalkStateManager::getTalkState(uint64 scHandlerID)
 {
-	char *vadStr;
-	if (checkError(ts3Functions.getPreProcessorConfigValue(scHandlerID, "vad", &vadStr), "Error retrieving vad setting"))
+	char* vadStr;
+	if (checkError(
+			ts3Functions.getPreProcessorConfigValue(scHandlerID, "vad", &vadStr), "Error retrieving vad setting"
+		))
 		return TS_INVALID;
 	bool vad = strcmp(vadStr, "true") == 0;
 	ts3Functions.freeMemory(vadStr);
 
 	int input;
-	if (checkError(ts3Functions.getClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, &input), "Error retrieving input setting"))
+	if (checkError(
+			ts3Functions.getClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED, &input),
+			"Error retrieving input setting"
+		))
 		return TS_INVALID;
 	bool ptt = input == INPUT_DEACTIVATED;
 
@@ -140,21 +142,28 @@ TalkStateManager::talk_state_e TalkStateManager::getTalkState(uint64 scHandlerID
 
 bool TalkStateManager::setTalkState(uint64 scHandlerID, talk_state_e state)
 {
-	logDebug("TSMGR: Setting talk state of %ull to %s, previous was %s",
-		(unsigned long long)scHandlerID, toString(state), toString(previousTalkState));
-	
+	logDebug(
+		"TSMGR: Setting talk state of %ull to %s, previous was %s", (unsigned long long)scHandlerID, toString(state),
+		toString(previousTalkState)
+	);
+
 	if (scHandlerID == 0 || state == TS_INVALID)
 		return false;
 
 	bool va = state == TS_PTT_WITH_VA || state == TS_VOICE_ACTIVATION;
 	bool in = state == TS_CONT_TRANS || state == TS_VOICE_ACTIVATION;
 
-	if (checkError(ts3Functions.setPreProcessorConfigValue(
-		scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"))
+	if (checkError(
+			ts3Functions.setPreProcessorConfigValue(scHandlerID, "vad", va ? "true" : "false"), "Error toggling vad"
+		))
 		return false;
 
-	if (checkError(ts3Functions.setClientSelfVariableAsInt(scHandlerID, CLIENT_INPUT_DEACTIVATED,
-		in ? INPUT_ACTIVE : INPUT_DEACTIVATED), "Error toggling input"))
+	if (checkError(
+			ts3Functions.setClientSelfVariableAsInt(
+				scHandlerID, CLIENT_INPUT_DEACTIVATED, in ? INPUT_ACTIVE : INPUT_DEACTIVATED
+			),
+			"Error toggling input"
+		))
 		return false;
 
 	ts3Functions.flushClientSelfUpdates(scHandlerID, nullptr);
@@ -183,8 +192,9 @@ bool TalkStateManager::setContinuousTransmission(uint64 scHandlerID)
 
 void TalkStateManager::onClientStopsTalking()
 {
-	// If we are in PTT mode and the client lets go of the PTT key while playing a sound, ptt state gets reset to not-talking.
-	// This function checks for that case and sets it again to TS_CONTR_TRANS
-	if (currentTalkState == TS_CONT_TRANS && (previousTalkState == TS_PTT_WITHOUT_VA || previousTalkState == TS_PTT_WITH_VA))
+	// If we are in PTT mode and the client lets go of the PTT key while playing a sound, ptt state gets reset to
+	// not-talking. This function checks for that case and sets it again to TS_CONTR_TRANS
+	if (currentTalkState == TS_CONT_TRANS &&
+		(previousTalkState == TS_PTT_WITHOUT_VA || previousTalkState == TS_PTT_WITH_VA))
 		setPlayTransMode();
 }

@@ -20,25 +20,24 @@ class SoundView : public QWidget
 {
 	Q_OBJECT
 
-public:
-	SoundView(QWidget *parent = nullptr);
-	void setSound(const SoundInfo &sound);
+  public:
+	SoundView(QWidget* parent = nullptr);
+	void setSound(const SoundInfo& sound);
 
-protected:
-	void paintEvent(QPaintEvent *evt);
-	void resizeEvent(QResizeEvent *evt);
+  protected:
+	void paintEvent(QPaintEvent* evt);
+	void resizeEvent(QResizeEvent* evt);
 
-private slots:
+  private slots:
 	void onTimer();
 
-private:
-	void drawWaves(QPainter *painter);
+  private:
+	void drawWaves(QPainter* painter);
 	void preparePaths();
 
-private:
+  private:
 	SoundInfo m_soundInfo;
-	QTimer *m_timer;
+	QTimer* m_timer;
 	size_t m_drawnBins;
 	QPainterPath m_path[2];
 };
-

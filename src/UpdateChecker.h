@@ -21,7 +21,7 @@ class UpdateChecker : public QObject
 {
 	Q_OBJECT
 
-public:
+  public:
 	struct version_info_t
 	{
 		QString productName;
@@ -35,35 +35,34 @@ public:
 		bool valid();
 	};
 
-public:
-	explicit UpdateChecker(QObject *parent = nullptr);
-	void startCheck(bool explicitCheck = true, ConfigModel *config = nullptr);
+  public:
+	explicit UpdateChecker(QObject* parent = nullptr);
+	void startCheck(bool explicitCheck = true, ConfigModel* config = nullptr);
 	static QByteArray getUserAgent();
-	static void setUserAgent(QNetworkRequest &request);
+	static void setUserAgent(QNetworkRequest& request);
 
-public slots:
+  public slots:
 	void onFinishedUpdate();
-	void onFinishDownload(QNetworkReply *reply);
+	void onFinishDownload(QNetworkReply* reply);
 
-private:
-	void parseXml(QIODevice *device);
-	void parseProduct(QXmlStreamReader &xml);
-	void parseProductInner(QXmlStreamReader &xml);
-	void onFinishDownloadXml(QNetworkReply *reply);
-	void onFinishDownloadFeatures(QNetworkReply * reply);
+  private:
+	void parseXml(QIODevice* device);
+	void parseProduct(QXmlStreamReader& xml);
+	void parseProductInner(QXmlStreamReader& xml);
+	void onFinishDownloadXml(QNetworkReply* reply);
+	void onFinishDownloadFeatures(QNetworkReply* reply);
 	void askUserForUpdate();
 
-private:
+  private:
 	enum class Loading
 	{
 		mainXml,
 		features,
 	} loading;
 
-	QNetworkAccessManager *m_mgr;
+	QNetworkAccessManager* m_mgr;
 	version_info_t m_verInfo;
-	UpdaterWindow *m_updater;
-	ConfigModel *m_config;
+	UpdaterWindow* m_updater;
+	ConfigModel* m_config;
 	bool m_explicitCheck;
 };
-

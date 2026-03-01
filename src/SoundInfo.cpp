@@ -32,14 +32,14 @@
 #define DEFAULT_CROP_STOP_UNIT 1
 
 
-QColor stringToColor(const QString &str)
+QColor stringToColor(const QString& str)
 {
 	QRgb rgb = str.toUInt(nullptr, 16);
 	// don't construct directly from QRgb because alpha is ignored that way
 	return QColor(qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb));
 }
 
-QString colorToString(const QColor &col)
+QString colorToString(const QColor& col)
 {
 	return QString::number(col.rgba(), 16);
 }
@@ -57,11 +57,10 @@ SoundInfo::SoundInfo() :
 	cropStopValue(DEFAULT_CROP_STOP_VALUE),
 	cropStopUnit(DEFAULT_CROP_STOP_UNIT)
 {
-
 }
 
 
-void SoundInfo::readFromConfig( const QSettings &settings )
+void SoundInfo::readFromConfig(const QSettings& settings)
 {
 	filename = settings.value(NAME_PATH, DEFAULT_PATH).toString();
 	customText = settings.value(NAME_CUSTOM_TEXT, DEFAULT_CUSTOM_TEXT).toString();
@@ -76,7 +75,7 @@ void SoundInfo::readFromConfig( const QSettings &settings )
 }
 
 
-void SoundInfo::saveToConfig( QSettings &settings ) const
+void SoundInfo::saveToConfig(QSettings& settings) const
 {
 	settings.setValue(NAME_PATH, filename);
 	settings.setValue(NAME_CUSTOM_TEXT, customText);
@@ -93,7 +92,7 @@ void SoundInfo::saveToConfig( QSettings &settings ) const
 
 double SoundInfo::getStartTime() const
 {
-	if(!cropEnabled)
+	if (!cropEnabled)
 		return 0.0;
 	return (double)cropStartValue * getTimeUnitFactor(cropStartUnit);
 }
@@ -101,10 +100,10 @@ double SoundInfo::getStartTime() const
 
 double SoundInfo::getPlayTime() const
 {
-	if(!cropEnabled)
+	if (!cropEnabled)
 		return -1.0;
 	double t = (double)cropStopValue * getTimeUnitFactor(cropStopUnit);
-	if(cropStopAfterAt == 1) //stop AT x seconds instead of AFTER?
+	if (cropStopAfterAt == 1) // stop AT x seconds instead of AFTER?
 		t -= getStartTime();
 	return std::max(t, 0.0);
 }
@@ -112,10 +111,12 @@ double SoundInfo::getPlayTime() const
 
 double SoundInfo::getTimeUnitFactor(int unit)
 {
-	switch(unit)
+	switch (unit)
 	{
-	case 0: return 0.001;
-	case 1: return 1.0;
+	case 0:
+		return 0.001;
+	case 1:
+		return 1.0;
 	default:
 		throw std::logic_error("No such unit");
 	}

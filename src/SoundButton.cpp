@@ -12,14 +12,14 @@
 #include <QDrag>
 #include <QStyle>
 
-const QString &getButtonMime()
+const QString& getButtonMime()
 {
 	static QString uuid = QUuid::createUuid().toString();
 	return uuid;
 }
 
 
-SoundButton::SoundButton(QWidget *parent) : 
+SoundButton::SoundButton(QWidget* parent) :
 	QPushButton(parent),
 	pressing(false),
 	dragging(false)
@@ -28,11 +28,10 @@ SoundButton::SoundButton(QWidget *parent) :
 }
 
 
-SoundButton::~SoundButton()
-{}
+SoundButton::~SoundButton() {}
 
 
-void SoundButton::dragEnterEvent(QDragEnterEvent *evt)
+void SoundButton::dragEnterEvent(QDragEnterEvent* evt)
 {
 	if (evt->mimeData()->hasUrls() || evt->mimeData()->hasFormat(getButtonMime()))
 	{
@@ -42,14 +41,14 @@ void SoundButton::dragEnterEvent(QDragEnterEvent *evt)
 }
 
 
-void SoundButton::dragMoveEvent(QDragMoveEvent *evt)
+void SoundButton::dragMoveEvent(QDragMoveEvent* evt)
 {
 	if (evt->mimeData()->hasUrls() || evt->mimeData()->hasFormat(getButtonMime()))
 		evt->acceptProposedAction();
 }
 
 
-void SoundButton::dragLeaveEvent(QDragLeaveEvent *)
+void SoundButton::dragLeaveEvent(QDragLeaveEvent*)
 {
 	sb_disableHotkeysTemporarily(false);
 
@@ -59,12 +58,12 @@ void SoundButton::dragLeaveEvent(QDragLeaveEvent *)
 }
 
 
-void SoundButton::dropEvent(QDropEvent *evt)
+void SoundButton::dropEvent(QDropEvent* evt)
 {
 	pressing = false;
 	dragging = false;
 	applyBackgroundColor(backgroundColor);
-	SoundButton *button = nullptr;
+	SoundButton* button = nullptr;
 	if (evt->mimeData()->hasUrls())
 	{
 		emit fileDropped(evt->mimeData()->urls());
@@ -83,7 +82,7 @@ void SoundButton::dropEvent(QDropEvent *evt)
 }
 
 
-void SoundButton::mousePressEvent(QMouseEvent *evt)
+void SoundButton::mousePressEvent(QMouseEvent* evt)
 {
 	// If the user has a hotkey 'switch config' bound to mouse 1 then
 	// this button is actually deleted before mouseReleaseEvent is called
@@ -98,18 +97,17 @@ void SoundButton::mousePressEvent(QMouseEvent *evt)
 }
 
 
-void SoundButton::mouseMoveEvent(QMouseEvent *evt)
+void SoundButton::mouseMoveEvent(QMouseEvent* evt)
 {
-	if (pressing && !dragging &&
-		(evt->pos() - dragStart).manhattanLength() > 5)
+	if (pressing && !dragging && (evt->pos() - dragStart).manhattanLength() > 5)
 	{
 		dragging = true;
 
-		QMimeData *mimeData = new QMimeData;
+		QMimeData* mimeData = new QMimeData;
 		mimeData->setData(getButtonMime(), QByteArray());
 		mimeData->setProperty("sourceButton", qVariantFromValue(this));
 
-		QDrag *drag = new QDrag(this);
+		QDrag* drag = new QDrag(this);
 		drag->setMimeData(mimeData);
 		drag->setPixmap(QPixmap(":/icon/img/speaker_icon_3_64.png"));
 		drag->exec();
@@ -119,14 +117,14 @@ void SoundButton::mouseMoveEvent(QMouseEvent *evt)
 }
 
 
-void SoundButton::setBackgroundColor(const QColor &color)
+void SoundButton::setBackgroundColor(const QColor& color)
 {
 	backgroundColor = color;
 	applyBackgroundColor(color);
 }
 
 
-void SoundButton::applyBackgroundColor(const QColor & color)
+void SoundButton::applyBackgroundColor(const QColor& color)
 {
 	if (color.alpha() != 0)
 	{
@@ -139,7 +137,7 @@ void SoundButton::applyBackgroundColor(const QColor & color)
 }
 
 
-void SoundButton::mouseReleaseEvent(QMouseEvent *evt)
+void SoundButton::mouseReleaseEvent(QMouseEvent* evt)
 {
 	sb_disableHotkeysTemporarily(false);
 

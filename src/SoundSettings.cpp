@@ -7,7 +7,6 @@
 //----------------------------------
 
 
-
 #include "ui_SoundSettings.h"
 #include "SoundSettings.h"
 #include "ConfigModel.h"
@@ -21,7 +20,7 @@
 #include <QColorDialog>
 
 
-SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QWidget *parent /*= 0*/) :
+SoundSettingsQt::SoundSettingsQt(const SoundInfo& soundInfo, size_t buttonId, QWidget* parent /*= 0*/) :
 	QDialog(parent),
 	ui(new Ui::SoundSettingsQt),
 	m_soundInfo(soundInfo),
@@ -47,7 +46,7 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QW
 	connect(ui->hotkeyChangeButton, SIGNAL(clicked()), this, SLOT(onHotkeyChangePressed()));
 	connect(ui->colorCheckBox, SIGNAL(clicked()), this, SLOT(onColorEnabledPressed()));
 	connect(ui->colorButton, SIGNAL(clicked()), this, SLOT(onChooseColorPressed()));
-	connect(parent, SIGNAL(hotkeyRecordedEvent(QString,QString)), this, SLOT(updateHotkeyText()));
+	connect(parent, SIGNAL(hotkeyRecordedEvent(QString, QString)), this, SLOT(updateHotkeyText()));
 	connect(ui->startSoundUnitCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSoundView()));
 	connect(ui->stopSoundUnitCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSoundView()));
 	connect(ui->stopSoundAtAfterCombo, SIGNAL(currentIndexChanged(int)), this, SLOT(updateSoundView()));
@@ -63,7 +62,7 @@ SoundSettingsQt::SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QW
 }
 
 
-void SoundSettingsQt::initGui(const SoundInfo &sound)
+void SoundSettingsQt::initGui(const SoundInfo& sound)
 {
 	ui->filenameEdit->setText(sound.filename);
 	ui->customTextEdit->setPlaceholderText(QFileInfo(sound.filename).baseName());
@@ -79,14 +78,14 @@ void SoundSettingsQt::initGui(const SoundInfo &sound)
 	ui->colorButton->setEnabled(sound.customColorEnabled());
 	ui->colorButton->setStyleSheet(QString("background-color: %1").arg(sound.customColor.name()));
 	this->customColor = sound.customColor;
-	
+
 	updateHotkeyText();
 
 	m_soundview->setSound(sound);
 }
 
 
-void SoundSettingsQt::fillFromGui(SoundInfo &sound)
+void SoundSettingsQt::fillFromGui(SoundInfo& sound)
 {
 	sound.filename = ui->filenameEdit->text();
 	sound.customText = ui->customTextEdit->text();
@@ -106,10 +105,10 @@ SoundSettingsQt::~SoundSettingsQt()
 }
 
 
-void SoundSettingsQt::done( int r )
+void SoundSettingsQt::done(int r)
 {
-	Sampler *sampler = sb_getSampler();
-	if(sampler->getState() == Sampler::ePLAYING_PREVIEW)
+	Sampler* sampler = sb_getSampler();
+	if (sampler->getState() == Sampler::ePLAYING_PREVIEW)
 		sampler->stopPlayback();
 	fillFromGui(m_soundInfo);
 	QDialog::done(r);
@@ -126,7 +125,7 @@ void SoundSettingsQt::onBrowsePressed()
 {
 	QString filePath = ui->filenameEdit->text();
 	QString fn = QFileDialog::getOpenFileName(this, tr("Choose File"), filePath, tr("Files (*.*)"));
-	if(!fn.isNull())
+	if (!fn.isNull())
 	{
 		ui->filenameEdit->setText(fn);
 		ui->customTextEdit->setPlaceholderText(QFileInfo(fn).baseName());
@@ -140,12 +139,12 @@ void SoundSettingsQt::onBrowsePressed()
 
 void SoundSettingsQt::onPreviewPressed()
 {
-	Sampler *sampler = sb_getSampler();
-	if(sampler->getState() != Sampler::ePLAYING_PREVIEW)
+	Sampler* sampler = sb_getSampler();
+	if (sampler->getState() != Sampler::ePLAYING_PREVIEW)
 	{
 		SoundInfo sound;
 		fillFromGui(sound);
-		if(sampler->playPreview(sound))
+		if (sampler->playPreview(sound))
 		{
 			ui->previewSoundButton->setIcon(m_iconStop);
 			m_timer->start(100);
@@ -161,8 +160,8 @@ void SoundSettingsQt::onPreviewPressed()
 
 void SoundSettingsQt::onTimer()
 {
-	Sampler *sampler = sb_getSampler();
-	if(sampler->getState() != Sampler::ePLAYING_PREVIEW)
+	Sampler* sampler = sb_getSampler();
+	if (sampler->getState() != Sampler::ePLAYING_PREVIEW)
 	{
 		ui->previewSoundButton->setIcon(m_iconPlay);
 		m_timer->stop();
@@ -179,8 +178,9 @@ void SoundSettingsQt::onHotkeyChangePressed()
 void SoundSettingsQt::updateHotkeyText()
 {
 	QString hotkeyText = MainWindow::getShortcutString(m_buttonId);
-	ui->hotkeyCurrentLabel->setText(QString("Current hotkey: ") + 
-		(hotkeyText.isEmpty() ? QString("None") : hotkeyText));
+	ui->hotkeyCurrentLabel->setText(
+		QString("Current hotkey: ") + (hotkeyText.isEmpty() ? QString("None") : hotkeyText)
+	);
 }
 
 
@@ -207,8 +207,3 @@ void SoundSettingsQt::updateSoundView()
 	m_soundview->setSound(info);
 	m_soundview->update();
 }
-
-
-
-
-

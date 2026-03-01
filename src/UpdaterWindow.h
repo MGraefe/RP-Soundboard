@@ -17,8 +17,9 @@
 
 #include "ui_UpdaterWindow.h"
 
-namespace Ui {
-	class updaterWindow;
+namespace Ui
+{
+class updaterWindow;
 }
 
 
@@ -26,34 +27,34 @@ class UpdaterWindow : public QDialog
 {
 	Q_OBJECT
 
-public:
-	explicit UpdaterWindow(QWidget *parent = 0);
-	void startDownload(const QUrl &url, const QFileInfo &fileInfo, bool execute = false);
-	void startRequest(const QUrl & url);
-	inline bool getSuccess() const {
+  public:
+	explicit UpdaterWindow(QWidget* parent = 0);
+	void startDownload(const QUrl& url, const QFileInfo& fileInfo, bool execute = false);
+	void startRequest(const QUrl& url);
+	inline bool getSuccess() const
+	{
 		return m_success;
 	}
 
-public slots:
+  public slots:
 	void onReadyRead();
 	void onDownloadProgress(qint64 bytes, qint64 total);
 	void onClickedCancel(QAbstractButton*);
 	void onFinished();
 
-signals:
+  signals:
 	void finished();
-	
-private:
+
+  private:
 	bool executeFile();
-	Ui::updaterWindow *ui;
+	Ui::updaterWindow* ui;
 	QUrl m_url;
 	QFileInfo m_fileinfo;
-	QFile *m_file;
-	QNetworkAccessManager *m_manager;
-	QNetworkReply *m_reply;
+	QFile* m_file;
+	QNetworkAccessManager* m_manager;
+	QNetworkReply* m_reply;
 	int m_redirects;
 	bool m_execute;
 	bool m_canceled;
 	bool m_success;
 };
-

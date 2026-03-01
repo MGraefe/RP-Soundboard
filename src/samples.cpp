@@ -20,10 +20,10 @@
 #include <cassert>
 #include <math.h>
 
-//#define MEASURE_PERFORMANCE
+// #define MEASURE_PERFORMANCE
 
-using std::vector;
 using std::queue;
+using std::vector;
 
 static_assert(sizeof(short) == 2, "Short is weird size");
 
@@ -35,11 +35,10 @@ static_assert(sizeof(short) == 2, "Short is weird size");
 #error Unknown compiler
 #endif
 
-#define ALIGNED_STACK_ARRAY(name, size, alignment) name[size] ALIGNED_(alignment) 
+#define ALIGNED_STACK_ARRAY(name, size, alignment) name[size] ALIGNED_(alignment)
 
 #define MAX_SAMPLEBUFFER_SIZE (48000 * 5)
 #define AMP_THRESH (SHRT_MAX / 2)
-
 
 
 Sampler::Sampler() :
@@ -52,21 +51,18 @@ Sampler::Sampler() :
 	m_volumeDivider(1),
 	m_globalDbSettingLocal(-1.0),
 	m_globalDbSettingRemote(-1.0),
-    m_soundDbSetting(0.0),
-    m_state(eSILENT),
-    m_localPlayback(true)
+	m_soundDbSetting(0.0),
+	m_state(eSILENT),
+	m_localPlayback(true)
 {
-    /* Ensure resources are loaded */
-    Q_INIT_RESOURCE(qtres);
+	/* Ensure resources are loaded */
+	Q_INIT_RESOURCE(qtres);
 
-    assert(m_state.is_lock_free());
+	assert(m_state.is_lock_free());
 }
 
 
-Sampler::~Sampler()
-{
-	
-}
+Sampler::~Sampler() {}
 
 
 void Sampler::init()
@@ -81,7 +77,7 @@ void Sampler::shutdown()
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
-	if(m_inputFile)
+	if (m_inputFile)
 	{
 		m_inputFile->close();
 		delete m_inputFile;
@@ -97,28 +93,31 @@ size_t g_perfMeasureCount = 0;
 double g_perfMeasurement = 0.0;
 #endif
 
-int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int count, int channels, bool eraseConsumed, int ciLeft, int ciRight, bool overLeft, bool overRight )
+int Sampler::fetchSamples(
+	SampleBuffer& sb, PeakMeter& pm, short* samples, int count, int channels, bool eraseConsumed, int ciLeft,
+	int ciRight, bool overLeft, bool overRight
+)
 {
 	if (m_state == ePAUSED)
 		return 0;
 
 	SampleBuffer::Lock sbl(sb.getMutex());
 
-	if(sb.avail() == 0)
+	if (sb.avail() == 0)
 		return 0;
 
-	if(overLeft)
+	if (overLeft)
 	{
-		if(channels == 1)
+		if (channels == 1)
 			memset(samples, 0, count * sizeof(short));
 		else
-			for(int i = 0; i < count; i++)
-                samples[i*channels+ciLeft] = 0;
+			for (int i = 0; i < count; i++)
+				samples[i * channels + ciLeft] = 0;
 	}
 
-	if(overRight && channels > 1)
-		for(int i = 0; i < count; i++)
-			samples[i*channels+ciRight] = 0;
+	if (overRight && channels > 1)
+		for (int i = 0; i < count; i++)
+			samples[i * channels + ciRight] = 0;
 
 	const int write = std::min(count, sb.avail());
 
@@ -130,7 +129,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 	start = HighResClock::now();
 #endif
 
-	if(channels == 1)
+	if (channels == 1)
 	{
 		for (int i = 0; i < write; i++)
 		{
@@ -141,7 +140,7 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 	}
 	else
 	{
-		for(int i = 0; i < write; i++)
+		for (int i = 0; i < write; i++)
 		{
 			float sample0 = out[i * channels + ciLeft] + m_volumeFactor * float(in[i * 2]);
 			float sample1 = out[i * channels + ciRight] + m_volumeFactor * float(in[i * 2 + 1]);
@@ -157,10 +156,13 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 	end = HighResClock::now();
 	std::chrono::duration<double> elapsed = end - start;
 	g_perfMeasurement += elapsed.count();
-	if(++g_perfMeasureCount >= 1000)
+	if (++g_perfMeasureCount >= 1000)
 	{
-		logInfo("Avg. time in fetchSamples: %f us, volume: %f, limiter: %f", g_perfMeasurement / (double)g_perfMeasureCount * 1000000.0,
-			m_volumeFactor, std::min(AMP_THRESH / m_peakMeterPlayback.getOutput(), 1.0f));
+		logInfo(
+			"Avg. time in fetchSamples: %f us, volume: %f, limiter: %f",
+			g_perfMeasurement / (double)g_perfMeasureCount * 1000000.0, m_volumeFactor,
+			std::min(AMP_THRESH / m_peakMeterPlayback.getOutput(), 1.0f)
+		);
 		g_perfMeasureCount = 0;
 		g_perfMeasurement = 0.0;
 	}
@@ -169,39 +171,42 @@ int Sampler::fetchSamples(SampleBuffer &sb, PeakMeter &pm, short *samples, int c
 }
 
 
-int Sampler::findChannelId(unsigned int channel, const unsigned int *channelSpeakerArray, int count)
+int Sampler::findChannelId(unsigned int channel, const unsigned int* channelSpeakerArray, int count)
 {
-	for(int i = 0; i < count; i++)
-		if(channelSpeakerArray[i] & channel)
+	for (int i = 0; i < count; i++)
+		if (channelSpeakerArray[i] & channel)
 			return i;
 	return 0;
 }
 
 
-int Sampler::fetchInputSamples(short *samples, int count, int channels, bool *finished)
+int Sampler::fetchInputSamples(short* samples, int count, int channels, bool* finished)
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
 	setVolumeDb(m_globalDbSettingRemote + m_soundDbSetting);
-	int written = fetchSamples(m_sbCapture, m_peakMeterCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
-	
-    if(m_state == ePLAYING && m_inputFile && m_inputFile->done())
+	int written =
+		fetchSamples(m_sbCapture, m_peakMeterCapture, samples, count, channels, true, 0, 1, m_muteMyself, m_muteMyself);
+
+	if (m_state == ePLAYING && m_inputFile && m_inputFile->done())
 	{
-        SampleBuffer::Lock sbl(m_sbCapture.getMutex());
-        if (m_sbCapture.avail() == 0)
-        {
-            m_state = eSILENT;
-            if(finished)
-                *finished = true;
-            emit onStopPlaying();
-        }
+		SampleBuffer::Lock sbl(m_sbCapture.getMutex());
+		if (m_sbCapture.avail() == 0)
+		{
+			m_state = eSILENT;
+			if (finished)
+				*finished = true;
+			emit onStopPlaying();
+		}
 	}
 
 	return written;
 }
 
 
-int Sampler::fetchOutputSamples(short *samples, int count, int channels, const unsigned int *channelSpeakerArray, unsigned int *channelFillMask)
+int Sampler::fetchOutputSamples(
+	short* samples, int count, int channels, const unsigned int* channelSpeakerArray, unsigned int* channelFillMask
+)
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
@@ -210,34 +215,35 @@ int Sampler::fetchOutputSamples(short *samples, int count, int channels, const u
 	int ciLeft = findChannelId(bitMaskLeft, channelSpeakerArray, channels);
 	int ciRight = findChannelId(bitMaskRight, channelSpeakerArray, channels);
 	setVolumeDb(m_globalDbSettingLocal + m_soundDbSetting);
-	int written = fetchSamples(m_sbPlayback, m_peakMeterPlayback, samples, count, channels, true, ciLeft, ciRight,
-		(*channelFillMask & bitMaskLeft) == 0,
-		(*channelFillMask & bitMaskRight) == 0);
-	
-	if(written > 0)
+	int written = fetchSamples(
+		m_sbPlayback, m_peakMeterPlayback, samples, count, channels, true, ciLeft, ciRight,
+		(*channelFillMask & bitMaskLeft) == 0, (*channelFillMask & bitMaskRight) == 0
+	);
+
+	if (written > 0)
 		*channelFillMask |= (bitMaskLeft | bitMaskRight);
 
-    if(m_state == ePLAYING_PREVIEW && m_inputFile && m_inputFile->done())
+	if (m_state == ePLAYING_PREVIEW && m_inputFile && m_inputFile->done())
 	{
-        SampleBuffer::Lock sbl(m_sbPlayback.getMutex());
-        if (m_sbPlayback.avail() == 0)
-        {
-            m_state = eSILENT;
-            emit onStopPlaying();
-        }
+		SampleBuffer::Lock sbl(m_sbPlayback.getMutex());
+		if (m_sbPlayback.avail() == 0)
+		{
+			m_state = eSILENT;
+			emit onStopPlaying();
+		}
 	}
 
 	return written;
 }
 
 
-bool Sampler::playFile(const SoundInfo &sound)
+bool Sampler::playFile(const SoundInfo& sound)
 {
 	return playSoundInternal(sound, false);
 }
 
 
-bool Sampler::playPreview(const SoundInfo &sound)
+bool Sampler::playPreview(const SoundInfo& sound)
 {
 	return playSoundInternal(sound, true);
 }
@@ -251,7 +257,7 @@ void Sampler::stopPlayback()
 
 #define VOLUMESCALER_EXPONENT 1.0
 #define VOLUMESCALER_DB_MIN -28.0
-void Sampler::setVolumeRemote( int vol )
+void Sampler::setVolumeRemote(int vol)
 {
 	double v = (double)vol / 100.0;
 	double db = pow(1.0 - v, VOLUMESCALER_EXPONENT) * VOLUMESCALER_DB_MIN;
@@ -260,7 +266,7 @@ void Sampler::setVolumeRemote( int vol )
 }
 
 
-void Sampler::setVolumeLocal( int vol )
+void Sampler::setVolumeLocal(int vol)
 {
 	double v = (double)vol / 100.0;
 	double db = pow(1.0 - v, VOLUMESCALER_EXPONENT) * VOLUMESCALER_DB_MIN;
@@ -269,7 +275,7 @@ void Sampler::setVolumeLocal( int vol )
 }
 
 
-void Sampler::setLocalPlayback( bool enabled )
+void Sampler::setLocalPlayback(bool enabled)
 {
 	m_localPlayback = enabled;
 	m_sampleProducerThread.setBufferEnabled(&m_sbPlayback, enabled);
@@ -282,9 +288,9 @@ void Sampler::setMuteMyself(bool enabled)
 }
 
 
-void Sampler::setVolumeDb( double decibel )
+void Sampler::setVolumeDb(double decibel)
 {
-	double factor = pow(10.0, decibel/10.0);
+	double factor = pow(10.0, decibel / 10.0);
 	m_volumeFactor = (float)factor;
 	m_volumeDivider = (int)(factor * (1 << volumeScaleExp) + 0.5);
 }
@@ -300,7 +306,7 @@ void Sampler::stopSoundInternal()
 		delete m_inputFile;
 		m_inputFile = nullptr;
 
-		//Clear buffers
+		// Clear buffers
 		SampleBuffer::Lock sblc(m_sbCapture.getMutex());
 		SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
 		m_sbCapture.consume(nullptr, m_sbCapture.avail());
@@ -311,7 +317,7 @@ void Sampler::stopSoundInternal()
 }
 
 
-bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
+bool Sampler::playSoundInternal(const SoundInfo& sound, bool preview)
 {
 	std::lock_guard<std::mutex> Lock(m_mutex);
 
@@ -319,7 +325,7 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 
 	m_inputFile = CreateInputFileFFmpeg();
 
-	if(m_inputFile->open(sound.filename.toUtf8(), sound.getStartTime(), sound.getPlayTime()) != 0)
+	if (m_inputFile->open(sound.filename.toUtf8(), sound.getStartTime(), sound.getPlayTime()) != 0)
 	{
 		delete m_inputFile;
 		m_inputFile = nullptr;
@@ -332,11 +338,11 @@ bool Sampler::playSoundInternal( const SoundInfo &sound, bool preview )
 	SampleBuffer::Lock sblc(m_sbCapture.getMutex());
 	SampleBuffer::Lock sblp(m_sbPlayback.getMutex());
 
-	//Clear buffers
+	// Clear buffers
 	m_sbCapture.consume(nullptr, m_sbCapture.avail());
 	m_sbPlayback.consume(nullptr, m_sbPlayback.avail());
 
-	if(preview)
+	if (preview)
 	{
 		m_state = ePLAYING_PREVIEW;
 		m_sampleProducerThread.setBufferEnabled(&m_sbCapture, false);
@@ -376,4 +382,3 @@ void Sampler::unpausePlayback()
 		emit onUnpausePlaying();
 	}
 }
-

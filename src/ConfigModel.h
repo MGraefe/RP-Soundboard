@@ -19,7 +19,7 @@
 
 class ConfigModel
 {
-public:
+  public:
 	enum notifications_e
 	{
 		NOTIFY_SET_SOUND,
@@ -40,88 +40,133 @@ public:
 
 	class Observer
 	{
-	public:
-        virtual ~Observer() {}
-		virtual void notify(ConfigModel &model, notifications_e what, int data) = 0;
+	  public:
+		virtual ~Observer() {}
+		virtual void notify(ConfigModel& model, notifications_e what, int data) = 0;
 	};
 
-public:
+  public:
 	ConfigModel();
 
-	void readConfig(const QString &file = QString());
-    void writeConfig(const QString &file = QString());
+	void readConfig(const QString& file = QString());
+	void writeConfig(const QString& file = QString());
 
 	void notifyAllEvents();
-	
+
 	static QString GetConfigPath();
 	static QString GetFullConfigPath();
 
 	QString getFileName(int itemId) const;
-	void setFileName(int itemId, const QString &fn);
+	void setFileName(int itemId, const QString& fn);
 
-	const SoundInfo *getSoundInfo(int itemId) const;
-	void setSoundInfo(int itemId, const SoundInfo &info);
+	const SoundInfo* getSoundInfo(int itemId) const;
+	void setSoundInfo(int itemId, const SoundInfo& info);
 
-	inline int getRows() const { return m_rows[m_activeConfig]; }
+	inline int getRows() const
+	{
+		return m_rows[m_activeConfig];
+	}
 	void setRows(int n);
 
-	inline int getCols() const { return m_cols[m_activeConfig]; }
+	inline int getCols() const
+	{
+		return m_cols[m_activeConfig];
+	}
 	void setCols(int n);
 
-	inline int getVolumeLocal() const { return m_volumeLocal; }
+	inline int getVolumeLocal() const
+	{
+		return m_volumeLocal;
+	}
 	void setVolumeLocal(int val);
 
-	inline int getVolumeRemote() const { return m_volumeRemote; }
+	inline int getVolumeRemote() const
+	{
+		return m_volumeRemote;
+	}
 	void setVolumeRemote(int val);
 
-	inline bool getPlaybackLocal() const { return m_playbackLocal; }
+	inline bool getPlaybackLocal() const
+	{
+		return m_playbackLocal;
+	}
 	void setPlaybackLocal(bool val);
-	
-	inline bool getMuteMyselfDuringPb() const { return m_muteMyselfDuringPb; }
+
+	inline bool getMuteMyselfDuringPb() const
+	{
+		return m_muteMyselfDuringPb;
+	}
 	void setMuteMyselfDuringPb(bool val);
 
-	void getWindowSize(int *width, int *height) const;
+	void getWindowSize(int* width, int* height) const;
 	void setWindowSize(int width, int height);
 
-	inline int getBubbleButtonsBuild() const { return m_bubbleButtonsBuild; }
+	inline int getBubbleButtonsBuild() const
+	{
+		return m_bubbleButtonsBuild;
+	}
 	void setBubbleButtonsBuild(int build);
 
-	inline int getBubbleStopBuild() const { return m_bubbleStopBuild; }
+	inline int getBubbleStopBuild() const
+	{
+		return m_bubbleStopBuild;
+	}
 	void setBubbleStopBuild(int build);
 
-	inline int getBubbleColsBuild() const { return m_bubbleColsBuild; }
+	inline int getBubbleColsBuild() const
+	{
+		return m_bubbleColsBuild;
+	}
 	void setBubbleColsBuild(int build);
 
-	inline bool getShowHotkeysOnButtons() const { return m_showHotkeysOnButtons; }
+	inline bool getShowHotkeysOnButtons() const
+	{
+		return m_showHotkeysOnButtons;
+	}
 	void setShowHotkeysOnButtons(bool show);
 
-	inline bool getHotkeysEnabled() const { return m_hotkeysEnabled; }
+	inline bool getHotkeysEnabled() const
+	{
+		return m_hotkeysEnabled;
+	}
 	void setHotkeysEnabled(bool enabled);
 
-	void addObserver(Observer *obs);
-	void remObserver(Observer *obs);
+	void addObserver(Observer* obs);
+	void remObserver(Observer* obs);
 
-    void setConfiguration(int config);
+	void setConfiguration(int config);
 	int getConfiguration();
 
-	const std::vector<SoundInfo> &sounds() const { return m_sounds[m_activeConfig]; }
-    int numSounds() const { return (int)sounds().size(); }
+	const std::vector<SoundInfo>& sounds() const
+	{
+		return m_sounds[m_activeConfig];
+	}
+	int numSounds() const
+	{
+		return (int)sounds().size();
+	}
 
-	uint getNextUpdateCheck() const { return m_nextUpdateCheck; }
+	uint getNextUpdateCheck() const
+	{
+		return m_nextUpdateCheck;
+	}
 	void setNextUpdateCheck(uint time);
 
-private:
-	std::vector<SoundInfo> &sounds() { return m_sounds[m_activeConfig]; }
+  private:
+	std::vector<SoundInfo>& sounds()
+	{
+		return m_sounds[m_activeConfig];
+	}
 	void notify(notifications_e what, int data);
 	std::vector<SoundInfo> getInitialSounds();
-	std::vector<SoundInfo> readConfiguration(QSettings & settings, const QString &name);
-    void writeConfiguration(QSettings & settings, const QString &name, const std::vector<SoundInfo> &sounds);
+	std::vector<SoundInfo> readConfiguration(QSettings& settings, const QString& name);
+	void writeConfiguration(QSettings& settings, const QString& name, const std::vector<SoundInfo>& sounds);
 
 	std::vector<Observer*> m_obs;
 	std::array<std::vector<SoundInfo>, NUM_CONFIGS> m_sounds;
 	int m_activeConfig;
 
-    std::array<int, NUM_CONFIGS> m_rows;
+	std::array<int, NUM_CONFIGS> m_rows;
 	std::array<int, NUM_CONFIGS> m_cols;
 	int m_volumeLocal;
 	int m_volumeRemote;
@@ -139,4 +184,3 @@ private:
 
 	uint m_nextUpdateCheck;
 };
-

@@ -7,8 +7,8 @@
 //----------------------------------
 
 
-//Parses XML Files from a server
-//Example File:
+// Parses XML Files from a server
+// Example File:
 
 // <?xml version="1.0" encoding="utf-8"?>
 //
@@ -39,34 +39,33 @@
 #define CHECK_URL "https://mgraefe.de/rpsb/version/version.xml"
 
 
-std::string toStdStringUtf8(const QString &str)
+std::string toStdStringUtf8(const QString& str)
 {
 	QByteArray arr = str.toUtf8();
 	std::string res(arr.constData(), arr.size());
 	return res;
 }
 
-bool isValid(const QXmlStreamReader &xml)
+bool isValid(const QXmlStreamReader& xml)
 {
 	return !(xml.hasError() || xml.atEnd());
 }
 
 
-UpdateChecker::UpdateChecker( QObject *parent /*= nullptr*/ ) :
+UpdateChecker::UpdateChecker(QObject* parent /*= nullptr*/) :
 	QObject(parent),
 	m_updater(nullptr),
 	m_config(nullptr),
 	m_explicitCheck(false)
 {
-
 }
 
 
-void UpdateChecker::startCheck(bool explicitCheck, ConfigModel *config)
+void UpdateChecker::startCheck(bool explicitCheck, ConfigModel* config)
 {
 	m_explicitCheck = explicitCheck;
 	m_config = config;
-	
+
 	uint currentTime = QDateTime::currentDateTime().toTime_t();
 	if (!m_explicitCheck && m_config && currentTime < m_config->getNextUpdateCheck())
 		return;
@@ -83,7 +82,7 @@ void UpdateChecker::startCheck(bool explicitCheck, ConfigModel *config)
 }
 
 
-void UpdateChecker::onFinishDownload(QNetworkReply *reply)
+void UpdateChecker::onFinishDownload(QNetworkReply* reply)
 {
 	switch (loading)
 	{
@@ -97,9 +96,9 @@ void UpdateChecker::onFinishDownload(QNetworkReply *reply)
 }
 
 
-void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
+void UpdateChecker::onFinishDownloadXml(QNetworkReply* reply)
 {
-	if(reply->error() != QNetworkReply::NoError)
+	if (reply->error() != QNetworkReply::NoError)
 	{
 		std::string err = toStdStringUtf8(reply->errorString());
 		logError("UpdateChecker: Error requesting version document %s.\nError-String: %s", CHECK_URL, err.c_str());
@@ -107,7 +106,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 	else
 	{
 		parseXml(reply);
-		if(m_verInfo.valid() && m_verInfo.build > buildinfo_getVersionNumber(3))
+		if (m_verInfo.valid() && m_verInfo.build > buildinfo_getVersionNumber(3))
 		{
 			if (!m_verInfo.featuresUrl.isEmpty())
 			{
@@ -138,7 +137,7 @@ void UpdateChecker::onFinishDownloadXml(QNetworkReply *reply)
 }
 
 
-void UpdateChecker::onFinishDownloadFeatures(QNetworkReply *reply)
+void UpdateChecker::onFinishDownloadFeatures(QNetworkReply* reply)
 {
 	if (reply->error() != QNetworkReply::NoError)
 	{
@@ -155,17 +154,17 @@ void UpdateChecker::onFinishDownloadFeatures(QNetworkReply *reply)
 }
 
 
-void UpdateChecker::parseXml(QIODevice *device)
+void UpdateChecker::parseXml(QIODevice* device)
 {
 	m_verInfo.reset();
 
 	QXmlStreamReader xml;
 	xml.setDevice(device);
 
-	while(isValid(xml))
+	while (isValid(xml))
 	{
 		QXmlStreamReader::TokenType token = xml.readNext();
-		if(token == QXmlStreamReader::StartElement && xml.name() == "product")
+		if (token == QXmlStreamReader::StartElement && xml.name() == "product")
 			parseProduct(xml);
 	}
 
@@ -173,16 +172,15 @@ void UpdateChecker::parseXml(QIODevice *device)
 }
 
 
-void UpdateChecker::parseProduct( QXmlStreamReader &xml )
+void UpdateChecker::parseProduct(QXmlStreamReader& xml)
 {
-	if (xml.attributes().value("descVersion") == "1" && 
-		xml.attributes().value("name") == "rp_soundboard")
+	if (xml.attributes().value("descVersion") == "1" && xml.attributes().value("name") == "rp_soundboard")
 	{
 		m_verInfo.productName = xml.attributes().value("name").toString();
 		xml.readNext();
-		while(isValid(xml) && !(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "product"))
+		while (isValid(xml) && !(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "product"))
 		{
-			if(xml.tokenType() == QXmlStreamReader::StartElement)
+			if (xml.tokenType() == QXmlStreamReader::StartElement)
 				parseProductInner(xml);
 			xml.readNext();
 		}
@@ -190,24 +188,24 @@ void UpdateChecker::parseProduct( QXmlStreamReader &xml )
 }
 
 
-void UpdateChecker::parseProductInner( QXmlStreamReader &xml )
+void UpdateChecker::parseProductInner(QXmlStreamReader& xml)
 {
-	if(xml.name() == "latestVersion")
+	if (xml.name() == "latestVersion")
 	{
 		xml.readNext();
 		m_verInfo.build = xml.text().toInt();
 	}
-	else if(xml.name() == "latestVersionString")
+	else if (xml.name() == "latestVersionString")
 	{
 		xml.readNext();
 		m_verInfo.version = xml.text().toString();
 	}
-	else if(xml.name() == "latestDownload")
+	else if (xml.name() == "latestDownload")
 	{
 		xml.readNext();
-		while(isValid(xml) && !(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "latestDownload"))
+		while (isValid(xml) && !(xml.tokenType() == QXmlStreamReader::EndElement && xml.name() == "latestDownload"))
 		{
-			if(xml.tokenType() == QXmlStreamReader::StartElement && xml.name() == "url")
+			if (xml.tokenType() == QXmlStreamReader::StartElement && xml.name() == "url")
 			{
 				xml.readNext();
 				m_verInfo.latestDownload = xml.text().toString();
@@ -227,15 +225,18 @@ void UpdateChecker::askUserForUpdate()
 {
 	QMessageBox msgBox0;
 	msgBox0.setTextFormat(Qt::RichText);
-	msgBox0.setText(QString("A new version of RP Soundboard is available (%1).<br /><br />"\
-		"Would you like to download and install it?").arg(m_verInfo.version));
+	msgBox0.setText(QString(
+						"A new version of RP Soundboard is available (%1).<br /><br />"
+						"Would you like to download and install it?"
+	)
+						.arg(m_verInfo.version));
 	msgBox0.setIcon(QMessageBox::Information);
 	msgBox0.setWindowTitle("New version of RP Soundboard!");
 	msgBox0.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
 	msgBox0.setDefaultButton(QMessageBox::Yes);
 	if (m_verInfo.features.length() > 0)
 		msgBox0.setDetailedText(m_verInfo.features);
-	if(msgBox0.exec() == QMessageBox::Yes)
+	if (msgBox0.exec() == QMessageBox::Yes)
 	{
 		QUrl url(m_verInfo.latestDownload);
 		QFileInfo info(QDir::temp(), url.fileName());
@@ -258,7 +259,7 @@ void UpdateChecker::askUserForUpdate()
 
 void UpdateChecker::onFinishedUpdate()
 {
-	if(m_updater->getSuccess())
+	if (m_updater->getSuccess())
 	{
 		QApplication::closeAllWindows();
 	}
@@ -266,10 +267,15 @@ void UpdateChecker::onFinishedUpdate()
 	{
 		QMessageBox msgBox;
 		msgBox.setTextFormat(Qt::RichText);
-		msgBox.setText(QString("The Update to %1 failed.<br /><br />"\
-			"Please download it manually here: <br /><a href=\"%2\">%2</a>")
-			.arg(m_verInfo.version.isEmpty() ? QString("build %1").arg(m_verInfo.build) : QString("version %1").arg(m_verInfo.version))
-			.arg(m_verInfo.latestDownload));
+		msgBox.setText(QString(
+						   "The Update to %1 failed.<br /><br />"
+						   "Please download it manually here: <br /><a href=\"%2\">%2</a>"
+		)
+						   .arg(
+							   m_verInfo.version.isEmpty() ? QString("build %1").arg(m_verInfo.build)
+														   : QString("version %1").arg(m_verInfo.version)
+						   )
+						   .arg(m_verInfo.latestDownload));
 		msgBox.setIcon(QMessageBox::Information);
 		msgBox.setWindowTitle("Update failed");
 		msgBox.setStandardButtons(QMessageBox::Close);
@@ -295,9 +301,8 @@ void UpdateChecker::version_info_t::reset()
 
 bool UpdateChecker::version_info_t::valid()
 {
-	return !productName.isNull() && !productName.isEmpty() &&
-		!latestDownload.isNull() && !latestDownload.isEmpty() &&
-		build > 0;
+	return !productName.isNull() && !productName.isEmpty() && !latestDownload.isNull() && !latestDownload.isEmpty() &&
+		   build > 0;
 }
 
 

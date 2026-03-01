@@ -17,24 +17,28 @@
 class ConfigModel;
 class SoundView;
 
-namespace Ui {
-	class SoundSettingsQt;
+namespace Ui
+{
+class SoundSettingsQt;
 }
 
 
-class SoundSettingsQt: public QDialog
+class SoundSettingsQt : public QDialog
 {
 	Q_OBJECT
 
-public:
-	explicit SoundSettingsQt(const SoundInfo &soundInfo, size_t buttonId, QWidget *parent = 0);
+  public:
+	explicit SoundSettingsQt(const SoundInfo& soundInfo, size_t buttonId, QWidget* parent = 0);
 	~SoundSettingsQt();
-	const SoundInfo &getSoundInfo() const { return m_soundInfo; }
+	const SoundInfo& getSoundInfo() const
+	{
+		return m_soundInfo;
+	}
 
-protected:
+  protected:
 	void done(int r);
 
-private slots:
+  private slots:
 	void onVolumeChanged(int value);
 	void onBrowsePressed();
 	void onPreviewPressed();
@@ -45,18 +49,17 @@ private slots:
 	void onChooseColorPressed();
 	void updateSoundView();
 
-private:
-	void initGui(const SoundInfo &sound);
-	void fillFromGui(SoundInfo &sound);
+  private:
+	void initGui(const SoundInfo& sound);
+	void fillFromGui(SoundInfo& sound);
 
-private:
-	Ui::SoundSettingsQt *ui;
+  private:
+	Ui::SoundSettingsQt* ui;
 	SoundInfo m_soundInfo;
 	size_t m_buttonId;
 	QIcon m_iconPlay;
 	QIcon m_iconStop;
-	QTimer *m_timer;
-	SoundView *m_soundview;
+	QTimer* m_timer;
+	SoundView* m_soundview;
 	QColor customColor;
 };
-

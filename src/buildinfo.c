@@ -33,57 +33,62 @@
 	"can be downloaded here: https://github.com/MGraefe/RP-Soundboard")
 
 
-const char * buildinfo_getPluginVersion()
+const char* buildinfo_getPluginVersion()
 {
 	return PLUGIN_VERSION;
 }
 
 
-const char * buildinfo_getPluginName()
+const char* buildinfo_getPluginName()
 {
 	return PLUGIN_NAME;
 }
 
 
-const char * buildinfo_getPluginAuthor()
+const char* buildinfo_getPluginAuthor()
 {
 	return PLUGIN_AUTHOR;
 }
 
 
-const char * buildinfo_getPluginDescription()
+const char* buildinfo_getPluginDescription()
 {
 	return PLUGIN_DESCRIPTION;
 }
 
 
-const char * buildinfo_getBuildName()
+const char* buildinfo_getBuildName()
 {
 	return BUILD_NAME;
 }
 
 
-const char * buildinfo_getPluginVersionShort()
+const char* buildinfo_getPluginVersionShort()
 {
 	return TS3SB_VERSION_S;
 }
 
 
-//index: 0 = major, 1 = minor, 2 = revision, 3 = build
-int buildinfo_getVersionNumber( int index )
+// index: 0 = major, 1 = minor, 2 = revision, 3 = build
+int buildinfo_getVersionNumber(int index)
 {
-	switch(index)
+	switch (index)
 	{
-	case 0: return TS3SB_VERSION_MAJOR;
-	case 1: return TS3SB_VERSION_MINOR;
-	case 2: return TS3SB_VERSION_REVISION;
-	case 3: return TS3SB_VERSION_BUILD;
-	default: return -1;
+	case 0:
+		return TS3SB_VERSION_MAJOR;
+	case 1:
+		return TS3SB_VERSION_MINOR;
+	case 2:
+		return TS3SB_VERSION_REVISION;
+	case 3:
+		return TS3SB_VERSION_BUILD;
+	default:
+		return -1;
 	}
 }
 
 
-const char * buildinfo_getBuildTarget()
+const char* buildinfo_getBuildTarget()
 {
 	return BUILD_TARGET;
 }
@@ -95,13 +100,13 @@ int buildinfo_getBuildNumber()
 }
 
 
-const char *buildinfo_getBuildDate()
+const char* buildinfo_getBuildDate()
 {
 	return __DATE__;
 }
 
 
-const char *buildinfo_getBuildTime()
+const char* buildinfo_getBuildTime()
 {
 	return __TIME__;
 }

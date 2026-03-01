@@ -14,18 +14,24 @@
 
 class SoundInfo
 {
-public:
+  public:
 	SoundInfo();
-	void readFromConfig(const QSettings &settings);
-	void saveToConfig(QSettings &settings) const;
+	void readFromConfig(const QSettings& settings);
+	void saveToConfig(QSettings& settings) const;
 	double getStartTime() const;
 	double getPlayTime() const;
 
 	static double getTimeUnitFactor(int unit);
-	bool customColorEnabled() const { return customColor.alpha() != 0; }
-	void setCustomColorEnabled(bool enabled) { customColor.setAlpha(enabled ? 255 : 0); }
+	bool customColorEnabled() const
+	{
+		return customColor.alpha() != 0;
+	}
+	void setCustomColorEnabled(bool enabled)
+	{
+		customColor.setAlpha(enabled ? 255 : 0);
+	}
 
-public:
+  public:
 	QString filename;
 	QString customText;
 	QColor customColor;
@@ -37,4 +43,3 @@ public:
 	int cropStopValue;
 	int cropStopUnit;
 };
-

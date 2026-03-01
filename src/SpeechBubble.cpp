@@ -15,7 +15,7 @@
 #include <QMouseEvent>
 #include <QTimer>
 
-SpeechBubble::SpeechBubble(QWidget *parent /*= 0*/) :
+SpeechBubble::SpeechBubble(QWidget* parent /*= 0*/) :
 	BaseClass(parent, Qt::FramelessWindowHint),
 	m_attach(nullptr),
 	m_tipHeight(25),
@@ -33,16 +33,16 @@ SpeechBubble::SpeechBubble(QWidget *parent /*= 0*/) :
 }
 
 
-void SpeechBubble::setText( const QString &text )
+void SpeechBubble::setText(const QString& text)
 {
 	m_text = text;
 }
 
 
-void SpeechBubble::paintEvent(QPaintEvent *evt)
+void SpeechBubble::paintEvent(QPaintEvent* evt)
 {
 	QPainter painter(this);
-	//painter.setRenderHint(QPainter::Antialiasing, false);
+	// painter.setRenderHint(QPainter::Antialiasing, false);
 
 	painter.setPen(QColor(0, 0, 0));
 	painter.setBrush(m_backgroundColor);
@@ -95,7 +95,7 @@ void SpeechBubble::paintEvent(QPaintEvent *evt)
 }
 
 
-void SpeechBubble::attachTo( QWidget *widget )
+void SpeechBubble::attachTo(QWidget* widget)
 {
 	m_attach = widget;
 	m_attach->installEventFilter(this);
@@ -103,7 +103,7 @@ void SpeechBubble::attachTo( QWidget *widget )
 }
 
 
-void SpeechBubble::setBackgroundColor(const QColor & color)
+void SpeechBubble::setBackgroundColor(const QColor& color)
 {
 	m_backgroundColor = color;
 	update();
@@ -124,30 +124,34 @@ void SpeechBubble::setBubbleStyle(bool bubbleStyle)
 }
 
 
-bool SpeechBubble::eventFilter(QObject *object, QEvent *evt)
+bool SpeechBubble::eventFilter(QObject* object, QEvent* evt)
 {
-	if(object == parent())
+	if (object == parent())
 	{
-		switch(evt->type())
+		switch (evt->type())
 		{
-			case QEvent::Move:
-			case QEvent::Resize:
-				recalcPos();
-				break;
-			case QEvent::Close:
-				close();
-				break;
-			case QEvent::Hide:
-				hide(); 
-				break;
-			case QEvent::Show:
-				QTimer::singleShot(0, this, [this](){
-					this->recalcPos(); 
-					this->show(); 
-				});
-				break;
-			default:
-				break;
+		case QEvent::Move:
+		case QEvent::Resize:
+			recalcPos();
+			break;
+		case QEvent::Close:
+			close();
+			break;
+		case QEvent::Hide:
+			hide();
+			break;
+		case QEvent::Show:
+			QTimer::singleShot(
+				0, this,
+				[this]()
+				{
+					this->recalcPos();
+					this->show();
+				}
+			);
+			break;
+		default:
+			break;
 		}
 	}
 
@@ -155,7 +159,7 @@ bool SpeechBubble::eventFilter(QObject *object, QEvent *evt)
 }
 
 
-void SpeechBubble::mouseReleaseEvent( QMouseEvent *evt )
+void SpeechBubble::mouseReleaseEvent(QMouseEvent* evt)
 {
 	if (!m_closable)
 		return;
@@ -169,14 +173,14 @@ void SpeechBubble::mouseReleaseEvent( QMouseEvent *evt )
 }
 
 
-void SpeechBubble::mouseMoveEvent( QMouseEvent *evt )
+void SpeechBubble::mouseMoveEvent(QMouseEvent* evt)
 {
 	if (!m_closable)
 		return;
 
 	if ((getCloseButtonRect() + QMargins(1, 1, 1, 1)).contains(evt->pos()))
 	{
-		if(!m_mouseOverCloseButton)
+		if (!m_mouseOverCloseButton)
 		{
 			m_mouseOverCloseButton = true;
 			repaint();
@@ -184,7 +188,7 @@ void SpeechBubble::mouseMoveEvent( QMouseEvent *evt )
 	}
 	else
 	{
-		if(m_mouseOverCloseButton)
+		if (m_mouseOverCloseButton)
 		{
 			m_mouseOverCloseButton = false;
 			repaint();
@@ -210,5 +214,3 @@ QRect SpeechBubble::getCloseButtonRect()
 	int xborder = 4;
 	return QRect(width() - xsize - xborder, m_tipHeight + xborder, xsize, xsize);
 }
-
-

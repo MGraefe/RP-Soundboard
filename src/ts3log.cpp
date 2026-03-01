@@ -13,13 +13,13 @@
 #include <string>
 
 
-void logMessage(const char *msg, LogLevel level,  ...)
+void logMessage(const char* msg, LogLevel level, ...)
 {
 	char buf[512];
 	va_list argptr;
 
 	va_start(argptr, level);
-    vsnprintf(buf, 512, msg, argptr);
+	vsnprintf(buf, 512, msg, argptr);
 	va_end(argptr);
 
 	ts3Functions.logMessage(buf, level, "SB", 0);
@@ -30,15 +30,15 @@ void logMessage(const char *msg, LogLevel level,  ...)
 #define logWarning(msg, ...) logMessage(msg, LogLevel_WARNING, __VA_ARGS__)
 
 
-UINT checkError(UINT code, const char *msg, ...)
+UINT checkError(UINT code, const char* msg, ...)
 {
-	if(code != ERROR_ok)
+	if (code != ERROR_ok)
 	{
 		char buf[512];
 		va_list argptr;
 
 		va_start(argptr, msg);
-        vsnprintf(buf, 512, msg, argptr);
+		vsnprintf(buf, 512, msg, argptr);
 		va_end(argptr);
 
 		ts3Functions.logMessage(buf, LogLevel_ERROR, "SB", 0);

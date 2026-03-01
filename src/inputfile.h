@@ -27,15 +27,19 @@ struct InputFileOptions
 	InputFileOptions() :
 		outputChannelLayout(STEREO),
 		outputSampleRate(48000)
-	{}
+	{
+	}
 
 	inline int getNumChannels() const
 	{
-		switch(outputChannelLayout)
+		switch (outputChannelLayout)
 		{
-		case MONO:   return 1;
-		case STEREO: return 2;
-		default: return 0;
+		case MONO:
+			return 1;
+		case STEREO:
+			return 2;
+		default:
+			return 0;
 		}
 	}
 };
@@ -43,14 +47,13 @@ struct InputFileOptions
 
 class InputFile : public SampleSource
 {
-public:
+  public:
 	virtual ~InputFile() {};
-	virtual int open(const char *filename, double startPosSeconds = 0.0, double playTimeSeconds = -1.0) = 0;
+	virtual int open(const char* filename, double startPosSeconds = 0.0, double playTimeSeconds = -1.0) = 0;
 	virtual int close() = 0;
 	virtual bool done() const = 0;
 	virtual int seek(double seconds) = 0;
 	virtual int64_t outputSamplesEstimation() const = 0;
 };
 
-extern InputFile *CreateInputFileFFmpeg(InputFileOptions options = InputFileOptions());
-
+extern InputFile* CreateInputFileFFmpeg(InputFileOptions options = InputFileOptions());

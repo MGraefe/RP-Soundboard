@@ -24,4 +24,3 @@ struct HighResClock
 #else
 typedef std::chrono::high_resolution_clock HighResClock;
 #endif
-
