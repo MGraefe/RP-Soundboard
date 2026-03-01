@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #include <QFrame>
 #include <QGridLayout>
 #include <QParallelAnimationGroup>

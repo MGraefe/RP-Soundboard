@@ -1,4 +1,4 @@
-﻿
+
 // Code posted by StackOverflow user 'x squared' here: http://stackoverflow.com/a/37119983/2416499
 // Someone also put his code into a github repository: https://github.com/Elypson/qt-collapsible-section
 // Slightly modified.

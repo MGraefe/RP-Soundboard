@@ -1,4 +1,4 @@
-﻿
+
 #include "common.h"
 #include "TalkStateManager.h"
 #include "ts3log.h"
