@@ -12,6 +12,7 @@
 #include <QSettings>
 
 #include "ConfigModel.h"
+#include "Theme.h"
 #include "main.h"
 #include "buildinfo.h"
 #include "plugin.h"
@@ -37,6 +38,7 @@ ConfigModel::ConfigModel()
 
 	m_activeConfig = 0;
 	m_nextUpdateCheck = 0;
+	m_themeMode = ThemeMode::System;
 }
 
 
@@ -75,6 +77,7 @@ void ConfigModel::readConfig(const QString& file)
 	m_showHotkeysOnButtons = settings.value("show_hotkeys_on_buttons", false).toBool();
 	m_hotkeysEnabled = settings.value("hotkeys_enabled", true).toBool();
 	m_nextUpdateCheck = settings.value("next_update_check", 0).toUInt();
+	m_themeMode = themeModeFromString(settings.value("theme_mode", "system").toString().toUtf8().constData());
 
 	notifyAllEvents();
 }
@@ -102,6 +105,7 @@ void ConfigModel::writeConfig(const QString& file)
 	settings.setValue("show_hotkeys_on_buttons", m_showHotkeysOnButtons);
 	settings.setValue("hotkeys_enabled", m_hotkeysEnabled);
 	settings.setValue("next_update_check", m_nextUpdateCheck);
+	settings.setValue("theme_mode", themeModeToString(m_themeMode));
 
 	for (int i = 0; i < NUM_CONFIGS; i++)
 		writeConfiguration(settings, i == 0 ? QString("files") : QString("files%1").arg(i + 1), m_sounds[i]);
@@ -378,6 +382,7 @@ void ConfigModel::notifyAllEvents()
 	notify(NOTIFY_SET_BUBBLE_COLS_BUILD, m_bubbleColsBuild);
 	notify(NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS, m_showHotkeysOnButtons);
 	notify(NOTIFY_SET_HOTKEYS_ENABLED, m_hotkeysEnabled);
+	notify(NOTIFY_SET_THEME_MODE, static_cast<int>(m_themeMode));
 }
 
 
@@ -386,4 +391,12 @@ void ConfigModel::setShowHotkeysOnButtons(bool show)
 	m_showHotkeysOnButtons = show;
 	writeConfig();
 	notify(NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS, show ? 1 : 0);
+}
+
+
+void ConfigModel::setThemeMode(ThemeMode mode)
+{
+	m_themeMode = mode;
+	writeConfig();
+	notify(NOTIFY_SET_THEME_MODE, static_cast<int>(mode));
 }

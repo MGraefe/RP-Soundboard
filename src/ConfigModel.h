@@ -12,6 +12,7 @@
 #include <vector>
 #include <array>
 #include "SoundInfo.h"
+#include "Theme.h"
 #include <QString>
 #include <memory>
 #include <set>
@@ -36,6 +37,7 @@ class ConfigModel
 		NOTIFY_SET_SHOW_HOTKEYS_ON_BUTTONS,
 		NOTIFY_SET_HOTKEYS_ENABLED,
 		NOTIFY_SET_NEXT_UPDATE_CHECK,
+		NOTIFY_SET_THEME_MODE,
 	};
 
 	class Observer
@@ -152,6 +154,12 @@ class ConfigModel
 	}
 	void setNextUpdateCheck(uint time);
 
+	ThemeMode getThemeMode() const
+	{
+		return m_themeMode;
+	}
+	void setThemeMode(ThemeMode mode);
+
   private:
 	std::vector<SoundInfo>& sounds()
 	{
@@ -183,4 +191,5 @@ class ConfigModel
 	bool m_hotkeysEnabled;
 
 	uint m_nextUpdateCheck;
+	ThemeMode m_themeMode;
 };

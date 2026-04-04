@@ -23,6 +23,7 @@
 
 #include "ui_MainWindow.h"
 #include "ConfigModel.h"
+#include "Theme.h"
 
 class SpeechBubble;
 class ExpandableSection;
@@ -89,9 +90,9 @@ class MainWindow : public QWidget
 	void onSetConfig();
 	void onConfigHotkey();
 
-
 	void onSaveModel();
 	void onLoadModel();
+	void onThemeButtonClicked();
 
   signals:
 	void hotkeyRecordedEvent(QString keyword, QString key);
@@ -112,6 +113,7 @@ class MainWindow : public QWidget
 	void openHotkeySetDialog(size_t buttonId);
 	void openButtonColorDialog(size_t buttonId);
 	QString unescapeCustomText(const QString& text);
+	void applyTheme(ThemeMode mode);
 
 	class ModelObserver : public ConfigModel::Observer
 	{
@@ -142,4 +144,5 @@ class MainWindow : public QWidget
 	QIcon m_playIcon;
 	std::array<QRadioButton*, NUM_CONFIGS> m_configRadioButtons;
 	std::array<QPushButton*, NUM_CONFIGS> m_configHotkeyButtons;
+	QPushButton* m_themeButton;
 };

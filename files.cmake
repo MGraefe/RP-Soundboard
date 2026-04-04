@@ -48,6 +48,8 @@ set(sources
 	src/SpeechBubble.h
 	src/TalkStateManager.cpp
 	src/TalkStateManager.h
+	src/Theme.cpp
+	src/Theme.h
 	src/ts3log.cpp
 	src/ts3log.h
 	src/UpdateChecker.cpp

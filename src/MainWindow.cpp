@@ -17,6 +17,7 @@
 
 #include "MainWindow.h"
 #include "ConfigModel.h"
+#include "Theme.h"
 #include "main.h"
 #include "SoundSettings.h"
 #include "ts3log.h"
@@ -58,6 +59,14 @@ MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	// setAttribute(Qt::WA_DeleteOnClose);
 
 	createConfigButtons();
+
+	m_themeButton = new QPushButton(this);
+	m_themeButton->setFixedSize(28, 28);
+	m_themeButton->setFlat(true);
+	m_themeButton->setToolTip("Toggle dark/light mode");
+	connect(m_themeButton, &QPushButton::clicked, this, &MainWindow::onThemeButtonClicked);
+	if (auto* settingsLayout = qobject_cast<QHBoxLayout*>(ui->settingsWidget->layout()))
+		settingsLayout->addWidget(m_themeButton);
 
 	settingsSection = new ExpandableSection("Settings", 200, this);
 	settingsSection->setContentLayout(*ui->settingsWidget->layout());
@@ -160,27 +169,7 @@ MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	/* Force configuration 0 */
 	setConfiguration(0);
 
-	ui->gridWidget->setStyleSheet(
-		"QPushButton {"
-		"  padding: 4px;"
-		"  border: 1px solid rgb(173, 173, 173);"
-		"  color: black;"
-		"  background-color: rgb(225, 225, 225);"
-		"}"
-		"QPushButton:disabled {"
-		"  background-color: rgb(204, 204, 204);"
-		"  border-color: rgb(191, 191, 191);"
-		"  color: rgb(120, 120, 120);"
-		"}"
-		"QPushButton:hover {"
-		"  background-color: rgb(228, 239, 249);"
-		"  border-color: rgb(11, 123, 212);"
-		"}"
-		"QPushButton:pressed {"
-		"  background-color: rgb(204, 228, 247);"
-		"  border-color: rgb(0, 85, 155);"
-		"}"
-	);
+	applyTheme(m_model->getThemeMode());
 }
 
 void MainWindow::setConfiguration(int cfg)
@@ -888,6 +877,23 @@ void MainWindow::onVolumeSliderContextMenuRemote(const QPoint& point)
 		ts3Functions.requestHotkeyInputDialog(getPluginID(), HOTKEY_VOLUME_DECREASE, 0, this);
 }
 
+void MainWindow::applyTheme(ThemeMode mode)
+{
+	bool dark = themeIsDark(mode);
+	setStyleSheet(dark ? darkThemeStylesheet() : lightThemeStylesheet());
+	ui->gridWidget->setStyleSheet(dark ? darkGridStylesheet() : lightGridStylesheet());
+	// Sun = click to switch to light; Moon = click to switch to dark
+	m_themeButton->setText(dark ? "\u2600" : "\U0001F319");
+}
+
+
+void MainWindow::onThemeButtonClicked()
+{
+	bool currentlyDark = themeIsDark(m_model->getThemeMode());
+	m_model->setThemeMode(currentlyDark ? ThemeMode::Light : ThemeMode::Dark);
+}
+
+
 void MainWindow::ModelObserver::notify(ConfigModel& model, ConfigModel::notifications_e what, int data)
 {
 	switch (what)
@@ -937,6 +943,9 @@ void MainWindow::ModelObserver::notify(ConfigModel& model, ConfigModel::notifica
 	case ConfigModel::NOTIFY_SET_HOTKEYS_ENABLED:
 		if (p.ui->cb_disable_hotkeys->isChecked() == model.getHotkeysEnabled())
 			p.ui->cb_disable_hotkeys->setChecked(!model.getHotkeysEnabled());
+		break;
+	case ConfigModel::NOTIFY_SET_THEME_MODE:
+		p.applyTheme(static_cast<ThemeMode>(data));
 		break;
 	default:
 		break;
