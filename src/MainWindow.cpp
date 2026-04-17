@@ -103,15 +103,15 @@ MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	actAdvancedOpts->setData((int)BC_ADVANCED);
 	m_buttonContextMenu.addAction(actAdvancedOpts);
 
-	actSetHotkey = new QAction("Set hotkey", this);
+	actSetHotkey = new QAction("Set Hotkey", this);
 	actSetHotkey->setData((int)BC_SET_HOTKEY);
 	m_buttonContextMenu.addAction(actSetHotkey);
 
-	QAction* actSetColor = new QAction("Set color", this);
+	QAction* actSetColor = new QAction("Set Color", this);
 	actSetColor->setData((int)BC_SET_COLOR);
 	m_buttonContextMenu.addAction(actSetColor);
 
-	QAction* actDeleteButton = new QAction("Make button great again (delete)", this);
+	QAction* actDeleteButton = new QAction("Danger: Reset Button", this);
 	actDeleteButton->setData((int)BC_DELETE);
 	m_buttonContextMenu.addAction(actDeleteButton);
 
