@@ -93,6 +93,7 @@ if (MSVC)
 	target_link_libraries(rp_soundboard ${avcodec} ${avformat} ${avutil} ${swresample})
 	target_link_libraries(rp_soundboard wsock32 ws2_32 secur32 Crypt32 Ncrypt Bcrypt) # some windows stuff
 	target_compile_options(rp_soundboard PRIVATE /MP) # multiprocessor compiling
+	target_compile_definitions(rp_soundboard PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
 else()
 	if(APPLE)
 		target_compile_definitions(rp_soundboard PRIVATE "MACOS")

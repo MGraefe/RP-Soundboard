@@ -16,6 +16,9 @@
 #include <QColorDialog>
 #include <QImage>
 #include <QPixmap>
+#include <QPainter>
+#include <QPainterPath>
+#include <cmath>
 
 #include "MainWindow.h"
 #include "ConfigModel.h"
@@ -57,6 +60,72 @@ static QPixmap recolorPixmapWhite(const QPixmap& source)
 }
 
 
+static QPixmap makeSunPixmap(int size, const QColor& color)
+{
+	const qreal dpr = 2.0;
+	QPixmap pixmap(static_cast<int>(size * dpr), static_cast<int>(size * dpr));
+	pixmap.setDevicePixelRatio(dpr);
+	pixmap.fill(Qt::transparent);
+
+	QPainter p(&pixmap);
+	p.setRenderHint(QPainter::Antialiasing);
+
+	const QPointF center(size / 2.0, size / 2.0);
+	const qreal bodyRadius = size * 0.22;
+	const qreal rayInner = size * 0.32;
+	const qreal rayOuter = size * 0.46;
+	const qreal rayWidth = std::max(1.2, size * 0.09);
+
+	p.setPen(Qt::NoPen);
+	p.setBrush(color);
+	p.drawEllipse(center, bodyRadius, bodyRadius);
+
+	QPen pen(color);
+	pen.setWidthF(rayWidth);
+	pen.setCapStyle(Qt::RoundCap);
+	p.setPen(pen);
+	constexpr qreal kQuarterPi = 0.7853981633974483;
+	for (int i = 0; i < 8; ++i)
+	{
+		const qreal angle = i * kQuarterPi;
+		const qreal c = std::cos(angle);
+		const qreal s = std::sin(angle);
+		p.drawLine(QPointF(center.x() + rayInner * c, center.y() + rayInner * s),
+			QPointF(center.x() + rayOuter * c, center.y() + rayOuter * s));
+	}
+
+	return pixmap;
+}
+
+
+static QPixmap makeMoonPixmap(int size, const QColor& color)
+{
+	const qreal dpr = 2.0;
+	QPixmap pixmap(static_cast<int>(size * dpr), static_cast<int>(size * dpr));
+	pixmap.setDevicePixelRatio(dpr);
+	pixmap.fill(Qt::transparent);
+
+	QPainter p(&pixmap);
+	p.setRenderHint(QPainter::Antialiasing);
+
+	const QPointF center(size / 2.0 + 2 , size / 2.0);
+	const qreal radius = size * 0.42;
+	const qreal cutDx = size * 0.35;
+	const qreal cutDy = size * -0.2;
+
+	QPainterPath full;
+	full.addEllipse(center, radius, radius);
+	QPainterPath cut;
+	cut.addEllipse(QPointF(center.x() + cutDx, center.y() + cutDy), radius, radius);
+
+	p.setPen(Qt::NoPen);
+	p.setBrush(color);
+	p.drawPath(full.subtracted(cut));
+
+	return pixmap;
+}
+
+
 MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	QWidget(parent),
 	ui(new Ui::MainWindow),
@@ -83,6 +152,7 @@ MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 
 	m_themeButton = new QPushButton(this);
 	m_themeButton->setFixedSize(28, 28);
+	m_themeButton->setIconSize(QSize(20, 20));
 	m_themeButton->setToolTip("Toggle dark/light mode");
 	connect(m_themeButton, &QPushButton::clicked, this, &MainWindow::onThemeButtonClicked);
 	ui->mainControlLineLayout->addWidget(m_themeButton);
@@ -903,10 +973,11 @@ void MainWindow::applyTheme(ThemeMode mode)
 	setStyleSheet(dark ? darkThemeStylesheet() : lightThemeStylesheet());
 	ui->gridWidget->setStyleSheet(dark ? darkGridStylesheet() : lightGridStylesheet());
 	// Sun = click to switch to light; Moon = click to switch to dark
-	m_themeButton->setText(dark ? "\u2600" : "\u263E");
-	m_themeButton->setStyleSheet(dark
-		? "QPushButton { color: #FFD000; font-size: 22px; }"
-		: "QPushButton { color: #444444; font-size: 22px; }");
+	const int iconSize = 20;
+	m_themeButton->setIcon(dark
+		? QIcon(makeSunPixmap(iconSize, QColor(255, 208, 0)))
+		: QIcon(makeMoonPixmap(iconSize, QColor(10, 29, 79))));
+	m_themeButton->setStyleSheet(QString());
 	if (!ui->playingIconLabel->isHidden())
 		setPlayingLabelIcon(playingIconIndex);
 }
