@@ -10,6 +10,8 @@
 
 #include <QString>
 
+class QWidget;
+
 enum class ThemeMode
 {
 	System = 0, // Follow OS (Windows only; falls back to Light on other platforms)
@@ -30,3 +32,6 @@ QString darkThemeStylesheet();
 // Returns the stylesheet for the sound button grid (gridWidget).
 QString lightGridStylesheet();
 QString darkGridStylesheet();
+
+// Applies the native title bar theme on Windows 10/11. No-op on other platforms.
+void applyWindowsTitleBarTheme(QWidget* widget, bool dark);

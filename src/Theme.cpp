@@ -10,6 +10,8 @@
 
 #include <cstring>
 
+#include <QWidget>
+
 
 const char* themeModeToString(ThemeMode mode)
 {
@@ -33,6 +35,7 @@ ThemeMode themeModeFromString(const char* str)
 
 #ifdef _WIN32
 #include <windows.h>
+#include <dwmapi.h>
 
 static bool windowsIsDarkMode()
 {
@@ -188,6 +191,28 @@ QString lightGridStylesheet()
 		"  background-color: rgb(204, 228, 247);"
 		"  border-color: rgb(0, 85, 155);"
 		"}";
+}
+
+
+void applyWindowsTitleBarTheme(QWidget* widget, bool dark)
+{
+#ifdef _WIN32
+	if (!widget)
+		return;
+
+	HWND hwnd = reinterpret_cast<HWND>(widget->winId());
+	BOOL value = dark ? TRUE : FALSE;
+
+	// DWMWA_USE_IMMERSIVE_DARK_MODE is 20 on Windows 10 20H1+ and Windows 11,
+	// but was 19 on earlier Windows 10 insider builds. Try the modern value first.
+	constexpr DWORD kImmersiveDarkMode = 20;
+	constexpr DWORD kImmersiveDarkModeOld = 19;
+	if (DwmSetWindowAttribute(hwnd, kImmersiveDarkMode, &value, sizeof(value)) != S_OK)
+		DwmSetWindowAttribute(hwnd, kImmersiveDarkModeOld, &value, sizeof(value));
+#else
+	(void)widget;
+	(void)dark;
+#endif
 }
 
 

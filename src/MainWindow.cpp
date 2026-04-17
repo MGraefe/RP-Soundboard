@@ -972,6 +972,7 @@ void MainWindow::applyTheme(ThemeMode mode)
 	bool dark = themeIsDark(mode);
 	setStyleSheet(dark ? darkThemeStylesheet() : lightThemeStylesheet());
 	ui->gridWidget->setStyleSheet(dark ? darkGridStylesheet() : lightGridStylesheet());
+	applyWindowsTitleBarTheme(window(), dark);
 	// Sun = click to switch to light; Moon = click to switch to dark
 	const int iconSize = 20;
 	m_themeButton->setIcon(dark
