@@ -56,8 +56,8 @@
     </widget>
    </item>
    <item>
-    <widget class="QFrame" name="horizontalFrame">
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
+    <widget class="QFrame" name="mainControlLine">
+     <layout class="QHBoxLayout" name="mainControlLineLayout">
       <property name="spacing">
        <number>6</number>
       </property>

@@ -65,8 +65,7 @@ MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	m_themeButton->setFlat(true);
 	m_themeButton->setToolTip("Toggle dark/light mode");
 	connect(m_themeButton, &QPushButton::clicked, this, &MainWindow::onThemeButtonClicked);
-	if (auto* settingsLayout = qobject_cast<QHBoxLayout*>(ui->settingsWidget->layout()))
-		settingsLayout->addWidget(m_themeButton);
+	ui->mainControlLineLayout->addWidget(m_themeButton);
 
 	settingsSection = new ExpandableSection("Settings", 200, this);
 	settingsSection->setContentLayout(*ui->settingsWidget->layout());
