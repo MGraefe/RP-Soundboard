@@ -145,4 +145,6 @@ class MainWindow : public QWidget
 	std::array<QRadioButton*, NUM_CONFIGS> m_configRadioButtons;
 	std::array<QPushButton*, NUM_CONFIGS> m_configHotkeyButtons;
 	QPushButton* m_themeButton;
+	std::array<QPixmap, 4> m_speakerPixmapsLight;
+	std::array<QPixmap, 4> m_speakerPixmapsDark;
 };

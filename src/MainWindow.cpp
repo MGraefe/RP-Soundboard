@@ -14,6 +14,8 @@
 #include <QMessageBox>
 #include <QPropertyAnimation>
 #include <QColorDialog>
+#include <QImage>
+#include <QPixmap>
 
 #include "MainWindow.h"
 #include "ConfigModel.h"
@@ -42,6 +44,19 @@ enum button_choices_e
 };
 
 
+static QPixmap recolorPixmapWhite(const QPixmap& source)
+{
+	QImage image = source.toImage().convertToFormat(QImage::Format_ARGB32);
+	for (int y = 0; y < image.height(); ++y)
+	{
+		QRgb* row = reinterpret_cast<QRgb*>(image.scanLine(y));
+		for (int x = 0; x < image.width(); ++x)
+			row[x] = qRgba(255, 255, 255, qAlpha(row[x]));
+	}
+	return QPixmap::fromImage(image);
+}
+
+
 MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	QWidget(parent),
 	ui(new Ui::MainWindow),
@@ -55,6 +70,12 @@ MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 	m_pauseIcon = QIcon(":/icon/img/pausebutton_32.png");
 	m_playIcon = QIcon(":/icon/img/playarrow_32.png");
 
+	for (int i = 0; i < 4; ++i)
+	{
+		m_speakerPixmapsLight[i] = QPixmap(QString(":/icon/img/speaker_icon_%1_64.png").arg(i));
+		m_speakerPixmapsDark[i] = recolorPixmapWhite(m_speakerPixmapsLight[i]);
+	}
+
 	ui->setupUi(this);
 	// setAttribute(Qt::WA_DeleteOnClose);
 
@@ -62,7 +83,6 @@ MainWindow::MainWindow(ConfigModel* model, QWidget* parent /*= 0*/) :
 
 	m_themeButton = new QPushButton(this);
 	m_themeButton->setFixedSize(28, 28);
-	m_themeButton->setFlat(true);
 	m_themeButton->setToolTip("Toggle dark/light mode");
 	connect(m_themeButton, &QPushButton::clicked, this, &MainWindow::onThemeButtonClicked);
 	ui->mainControlLineLayout->addWidget(m_themeButton);
@@ -431,7 +451,8 @@ void MainWindow::showButtonContextMenu(const QPoint& point)
 
 void MainWindow::setPlayingLabelIcon(int index)
 {
-	ui->playingIconLabel->setPixmap(QPixmap(QString(":/icon/img/speaker_icon_%1_64.png").arg(index)));
+	bool dark = themeIsDark(m_model->getThemeMode());
+	ui->playingIconLabel->setPixmap(dark ? m_speakerPixmapsDark[index] : m_speakerPixmapsLight[index]);
 }
 
 
@@ -882,7 +903,12 @@ void MainWindow::applyTheme(ThemeMode mode)
 	setStyleSheet(dark ? darkThemeStylesheet() : lightThemeStylesheet());
 	ui->gridWidget->setStyleSheet(dark ? darkGridStylesheet() : lightGridStylesheet());
 	// Sun = click to switch to light; Moon = click to switch to dark
-	m_themeButton->setText(dark ? "\u2600" : "\U0001F319");
+	m_themeButton->setText(dark ? "\u2600" : "\u263E");
+	m_themeButton->setStyleSheet(dark
+		? "QPushButton { color: #FFD000; font-size: 22px; }"
+		: "QPushButton { color: #444444; font-size: 22px; }");
+	if (!ui->playingIconLabel->isHidden())
+		setPlayingLabelIcon(playingIconIndex);
 }
 
 
