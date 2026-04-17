@@ -213,7 +213,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="labelVolumeRemote">
             <property name="text">
              <string>Volume Remote:</string>
             </property>
@@ -243,7 +243,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_5">
           <item>
-           <widget class="QLabel" name="label">
+           <widget class="QLabel" name="labelVolumeLocal">
             <property name="text">
              <string>Volume Local:</string>
             </property>
